@@ -21,6 +21,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AdminActivity"/>
+
+        <!-- Make sure to declare any other activities you have as well -->
+        <activity
+            android:name=".RequesterActivity"/>
+        <activity
+            android:name=".StorekeeperActivity"/>
+        <activity
+            android:name=".AssemblerActivity"/>
+
     </application>
 
 </manifest>
