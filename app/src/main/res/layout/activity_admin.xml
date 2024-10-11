@@ -9,7 +9,7 @@
         android:id="@+id/logInText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log In"
+        android:text="ADMIN"
         android:textColor="#060606"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
