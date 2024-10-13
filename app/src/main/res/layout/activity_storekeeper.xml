@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#D3D3D3"
-    tools:context=".AdminActivity">
+    tools:context=".AssemblerActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/topBanner"
@@ -39,7 +39,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Administrator Panel"
+                android:text="StoreKeeper Panel"
                 android:textColor="#060606"
                 android:textSize="18sp"
                 android:layout_gravity="center"
@@ -68,10 +68,10 @@
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
-        android:id="@+id/addRequesterButton"
+        android:id="@+id/viewStockButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Requester"
+        android:text="View Stock"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
@@ -84,38 +84,36 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
-        android:id="@+id/editButton"
+        android:id="@+id/addStockButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:text="Add Stock"
         android:backgroundTint="#4F4F4F"
-        android:padding="16dp"
-        android:text="Edit Requester"
-        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        android:padding="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/viewStockButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addRequesterButton" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
     <Button
-        android:id="@+id/removeRequesterButton"
+        android:id="@+id/removeStockButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:text="Remove Stock"
         android:backgroundTint="#4F4F4F"
-        android:padding="16dp"
-        android:text="Remove Requester"
-        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        android:padding="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/addStockButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editButton" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
     <Button
         android:id="@+id/logoutButton"
