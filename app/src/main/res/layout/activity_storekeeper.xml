@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/admin_main"
     android:background="#D3D3D3"
-    tools:context=".RequesterActivity">
+    tools:context=".AssemblerActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/topBanner"
@@ -59,66 +57,60 @@
     </androidx.cardview.widget.CardView>
 
     <ImageView
-        android:id="@+id/logoapp"
+        android:id="@+id/configuraImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="36dp"
-        android:scaleType="fitCenter"
         android:src="@drawable/configura"
-        app:layout_constraintBottom_toTopOf="@+id/cardView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintTop_toBottomOf="@id/topBanner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topBanner"
-        app:layout_constraintWidth_percent="0.9"
-        tools:ignore="UnknownIdInLayout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/manageUsersButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="View Stock"
+        android:backgroundTint="#4F4F4F"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/configuraImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <Button
+        android:id="@+id/viewReportsButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Stock"
+        android:backgroundTint="#4F4F4F"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/manageUsersButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#FF6347"
-        android:padding="16dp"
         android:text="Logout"
-        android:textAllCaps="false"
+        android:backgroundTint="#FF6347"
         android:textColor="@android:color/white"
+        android:padding="16dp"
         android:textStyle="bold"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="161dp"
-        tools:layout_editor_absoluteY="584dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="394dp"
-        tools:ignore="MissingConstraints">
-
-        <Button
-            android:id="@+id/manageUsersButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#4F4F4F"
-            android:padding="16dp"
-            android:text="View Stock"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white" />
-
-        <Button
-            android:id="@+id/viewReportsButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#4F4F4F"
-            android:padding="16dp"
-            android:text="Add Stock"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
-
-
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="20dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
