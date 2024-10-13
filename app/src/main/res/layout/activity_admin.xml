@@ -58,14 +58,14 @@
 
     <ImageView
         android:id="@+id/configuraImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="414dp"
+        android:layout_height="319dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/configura"
-        app:layout_constraintTop_toBottomOf="@id/topBanner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="1:1"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
         android:id="@+id/addButton"
@@ -84,6 +84,23 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
+        android:id="@+id/editButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="#4F4F4F"
+        android:padding="16dp"
+        android:text="Edit Requester"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/addButton" />
+
+    <Button
         android:id="@+id/removeButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -98,7 +115,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addButton" />
+        app:layout_constraintTop_toBottomOf="@id/editButton" />
 
     <Button
         android:id="@+id/logoutButton"

@@ -58,14 +58,14 @@
 
     <ImageView
         android:id="@+id/configuraImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="414dp"
+        android:layout_height="319dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/configura"
-        app:layout_constraintTop_toBottomOf="@id/topBanner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="1:1"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
         android:id="@+id/manageUsersButton"
