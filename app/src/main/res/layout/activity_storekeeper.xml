@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
-        android:id="@+id/manageUsersButton"
+        android:id="@+id/viewStockButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="View Stock"
@@ -84,7 +84,7 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
-        android:id="@+id/viewReportsButton"
+        android:id="@+id/addStockButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Add Stock"
@@ -92,7 +92,23 @@
         android:textColor="@android:color/white"
         android:padding="16dp"
         android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/manageUsersButton"
+        app:layout_constraintTop_toBottomOf="@id/viewStockButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <Button
+        android:id="@+id/removeStockButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Remove Stock"
+        android:backgroundTint="#4F4F4F"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/addStockButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
