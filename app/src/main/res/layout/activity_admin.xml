@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
-        android:id="@+id/addButton"
+        android:id="@+id/addRequesterButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Add Requester"
@@ -79,29 +79,13 @@
         app:layout_constraintTop_toBottomOf="@id/configuraImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"/>
 
-    <Button
-        android:id="@+id/editButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#4F4F4F"
-        android:padding="16dp"
-        android:text="Edit Requester"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addButton" />
 
     <Button
-        android:id="@+id/removeButton"
+        android:id="@+id/edit_delete_RequesterButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -109,13 +93,13 @@
         android:layout_marginEnd="16dp"
         android:backgroundTint="#4F4F4F"
         android:padding="16dp"
-        android:text="Remove Requester"
+        android:text="Edit/Delete Requester"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editButton" />
+        app:layout_constraintTop_toBottomOf="@id/addRequesterButton" />
 
     <Button
         android:id="@+id/logoutButton"
