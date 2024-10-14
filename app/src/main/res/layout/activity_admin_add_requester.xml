@@ -36,16 +36,19 @@
                 android:src="@drawable/uottawalogo"
                 android:layout_gravity="start" />
 
+            <!-- Modified TextView -->
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Administrator Panel"
-                android:textColor="#060606"
-                android:textSize="18sp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textStyle="bold"/>
+                android:text="Admin Dashboard" <!-- New text -->
+            android:textColor="#0000FF" <!-- Blue color -->
+            android:textSize="20sp" <!-- Increased size -->
+            android:textStyle="bold"
+            android:background="#FFC0CB" <!-- Light pink background -->
+            />
 
             <ImageView
                 android:id="@+id/uOttawaLogoRight"
@@ -117,8 +120,6 @@
                 android:textColorHint="@android:color/darker_gray"
                 android:textSize="15dp" />
 
-
-
             <EditText
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
@@ -147,6 +148,22 @@
                 android:textColorHint="@android:color/darker_gray"
                 android:textSize="15dp" />
 
+            <!-- Box for Current Date and Time -->
+            <EditText
+                android:id="@+id/currentDateTimeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="39dp"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="#000000"
+                android:drawableStart="@drawable/ic_clock"
+                android:drawablePadding="5dp"
+                android:hint="Current Date and Time"
+                android:inputType="text"
+                android:padding="4dp"
+                android:textColorHint="@android:color/darker_gray"
+                android:textSize="15dp"
+                android:focusable="false" />
+
             <Button
                 android:id="@+id/addRequesterButton"
                 android:layout_width="152dp"
@@ -158,7 +175,6 @@
                 android:text="Add "
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
