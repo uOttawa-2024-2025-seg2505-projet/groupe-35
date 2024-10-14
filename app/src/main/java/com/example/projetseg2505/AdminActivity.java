@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,7 +26,7 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-//bouton logout
+        // bouton logout
         logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,9 +38,8 @@ public class AdminActivity extends AppCompatActivity {
             }
         });
 
-
+        // bouton remove requester
         removeRequesterButton = findViewById(R.id.removeRequesterButton);
-
         removeRequesterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,15 +49,19 @@ public class AdminActivity extends AppCompatActivity {
                 // Référence à la base de données Firebase
                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("User");
 
-                // Récupérer le bouton de confirmation et l'EditText pour l'email
+                // Récupérer le bouton de confirmation, l'EditText pour l'email, et le TextView pour les erreurs
                 EditText emailDeleteEditText = findViewById(R.id.input_email_delete);
                 Button confirmDeleteButton = findViewById(R.id.confirm_delete_button);
+                TextView errorTextView = findViewById(R.id.errorTextView);  // Récupérer le TextView pour les erreurs
 
                 // Listener pour le bouton de suppression
                 confirmDeleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String emailToDelete = emailDeleteEditText.getText().toString().trim();
+
+                        // Réinitialiser le TextView d'erreur
+                        errorTextView.setVisibility(View.GONE);
 
                         if (!emailToDelete.isEmpty()) {
                             // Méthode pour supprimer un utilisateur en fonction de l'email
@@ -68,34 +70,41 @@ public class AdminActivity extends AppCompatActivity {
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.exists()) {
                                         for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                            // Supprimer l'utilisateur trouvé
-                                            userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                                                Toast.makeText(AdminActivity.this, "Utilisateur supprimé avec succès", Toast.LENGTH_SHORT).show();
-                                            }).addOnFailureListener(e -> {
-                                                Toast.makeText(AdminActivity.this, "Erreur lors de la suppression: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
+                                            // Vérifier si le userType est "requester"
+                                            String userType = userSnapshot.child("userType").getValue(String.class);
+                                            if ("requester".equals(userType)) {
+                                                // Supprimer l'utilisateur si c'est un requester
+                                                userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                                                    Toast.makeText(AdminActivity.this, "Requester supprimé avec succès", Toast.LENGTH_SHORT).show();
+                                                }).addOnFailureListener(e -> {
+                                                    errorTextView.setText("Erreur lors de la suppression: " + e.getMessage());
+                                                    errorTextView.setVisibility(View.VISIBLE);
+                                                });
+                                            } else {
+                                                // Afficher le message dans le TextView si l'utilisateur n'est pas un requester
+                                                errorTextView.setText("This user is not a requester");
+                                                errorTextView.setVisibility(View.VISIBLE);
+                                            }
                                         }
                                     } else {
-                                        Toast.makeText(AdminActivity.this, "Aucun utilisateur trouvé avec cet email", Toast.LENGTH_SHORT).show();
+                                        errorTextView.setText("Aucun utilisateur trouvé avec cet email");
+                                        errorTextView.setVisibility(View.VISIBLE);
                                     }
                                 }
 
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-                                    Toast.makeText(AdminActivity.this, "Erreur: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                    errorTextView.setText("Erreur: " + databaseError.getMessage());
+                                    errorTextView.setVisibility(View.VISIBLE);
                                 }
                             });
                         } else {
-                            Toast.makeText(AdminActivity.this, "Veuillez entrer un email", Toast.LENGTH_SHORT).show();
+                            errorTextView.setText("Veuillez entrer un email");
+                            errorTextView.setVisibility(View.VISIBLE);
                         }
                     }
                 });
             }
         });
-
-
     }
-
-
-
 }
