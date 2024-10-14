@@ -7,7 +7,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AssemblerActivity extends AppCompatActivity {
+public class   AssemblerActivity extends AppCompatActivity {
 
     private Button logoutButton;
 

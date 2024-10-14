@@ -30,4 +30,29 @@
         app:layout_constraintTop_toBottomOf="@+id/input_email_delete"
         tools:ignore="MissingConstraints" />
 
+    <!-- TextView pour les messages d'erreur -->
+    <TextView
+        android:id="@+id/errorTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/confirm_delete_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="center"
+        tools:layout_editor_absoluteY="400dp"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="#CF1313"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        app:layout_constraintTop_toBottomOf="@+id/errorTextView"
+        android:gravity="center" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
