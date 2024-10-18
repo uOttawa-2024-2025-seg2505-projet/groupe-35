@@ -4,9 +4,17 @@ Vous retrouverez le fichier APK, README et les fichiers concernant le diagramme 
 Nous avons également utilisé la base de donnée FireBase
 
 
-premier login (administrator) :
-    email : oth@gmail.com
-    password : mdp
+login (administrator) :
+    email : admin@gmail.com
+    password : admin
+
+login (StoreKeeper) :
+    email : storekeeper@gmail.com
+    password : storekeeper
+
+login (Assembler) :
+    email : assembler@gmail.com
+    password : assembler
 
 
 

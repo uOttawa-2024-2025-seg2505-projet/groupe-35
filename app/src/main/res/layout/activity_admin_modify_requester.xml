@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:elevation="2dp">
+
+        <!-- Adresse électronique pour charger l'utilisateur -->
+        <EditText
+            android:id="@+id/input_email_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Entrer l'email pour charger l'utilisateur"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Bouton pour charger les données -->
+        <Button
+            android:id="@+id/load_user_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Charger l'utilisateur"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="@android:color/white" />
+
+        <!-- Champs pour les informations modifiables -->
+        <EditText
+            android:id="@+id/input_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Prénom (modifiable)"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="12dp"
+            android:enabled="false" />
+
+        <EditText
+            android:id="@+id/input_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom de famille (modifiable)"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="12dp"
+            android:enabled="false" />
+
+        <EditText
+            android:id="@+id/input_email_modify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email (modifiable)"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp"
+            android:enabled="false" />
+
+        <EditText
+            android:id="@+id/input_password_modify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mot de passe (modifiable)"
+            android:inputType="textPassword"
+            android:layout_marginBottom="12dp"
+            android:enabled="false" />
+
+        <!-- Bouton pour enregistrer les modifications -->
+        <Button
+            android:id="@+id/save_modifications_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enregistrer les modifications"
+            android:padding="16dp"
+            android:backgroundTint="#FF9800"
+            android:textColor="@android:color/white"
+            android:enabled="false" />
+    </LinearLayout>
+</ScrollView>

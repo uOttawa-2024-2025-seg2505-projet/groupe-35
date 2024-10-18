@@ -23,7 +23,7 @@ import java.util.Locale;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private Button addRequesterButton, editDeleteRequesterButton, logoutButton, applyChangesButton, deleteRequesterButton;
+    private Button sendToAddRequesterLayoutButton, editDeleteRequesterButton, logoutButton, applyChangesButton, deleteRequesterButton;
     private EditText emailEditText, firstNameEditText, lastNameEditText, passwordEditText;
     private DatabaseReference databaseReference;
 
@@ -43,7 +43,7 @@ public class AdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin);  // Charger le layout admin principal
 
         // Initialisation des vues pour le premier layout (admin panel)
-        addRequesterButton = findViewById(R.id.addRequesterButton);
+        sendToAddRequesterLayoutButton = findViewById(R.id.sendToAddRequesterLayoutButton);
         editDeleteRequesterButton = findViewById(R.id.edit_deleteButton);
         logoutButton = findViewById(R.id.logoutButton);
         emailEditText = findViewById(R.id.emailEditText);
@@ -71,7 +71,7 @@ public class AdminActivity extends AppCompatActivity {
         });
 
 
-        addRequesterButton.setOnClickListener(new View.OnClickListener() {
+        sendToAddRequesterLayoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Change le layout pour afficher celui de addrequester
