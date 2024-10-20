@@ -76,6 +76,7 @@
             android:orientation="vertical"
             android:padding="25dp">
 
+
             <Button
                 android:id="@+id/sendToAddRequesterLayoutButton"
                 android:layout_width="match_parent"
@@ -101,8 +102,17 @@
                 android:textColorHint="@android:color/darker_gray"
                 android:textSize="15dp" />
 
+            <TextView
+                android:id="@+id/errorTextEmailInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
             <Button
-                android:id="@+id/edit_deleteButton"
+                android:id="@+id/senToEditDeleteRequesterButton"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:layout_marginTop="10dp"
@@ -120,9 +130,11 @@
         android:id="@+id/configuraImage"
         android:layout_width="414dp"
         android:layout_height="319dp"
+        android:layout_marginTop="36dp"
         android:src="@drawable/configura"
-        tools:layout_editor_absoluteX="4dp"
-        tools:layout_editor_absoluteY="94dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topBanner"
         tools:ignore="MissingConstraints" />
 
     <Button

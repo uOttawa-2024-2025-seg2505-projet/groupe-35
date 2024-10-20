@@ -89,6 +89,7 @@
                 android:textColor="#060606"
                 android:textSize="17dp" />
 
+
             <EditText
                 android:id="@+id/firstNameEditText"
                 android:layout_width="match_parent"
