@@ -85,25 +85,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Add Requester"
+                android:text="Edit/Delete Requester"
                 android:textColor="#060606"
-                android:textSize="17dp"/>
+                android:textSize="17dp" />
 
-
-            <TextView
-                android:id="@+id/textAddedRequester"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="14sp"
-                android:visibility="gone" />
 
             <EditText
-                android:id="@+id/firstNameNewRequester"
+                android:id="@+id/firstNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="39dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="40dp"
                 android:backgroundTint="#000000"
                 android:drawableStart="@drawable/ic_user"
                 android:drawablePadding="5dp"
@@ -114,7 +105,7 @@
                 android:textSize="15dp" />
 
             <EditText
-                android:id="@+id/lastNameNewRequester"
+                android:id="@+id/lastNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="39dp"
                 android:layout_marginTop="5dp"
@@ -127,10 +118,8 @@
                 android:textColorHint="@android:color/darker_gray"
                 android:textSize="15dp" />
 
-
-
             <EditText
-                android:id="@+id/emailNewRequester"
+                android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="39dp"
                 android:layout_marginTop="5dp"
@@ -144,7 +133,7 @@
                 android:textSize="15dp" />
 
             <EditText
-                android:id="@+id/passwordNewRequester"
+                android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="39dp"
                 android:layout_marginTop="5dp"
@@ -157,24 +146,27 @@
                 android:textColorHint="@android:color/darker_gray"
                 android:textSize="15dp" />
 
-            <TextView
-                android:id="@+id/errorTextAddRequester"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="14sp"
-                android:visibility="gone" />
+            <Button
+                android:id="@+id/applyRequesterButton"
+                android:layout_width="152dp"
+                android:layout_height="45dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:backgroundTint="#040404"
+                android:padding="1dp"
+                android:text="Apply Changes"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/addRequesterButton"
                 android:layout_width="152dp"
                 android:layout_height="45dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="1dp"
                 android:backgroundTint="#040404"
                 android:padding="1dp"
-                android:text="Add "
+                android:text="Delete"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
