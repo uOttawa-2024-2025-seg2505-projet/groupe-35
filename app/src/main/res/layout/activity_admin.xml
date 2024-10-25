@@ -56,6 +56,16 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <ImageView
+        android:id="@+id/configuraImage"
+        android:layout_width="0dp"
+        android:layout_height="319dp"
+        android:layout_marginTop="36dp"
+        android:src="@drawable/configura"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topBanner" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/encapsulatedCard"
         android:layout_width="0dp"
@@ -75,7 +85,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="25dp">
-
 
             <Button
                 android:id="@+id/sendToAddRequesterLayoutButton"
@@ -125,23 +134,23 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-
-    <ImageView
-        android:id="@+id/configuraImage"
-        android:layout_width="414dp"
-        android:layout_height="319dp"
-        android:layout_marginTop="36dp"
-        android:src="@drawable/configura"
+    <Button
+        android:id="@+id/addFromJsonButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="AddromJSON"
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.432"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topBanner"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/encapsulatedCard" />
 
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="4dp"
         android:backgroundTint="#FF6347"
         android:padding="16dp"
         android:text="Logout"
@@ -150,7 +159,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

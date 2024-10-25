@@ -1,7 +1,9 @@
 package com.example.projetseg2505;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,16 +18,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class AdminActivity extends AppCompatActivity {
 
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton;
+    private Button addRequesterButton, addFromJsonButton;
     private DatabaseReference databaseRef;
     private TextView errorTextAddRequester, textAddedRequester;
 
@@ -52,11 +63,24 @@ public class AdminActivity extends AppCompatActivity {
         logoutButton = findViewById(R.id.logoutButton);
         emailEditText = findViewById(R.id.emailEditText);
         errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
+        addFromJsonButton = findViewById(R.id.addFromJsonButton);
+
+        // Firebase reference initialization
+        databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
+        databaseReference = FirebaseDatabase.getInstance().getReference("User");
 
         // Log Out functionality
         logoutButton.setOnClickListener(v -> finish());
 
-        // ADD a requester
+        // ADD requesters from JSON
+        addFromJsonButton.setOnClickListener(view -> {
+            // Appel de la méthode pour charger les requesters depuis le fichier JSON
+
+            loadRequestersFromJson(view.getContext(), "requesters.json");
+
+        });
+
+        // ADD a requester manually
         sendToAddRequesterLayoutButton.setOnClickListener(v -> {
             // Switch to the Add Requester layout
             setContentView(R.layout.activity_admin_add_requester);
@@ -69,8 +93,6 @@ public class AdminActivity extends AppCompatActivity {
             addRequesterButton = findViewById(R.id.addRequesterButton);
             errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
             textAddedRequester = findViewById(R.id.textAddedRequester);
-
-            databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
 
             addRequesterButton.setOnClickListener(view -> {
                 String passwordNewRequesterString = passwordNewRequester.getText().toString();
@@ -120,9 +142,6 @@ public class AdminActivity extends AppCompatActivity {
                 }
             });
         });
-
-        // Firebase reference
-        databaseReference = FirebaseDatabase.getInstance().getReference("User");
 
         // Requester Search and sending to edit/delete layout
         senToEditDeleteRequesterButton.setOnClickListener(v -> {
@@ -264,4 +283,78 @@ public class AdminActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Lire un fichier JSON
+    public String readJsonFile(Context context, String fileName) {
+        StringBuilder jsonContent = new StringBuilder();
+        try {
+            InputStream inputStream = context.getAssets().open(fileName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonContent.toString();
+    }
+
+    // Charger les requesters du fichier JSON
+    public void loadRequestersFromJson(Context context, String fileName) {
+        try {
+            // Lire le fichier JSON
+            String jsonString = readJsonFile(context, fileName);
+            JSONObject jsonObject = new JSONObject(jsonString);  // C'est un objet JSON, pas un tableau
+
+            // Récupérer la section "User"
+            JSONObject usersObject = jsonObject.getJSONObject("User");
+
+            // Parcourir chaque utilisateur
+            for (Iterator<String> it = usersObject.keys(); it.hasNext();) {
+                String key = it.next();
+                JSONObject userObject = usersObject.getJSONObject(key);
+
+                // Extraire les informations du JSON
+                String emailNewRequesterString = userObject.getString("email");
+                String passwordNewRequesterString = userObject.getString("password");
+                String firstNameNewRequesterString = userObject.getString("first name");
+                String lastNameNewRequesterString = userObject.getString("last name");
+                String userType = userObject.getString("userType");
+
+                // Vérification sans collision avant d'ajouter dans la base
+                databaseRef.child(emailNewRequesterString.replace(".", ",")).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult().exists()) {
+                        // Si le requester existe déjà, ne pas l'ajouter
+                        Log.d("Firebase", "Collision détectée pour le requester avec l'email : " + emailNewRequesterString);
+                    } else {
+                        // Ajouter le requester s'il n'existe pas
+                        HashMap<String, String> hashMap = new HashMap<>();
+                        hashMap.put("email", emailNewRequesterString);
+                        hashMap.put("password", passwordNewRequesterString);
+                        hashMap.put("userType", userType);
+                        hashMap.put("first name", firstNameNewRequesterString);
+                        hashMap.put("last name", lastNameNewRequesterString);
+                        hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+                        hashMap.put("date of the last modification", userObject.optString("last modification", "")); // Optionnel
+
+                        databaseRef.child(emailNewRequesterString.replace(".", ",")).setValue(hashMap)
+                                .addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        Log.d("Firebase", "Requester ajouté avec succès : " + emailNewRequesterString);
+                                        Toast.makeText(AdminActivity.this, "Requesters added successfully", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.e("Firebase", "Erreur lors de l'ajout du requester : " + emailNewRequesterString);
+                                    }
+                                });
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+}
 }
