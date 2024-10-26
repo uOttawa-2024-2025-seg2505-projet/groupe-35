@@ -46,6 +46,7 @@ public class AdminActivity extends AppCompatActivity {
     private Button sendToAddRequesterLayoutButton, senToEditDeleteRequesterButton, logoutButton, applyChangesButton, deleteRequesterButton;
     private EditText emailEditText, firstNameEditText, lastNameEditText, passwordEditText;
     private DatabaseReference databaseReference;
+    private View clearDatabaseButton;
 
     // Found requester details
     private String foundFirstName, foundLastName, foundEmail, foundPassword;
@@ -68,6 +69,15 @@ public class AdminActivity extends AppCompatActivity {
         // Firebase reference initialization
         databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
         databaseReference = FirebaseDatabase.getInstance().getReference("User");
+        clearDatabaseButton = findViewById(R.id.button_clear_database);
+        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearRequesters(); // Appeler la méthode pour vider tous les requesters
+                clearSoftwareComponents();
+                clearHardwareComponents();
+            }
+        });
 
         // Log Out functionality
         logoutButton.setOnClickListener(v -> finish());
