@@ -288,6 +288,147 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
+    public void clearRequesters() {
+        // Références à la base de données
+        DatabaseReference requesterRef = FirebaseDatabase.getInstance().getReference("User");
+
+        // Lire tous les requesters
+        requesterRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                        // Vérifier si le userType est 'requester'
+                        String userType = userSnapshot.child("userType").getValue(String.class);
+                        if ("requester".equals(userType)) {
+                            userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                                Log.d("AdminActivity", "Requester deleted: " + userSnapshot.getKey());
+                            }).addOnFailureListener(e -> {
+                                Log.e("AdminActivity", "Failed to delete requester: " + e.getMessage());
+                            });
+                        }
+                    }
+                    Toast.makeText(AdminActivity.this, "Tous les requesters ont été supprimés avec succès.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AdminActivity.this, "Aucun requester à supprimer.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("AdminActivity", "Error while checking requesters: " + databaseError.getMessage());
+            }
+        });
+    }
+
+
+    // Méthode séparée pour supprimer les composants logiciels
+    private void clearSoftwareComponents() {
+        DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components").child("Software");
+
+        componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot softwareSnapshot) {
+                if (softwareSnapshot.exists()) {
+                    for (DataSnapshot softwareComponent : softwareSnapshot.getChildren()) {
+                        String subType = softwareComponent.child("subType").getValue(String.class);
+                        if ("processeur".equals(subType) || "carte mère".equals(subType)) {
+                            softwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                                Log.d("AdminActivity", "Software component deleted: " + softwareComponent.getKey());
+                            }).addOnFailureListener(e -> {
+                                Log.e("AdminActivity", "Failed to delete software component: " + e.getMessage());
+                            });
+
+                            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
+                            DatabaseReference softwareRef = componentsRef.child("Software");
+
+                            // Utilisez une clé fixe "status" pour le nouveau composant
+                            String softwareId = "status"; // Clé fixe
+
+                            // Créer un HashMap pour stocker les détails du logiciel
+                            HashMap<String, String> softwareDetails = new HashMap<>();
+                            softwareDetails.put("status", "le stockage de software:");
+                            // Vous pouvez ajouter d'autres attributs ici
+
+                            // Ajouter le logiciel à la base de données
+                            softwareRef.child(softwareId).setValue(softwareDetails)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("AdminActivity", "Software component added successfully: " + softwareId);
+                                        Toast.makeText(AdminActivity.this, "Composant Software ajouté avec succès.", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("AdminActivity", "Failed to add software component: " + e.getMessage());
+                                        Toast.makeText(AdminActivity.this, "Erreur lors de l'ajout du composant Software: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    }
+                    Toast.makeText(AdminActivity.this, "Tous les composants Software ont été supprimés.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("AdminActivity", "No software components found.");
+                    Toast.makeText(AdminActivity.this, "Aucun composant Software à supprimer.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("AdminActivity", "Error while checking software components: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void clearHardwareComponents() {
+        DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components").child("Hardware");
+
+        componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot hardwareSnapshot) {
+                if (hardwareSnapshot.exists()) {
+                    for (DataSnapshot hardwareComponent : hardwareSnapshot.getChildren()) {
+                        String subType = hardwareComponent.child("subType").getValue(String.class);
+                        if ("boitier".equals(subType) ) {
+                            hardwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                                Log.d("AdminActivity", "Hardware component deleted: " + hardwareComponent.getKey());
+                            }).addOnFailureListener(e -> {
+                                Log.e("AdminActivity", "Failed to delete Hardware component: " + e.getMessage());
+                            });
+
+                            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
+                            DatabaseReference hardwareRef = componentsRef.child("Hardware");
+
+                            // Utilisez une clé fixe "status" pour le nouveau composant
+                            String hardwareId = "status"; // Clé fixe
+
+                            // Créer un HashMap pour stocker les détails du logiciel
+                            HashMap<String, String> hardwareDetails = new HashMap<>();
+                            hardwareDetails.put("status", "le stockage de Hardware:");
+                            // Vous pouvez ajouter d'autres attributs ici
+
+                            // Ajouter le logiciel à la base de données
+                            hardwareRef.child(hardwareId).setValue(hardwareDetails)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("AdminActivity", "Hardware component added successfully: " + hardwareId);
+                                        Toast.makeText(AdminActivity.this, "Composant Software ajouté avec succès.", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage());
+                                        Toast.makeText(AdminActivity.this, "Erreur lors de l'ajout du composant Hardware: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    }
+                    Toast.makeText(AdminActivity.this, "Tous les composants Software ont été supprimés.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("AdminActivity", "No software components found.");
+                    Toast.makeText(AdminActivity.this, "Aucun composant Software à supprimer.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("AdminActivity", "Error while checking hardware components: " + databaseError.getMessage());
+            }
+        });
+    }
+
     // Lire un fichier JSON
     public String readJsonFile(Context context, String fileName) {
         StringBuilder jsonContent = new StringBuilder();
