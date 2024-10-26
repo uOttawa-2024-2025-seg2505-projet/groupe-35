@@ -1,0 +1,102 @@
+{
+  "Components": {
+    "Hardware": {
+      "boitier": {
+        "comment": "c'est un boitier",
+        "dateTimeCreation": "20-10-2024 23:32:30",
+        "dateTimeModification": "22-10-2024 21:20:36",
+        "description": "XYZ500",
+        "quantity": 12,
+        "subType": "boitier",
+        "type": "Hardware"
+      }
+    },
+    "Software": {
+      "processeur": {
+        "comment": "",
+        "dateTimeCreation": "20-10-2024 23:33:35",
+        "dateTimeModification": "",
+        "description": "Inteli7",
+        "quantity": 26,
+        "subType": "processeur",
+        "type": "Software"
+      }
+    }
+  },
+  "User": {
+    "Admin": {
+      "email": "admin@gmail.com",
+      "first name": "AdminFirst",
+      "last name": "AdminLast",
+      "password": "admin",
+      "userType": "admin"
+    },
+    "Assembler": {
+      "email": "assembler@gmail.com",
+      "first name": "AssemblerFirst",
+      "last name": "AssemblerLast",
+      "password": "assembler",
+      "userType": "assembler"
+    },
+    "StoreKeeper": {
+      "email": "storekeeper@gmail.com",
+      "first name": "StorekeeperFirst",
+      "last name": "StorekeeperLast",
+      "password": "storekeeper",
+      "userType": "storekeeper"
+    },
+    "fff": {
+      "date of creation": "19-10-2024 23:57:08",
+      "date of the last modification": "",
+      "email": "fff",
+      "first name": "",
+      "last name": "",
+      "password": "ff",
+      "userType": "requester"
+    },
+    "firstrequester@gmail,com": {
+      "email": "firstrequester@gmail.com",
+      "first name": "fistrequesterFirst",
+      "last modification": "18-10-2024 21:20:47",
+      "last name": "firstrequesterLast",
+      "password": "requester",
+      "userType": "requester"
+    },
+    "r": {
+      "date of creation": "19-10-2024 23:24:12",
+      "date of the last modification": "",
+      "email": "r",
+      "first name": "",
+      "last name": "",
+      "password": "r",
+      "userType": "requester"
+    },
+    "x": {
+      "date of creation": "19-10-2024 23:17:57",
+      "date of the last modification": "",
+      "email": "x",
+      "first name": "",
+      "last name": "",
+      "password": "x",
+      "userType": "requester"
+    },
+    "z": {
+      "date of creation": "19-10-2024 23:22:34",
+      "date of the last modification": "",
+      "email": "z",
+      "first name": "",
+      "last name": "",
+      "password": "z",
+      "userType": "requester"
+    },
+    "zz": {
+      "date of creation": "19-10-2024 23:44:44",
+      "date of the last modification": "",
+      "email": "zz",
+      "first name": "",
+      "last name": "",
+      "password": "z",
+      "userType": "requester"
+    }
+  }
+}

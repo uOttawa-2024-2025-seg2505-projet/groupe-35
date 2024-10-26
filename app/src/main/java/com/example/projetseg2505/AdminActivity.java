@@ -18,7 +18,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +35,7 @@ public class AdminActivity extends AppCompatActivity {
 
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton, addFromJsonButton;
+    private Button addRequesterButton, addFromJsonButton, addStockFromJsonButton;
     private DatabaseReference databaseRef;
     private TextView errorTextAddRequester, textAddedRequester;
 
@@ -64,6 +63,7 @@ public class AdminActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
         addFromJsonButton = findViewById(R.id.addFromJsonButton);
+        addStockFromJsonButton = findViewById(R.id.addStockFromJsonButton);
 
         // Firebase reference initialization
         databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
@@ -75,8 +75,12 @@ public class AdminActivity extends AppCompatActivity {
         // ADD requesters from JSON
         addFromJsonButton.setOnClickListener(view -> {
             // Appel de la méthode pour charger les requesters depuis le fichier JSON
+            loadRequestersFromJson(view.getContext(), "requester.json");
+        });
 
-            loadRequestersFromJson(view.getContext(), "requesters.json");
+        addStockFromJsonButton.setOnClickListener(view -> {
+            // Appel de la méthode pour charger les requesters depuis le fichier JSON
+            loadStockFromJson(view.getContext(), "requester.json");
 
         });
 
@@ -312,7 +316,7 @@ public class AdminActivity extends AppCompatActivity {
             JSONObject usersObject = jsonObject.getJSONObject("User");
 
             // Parcourir chaque utilisateur
-            for (Iterator<String> it = usersObject.keys(); it.hasNext();) {
+            for (Iterator<String> it = usersObject.keys(); it.hasNext(); ) {
                 String key = it.next();
                 JSONObject userObject = usersObject.getJSONObject(key);
 
@@ -354,7 +358,94 @@ public class AdminActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
+    private void loadStockFromJson(Context context, String fileName) {
 
-}
+        try {
+            // Lire le fichier JSON
+            String jsonString = readJsonFile(context, fileName);
+            JSONObject jsonObject = new JSONObject(jsonString);  // C'est un objet JSON, pas un tableau
+
+            // Récupérer la section "Components"
+            JSONObject components = jsonObject.getJSONObject("Components");
+
+            // Référence vers la base de données Firebase pour le stock
+            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
+
+            // Charger les composants hardware
+            JSONObject hardwareComponents = components.getJSONObject("Hardware");
+            for (Iterator<String> it = hardwareComponents.keys(); it.hasNext();) {
+                String key = it.next();
+                JSONObject component = hardwareComponents.getJSONObject(key);
+
+                // Utiliser un HashMap pour stocker les détails du composant hardware
+                HashMap<String, Object> hardwareDetails = new HashMap<>();
+                for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
+                    String compKey = compKeys.next();
+                    hardwareDetails.put(compKey, component.get(compKey));
+                }
+
+                // Vérifier la collision pour hardware et mettre à jour si non présent
+                componentsRef.child("Hardware").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            // Ajouter le composant s'il n'existe pas déjà
+                            componentsRef.child("Hardware").child(key).setValue(hardwareDetails)
+                                    .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Hardware component added: " + key))
+                                    .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage()));
+                        } else {
+                            Log.d("AdminActivity", "Hardware component already exists: " + key);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
+                    }
+                });
+            }
+
+            // Charger les composants software
+            JSONObject softwareComponents = components.getJSONObject("Software");
+            for (Iterator<String> it = softwareComponents.keys(); it.hasNext();) {
+                String key = it.next();
+                JSONObject component = softwareComponents.getJSONObject(key);
+
+                // Créer un HashMap pour stocker les détails du composant software
+                HashMap<String, Object> softwareDetails = new HashMap<>();
+                for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
+                    String compKey = compKeys.next();
+                    softwareDetails.put(compKey, component.get(compKey));
+                }
+
+                // Vérifier la collision pour software et mettre à jour si non présent
+                componentsRef.child("Software").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            // Ajouter le composant s'il n'existe pas déjà
+                            componentsRef.child("Software").child(key).setValue(softwareDetails)
+                                    .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Software component added: " + key))
+                                    .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add software component: " + e.getMessage()));
+                        } else {
+                            Log.d("AdminActivity", "Software component already exists: " + key);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
+                    }
+                });
+            }
+
+            Log.i("AdminActivity", "Chargement des composants du stock depuis le JSON terminé.");
+
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
