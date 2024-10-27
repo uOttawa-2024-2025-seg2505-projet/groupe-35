@@ -58,75 +58,113 @@
 
     <ImageView
         android:id="@+id/configuraImage"
-        android:layout_width="414dp"
-        android:layout_height="319dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="396dp"
+        android:layout_height="164dp"
+        android:layout_marginTop="32dp"
         android:src="@drawable/configura"
-        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintDimensionRatio="16:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
-    <Button
-        android:id="@+id/viewStockButton"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View Stock"
-        android:backgroundTint="#4F4F4F"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/configuraImage"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:padding="25dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/configuraImage">
 
-    <Button
-        android:id="@+id/addStockButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Add Stock"
-        android:backgroundTint="#4F4F4F"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/viewStockButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        <Button
+            android:id="@+id/sendToAddItemLayoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#4F4F4F"
+            android:padding="16dp"
+            android:text="Add Item"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
 
-    <Button
-        android:id="@+id/removeStockButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Remove Stock"
-        android:backgroundTint="#4F4F4F"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/addStockButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        <EditText
+            android:id="@+id/modifyRemoveDescriptionItemInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#000000"
+            android:hint="Enter Item's Descriptive Title"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="15dp" />
+
+        <TextView
+            android:id="@+id/errorTextSubtypeItemInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/viewItemInformationsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#4F4F4F"
+            android:padding="16dp"
+            android:text="View Item Informations"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
+
+
+
+        <Button
+            android:id="@+id/sendToModifyRemoveItemLayoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#4F4F4F"
+            android:padding="16dp"
+            android:text="Modify/Detele Item"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/sendToTabularList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#4F4F4F"
+            android:padding="16dp"
+            android:text="Tabular List"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="#FF6347"
-        android:textColor="@android:color/white"
         android:padding="16dp"
-        android:textStyle="bold"
+        android:text="Logout"
         android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="20dp"/>
+        app:layout_constraintTop_toBottomOf="@+id/buttonLayout"
+        app:layout_constraintVertical_bias="0.512" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

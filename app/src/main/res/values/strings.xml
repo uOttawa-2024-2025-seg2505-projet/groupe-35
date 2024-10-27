@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Projet SEG2505</string>
+    <string-array name="component_types">
+        <item>Hardware</item>
+        <item>Software</item>
+    </string-array>
 </resources>
