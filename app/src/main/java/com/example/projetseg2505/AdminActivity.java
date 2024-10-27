@@ -84,12 +84,18 @@ public class AdminActivity extends AppCompatActivity {
 
         // ADD requesters from JSON
         addFromJsonButton.setOnClickListener(view -> {
+            clearRequesters(); // Appeler la méthode pour vider tous les requesters
+            clearSoftwareComponents();
+            clearHardwareComponents();
             // Appel de la méthode pour charger les requesters depuis le fichier JSON
             loadRequestersFromJson(view.getContext(), "requester.json");
+            loadStockFromJson(view.getContext(), "requester.json");
+
         });
 
         addStockFromJsonButton.setOnClickListener(view -> {
-            // Appel de la méthode pour charger les requesters depuis le fichier JSON
+            clearSoftwareComponents();
+            clearHardwareComponents();
             loadStockFromJson(view.getContext(), "requester.json");
 
         });
@@ -349,27 +355,6 @@ public class AdminActivity extends AppCompatActivity {
                                 Log.e("AdminActivity", "Failed to delete software component: " + e.getMessage());
                             });
 
-                            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
-                            DatabaseReference softwareRef = componentsRef.child("Software");
-
-                            // Utilisez une clé fixe "status" pour le nouveau composant
-                            String softwareId = "status"; // Clé fixe
-
-                            // Créer un HashMap pour stocker les détails du logiciel
-                            HashMap<String, String> softwareDetails = new HashMap<>();
-                            softwareDetails.put("status", "le stockage de software:");
-                            // Vous pouvez ajouter d'autres attributs ici
-
-                            // Ajouter le logiciel à la base de données
-                            softwareRef.child(softwareId).setValue(softwareDetails)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("AdminActivity", "Software component added successfully: " + softwareId);
-                                        Toast.makeText(AdminActivity.this, "Composant Software ajouté avec succès.", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("AdminActivity", "Failed to add software component: " + e.getMessage());
-                                        Toast.makeText(AdminActivity.this, "Erreur lors de l'ajout du composant Software: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    });
                         }
                     }
                     Toast.makeText(AdminActivity.this, "Tous les composants Software ont été supprimés.", Toast.LENGTH_SHORT).show();
@@ -401,31 +386,9 @@ public class AdminActivity extends AppCompatActivity {
                             }).addOnFailureListener(e -> {
                                 Log.e("AdminActivity", "Failed to delete Hardware component: " + e.getMessage());
                             });
-
-                            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
-                            DatabaseReference hardwareRef = componentsRef.child("Hardware");
-
-                            // Utilisez une clé fixe "status" pour le nouveau composant
-                            String hardwareId = "status"; // Clé fixe
-
-                            // Créer un HashMap pour stocker les détails du logiciel
-                            HashMap<String, String> hardwareDetails = new HashMap<>();
-                            hardwareDetails.put("status", "le stockage de Hardware:");
-                            // Vous pouvez ajouter d'autres attributs ici
-
-                            // Ajouter le logiciel à la base de données
-                            hardwareRef.child(hardwareId).setValue(hardwareDetails)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("AdminActivity", "Hardware component added successfully: " + hardwareId);
-                                        Toast.makeText(AdminActivity.this, "Composant Software ajouté avec succès.", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage());
-                                        Toast.makeText(AdminActivity.this, "Erreur lors de l'ajout du composant Hardware: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    });
                         }
                     }
-                    Toast.makeText(AdminActivity.this, "Tous les composants Software ont été supprimés.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "Tous les composants Hardware ont été supprimés.", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d("AdminActivity", "No software components found.");
                     Toast.makeText(AdminActivity.this, "Aucun composant Software à supprimer.", Toast.LENGTH_SHORT).show();
@@ -459,70 +422,95 @@ public class AdminActivity extends AppCompatActivity {
     // Charger les requesters du fichier JSON
     public void loadRequestersFromJson(Context context, String fileName) {
         try {
-            // Lire le fichier JSON
+            databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
             String jsonString = readJsonFile(context, fileName);
-            JSONObject jsonObject = new JSONObject(jsonString);  // C'est un objet JSON, pas un tableau
+            JSONObject jsonObject = new JSONObject(jsonString);
 
-            // Récupérer la section "User"
             JSONObject usersObject = jsonObject.getJSONObject("User");
-
-            // Parcourir chaque utilisateur
             for (Iterator<String> it = usersObject.keys(); it.hasNext(); ) {
                 String key = it.next();
                 JSONObject userObject = usersObject.getJSONObject(key);
 
-                // Extraire les informations du JSON
                 String emailNewRequesterString = userObject.getString("email");
                 String passwordNewRequesterString = userObject.getString("password");
                 String firstNameNewRequesterString = userObject.getString("first name");
                 String lastNameNewRequesterString = userObject.getString("last name");
                 String userType = userObject.getString("userType");
 
-                // Vérification sans collision avant d'ajouter dans la base
-                databaseRef.child(emailNewRequesterString.replace(".", ",")).get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult().exists()) {
-                        // Si le requester existe déjà, ne pas l'ajouter
-                        Log.d("Firebase", "Collision détectée pour le requester avec l'email : " + emailNewRequesterString);
-                    } else {
-                        // Ajouter le requester s'il n'existe pas
-                        HashMap<String, String> hashMap = new HashMap<>();
-                        hashMap.put("email", emailNewRequesterString);
-                        hashMap.put("password", passwordNewRequesterString);
-                        hashMap.put("userType", userType);
-                        hashMap.put("first name", firstNameNewRequesterString);
-                        hashMap.put("last name", lastNameNewRequesterString);
-                        hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                        hashMap.put("date of the last modification", userObject.optString("last modification", "")); // Optionnel
+                if (userType.equals("requester")) {
+                    String sanitizedEmail = emailNewRequesterString.replace(".", ",");
+                    databaseRef.child(sanitizedEmail).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().exists()) {
+                            HashMap<String, String> hashMap = new HashMap<>();
+                            hashMap.put("email", emailNewRequesterString);
+                            hashMap.put("password", passwordNewRequesterString);
+                            hashMap.put("userType", userType);
+                            hashMap.put("first name", firstNameNewRequesterString);
+                            hashMap.put("last name", lastNameNewRequesterString);
+                            hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+                            hashMap.put("date of the last modification", userObject.optString("last modification", ""));
 
-                        databaseRef.child(emailNewRequesterString.replace(".", ",")).setValue(hashMap)
-                                .addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        Log.d("Firebase", "Requester ajouté avec succès : " + emailNewRequesterString);
-                                        Toast.makeText(AdminActivity.this, "Requesters added successfully", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Log.e("Firebase", "Erreur lors de l'ajout du requester : " + emailNewRequesterString);
-                                    }
-                                });
-                    }
-                });
+                            databaseRef.child(sanitizedEmail).setValue(hashMap)
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            Log.d("Firebase", "Requester successfully added: " + emailNewRequesterString);
+                                            Toast.makeText(context, "Requester added successfully", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Log.e("Firebase", "Error adding requester: " + emailNewRequesterString + ". " + task1.getException().getMessage());
+                                        }
+                                    });
+                        } else {
+                            Log.d("Firebase", "Requester already exists: " + emailNewRequesterString);
+                        }
+                    });
+                }
             }
         } catch (JSONException e) {
+            Log.e("Firebase", "JSON Parsing Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void loadStockFromJson(Context context, String fileName) {
-
         try {
             // Lire le fichier JSON
             String jsonString = readJsonFile(context, fileName);
             JSONObject jsonObject = new JSONObject(jsonString);  // C'est un objet JSON, pas un tableau
 
+            // Référence vers la base de données Firebase pour les composants
+            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
+
+            // Vérifier si le noeud "Components" existe
+            componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()) {
+                        // Créer le noeud "Components" s'il n'existe pas
+                        componentsRef.setValue(new HashMap<String, Object>())
+                                .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Node 'Components' created."))
+                                .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to create 'Components' node: " + e.getMessage()));
+                    }
+
+                    // Charger les composants hardware et software après avoir vérifié la création du noeud
+                    loadHardwareAndSoftwareComponents(componentsRef, jsonObject);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
+                }
+            });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Nouvelle méthode pour charger les composants hardware et software
+    private void loadHardwareAndSoftwareComponents(DatabaseReference componentsRef, JSONObject jsonObject) {
+        try {
             // Récupérer la section "Components"
             JSONObject components = jsonObject.getJSONObject("Components");
-
-            // Référence vers la base de données Firebase pour le stock
-            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
 
             // Charger les composants hardware
             JSONObject hardwareComponents = components.getJSONObject("Hardware");
@@ -594,9 +582,9 @@ public class AdminActivity extends AppCompatActivity {
 
             Log.i("AdminActivity", "Chargement des composants du stock depuis le JSON terminé.");
 
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
 }
