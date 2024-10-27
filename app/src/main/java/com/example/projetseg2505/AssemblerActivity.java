@@ -7,14 +7,14 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AssemblerActivity extends AppCompatActivity {
+public class   AssemblerActivity extends AppCompatActivity {
 
     private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin);
+        setContentView(R.layout.activity_assembler);
 
         logoutButton = findViewById(R.id.logoutButton);
 

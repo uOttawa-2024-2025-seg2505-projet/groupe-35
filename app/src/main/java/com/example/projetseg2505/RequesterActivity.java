@@ -14,7 +14,7 @@ public class RequesterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin);
+        setContentView(R.layout.activity_requester);
 
         logoutButton = findViewById(R.id.logoutButton);
 
