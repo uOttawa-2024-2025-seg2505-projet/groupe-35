@@ -35,7 +35,7 @@ public class AdminActivity extends AppCompatActivity {
 
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton, addFromJsonButton, addStockFromJsonButton;
+    private Button addRequesterButton, resetDatabase, resetStock;
     private DatabaseReference databaseRef;
     private TextView errorTextAddRequester, textAddedRequester;
 
@@ -63,8 +63,8 @@ public class AdminActivity extends AppCompatActivity {
         logoutButton = findViewById(R.id.logoutButton);
         emailEditText = findViewById(R.id.emailEditText);
         errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
-        addFromJsonButton = findViewById(R.id.addFromJsonButton);
-        addStockFromJsonButton = findViewById(R.id.addStockFromJsonButton);
+        resetDatabase = findViewById(R.id.resetDatabase);
+        resetStock = findViewById(R.id.resetStock);
 
         // Firebase reference initialization
         databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
@@ -84,7 +84,7 @@ public class AdminActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(v -> finish());
 
         // ADD requesters from JSON
-        addFromJsonButton.setOnClickListener(view -> {
+        resetDatabase.setOnClickListener(view -> {
             clearRequesters(); // Appeler la méthode pour vider tous les requesters
             clearSoftwareComponents();
             clearHardwareComponents();
@@ -94,7 +94,7 @@ public class AdminActivity extends AppCompatActivity {
 
         });
 
-        addStockFromJsonButton.setOnClickListener(view -> {
+        resetStock.setOnClickListener(view -> {
             clearSoftwareComponents();
             clearHardwareComponents();
             loadStockFromJson(view.getContext(), "requester.json");

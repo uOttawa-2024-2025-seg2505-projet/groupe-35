@@ -135,11 +135,11 @@
     </androidx.cardview.widget.CardView>
 
     <Button
-        android:id="@+id/addFromJsonButton"
+        android:id="@+id/resetDatabase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
-        android:text="AddFromJSON"
+        android:text="Reset DataBase"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.328"
@@ -147,11 +147,11 @@
         app:layout_constraintTop_toBottomOf="@+id/encapsulatedCard" />
 
     <Button
-        android:id="@+id/addStockFromJsonButton"
+        android:id="@+id/resetStock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
-        android:text="AddStockFromJSON"
+        android:text="Reset Stock"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
