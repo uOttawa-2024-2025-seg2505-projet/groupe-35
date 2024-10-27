@@ -76,6 +76,7 @@ public class AdminActivity extends AppCompatActivity {
                 clearRequesters(); // Appeler la méthode pour vider tous les requesters
                 clearSoftwareComponents();
                 clearHardwareComponents();
+                clearOrders();
             }
         });
 
@@ -338,69 +339,111 @@ public class AdminActivity extends AppCompatActivity {
     }
 
 
-    // Méthode séparée pour supprimer les composants logiciels
+    // Methods to clear Software Components
     private void clearSoftwareComponents() {
-        DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components").child("Software");
+        DatabaseReference softwareRef = FirebaseDatabase.getInstance().getReference("Components/Software");
 
-        componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        softwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot softwareSnapshot) {
                 if (softwareSnapshot.exists()) {
                     for (DataSnapshot softwareComponent : softwareSnapshot.getChildren()) {
-                        String subType = softwareComponent.child("subType").getValue(String.class);
-                        if ("processeur".equals(subType) || "carte mère".equals(subType)) {
-                            softwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                                Log.d("AdminActivity", "Software component deleted: " + softwareComponent.getKey());
-                            }).addOnFailureListener(e -> {
-                                Log.e("AdminActivity", "Failed to delete software component: " + e.getMessage());
-                            });
+                        // Skip the component named "status"
+                        if ("status".equals(softwareComponent.getKey())) {
 
+                            continue; // Skip this entry
                         }
+                        // Delete other software components
+                        softwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
+
+                        }).addOnFailureListener(e -> {
+
+                        });
                     }
-                    Toast.makeText(AdminActivity.this, "Tous les composants Software ont été supprimés.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "All the Software components were deleted.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d("AdminActivity", "No software components found.");
-                    Toast.makeText(AdminActivity.this, "Aucun composant Software à supprimer.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "Software components Not CLeared.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e("AdminActivity", "Error while checking software components: " + databaseError.getMessage());
+                Log.e("AdminActivity", "Error while deleting software components: " + databaseError.getMessage());
             }
         });
     }
 
-    private void clearHardwareComponents() {
-        DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components").child("Hardware");
+    //Method to clear Hardware Components
+    public void clearHardwareComponents() {
+        // Reference to the Hardware components in the database
+        DatabaseReference hardwareRef = FirebaseDatabase.getInstance().getReference("Components/Hardware");
 
-        componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Retrieve all hardware components and selectively delete them
+        hardwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot hardwareSnapshot) {
-                if (hardwareSnapshot.exists()) {
-                    for (DataSnapshot hardwareComponent : hardwareSnapshot.getChildren()) {
-                        String subType = hardwareComponent.child("subType").getValue(String.class);
-                        if ("boitier".equals(subType) ) {
-                            hardwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                                Log.d("AdminActivity", "Hardware component deleted: " + hardwareComponent.getKey());
-                            }).addOnFailureListener(e -> {
-                                Log.e("AdminActivity", "Failed to delete Hardware component: " + e.getMessage());
-                            });
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot hardwareSnapshot : dataSnapshot.getChildren()) {
+                        // Check if the current child is named "status" and skip it
+                        if ("status".equals(hardwareSnapshot.getKey())) {
+                            Log.d("AdminActivity", "Skipping preserved hardware component with key: " + hardwareSnapshot.getKey());
+                            continue; // Skip this entry
                         }
+                        // Delete other hardware components
+                        hardwareSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                        }).addOnFailureListener(e -> {
+                        });
                     }
-                    Toast.makeText(AdminActivity.this, "Tous les composants Hardware ont été supprimés.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "All Hardware componetns were deleted.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d("AdminActivity", "No software components found.");
-                    Toast.makeText(AdminActivity.this, "Aucun composant Software à supprimer.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "Hardware components were not deleted.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e("AdminActivity", "Error while checking hardware components: " + databaseError.getMessage());
+                Log.e("AdminActivity", "Error while deleting hardware components: " + databaseError.getMessage());
             }
         });
     }
+
+
+    //Clear Components
+    public void clearOrders() {
+        // Reference to the Orders in the database
+        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("Orders");
+
+        // Retrieve all orders and selectively delete them
+        ordersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot orderSnapshot : dataSnapshot.getChildren()) {
+
+                        if ("Orders".equals(orderSnapshot.getKey())) {
+                            continue;
+                        }
+                        // Delete other orders
+                        orderSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                            Log.d("AdminActivity", "Order deleted: " + orderSnapshot.getKey());
+                        }).addOnFailureListener(e -> {
+                            Log.e("AdminActivity", "Failed to delete order: " + e.getMessage());
+                        });
+                    }
+                    Toast.makeText(AdminActivity.this, "All the orders have been deleted.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AdminActivity.this, "Clearing unsuccesful.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("AdminActivity", "Error while deleting orders: " + databaseError.getMessage());
+            }
+        });
+    }
+
+
 
     // Lire un fichier JSON
     public String readJsonFile(Context context, String fileName) {

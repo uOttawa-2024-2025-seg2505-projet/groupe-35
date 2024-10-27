@@ -620,8 +620,6 @@ public class StorekeeperActivity extends AppCompatActivity {
         }
         componentsTableLayout.addView(headerRow);
 
-        // Get reference to Firebase database
-        //databaseReference = FirebaseDatabase.getInstance().getReference().child("Components");
 
         // Fetch hardware and software components from Firebase
         databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
