@@ -29,7 +29,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -89,15 +91,15 @@ public class AdminActivity extends AppCompatActivity {
             clearSoftwareComponents();
             clearHardwareComponents();
             // Appel de la méthode pour charger les requesters depuis le fichier JSON
-            loadRequestersFromJson(view.getContext(), "requester.json");
-            loadStockFromJson(view.getContext(), "requester.json");
+            loadRequestersFromJson(view.getContext(), "file1.json");
+            loadStockFromJson(view.getContext(), "file1.json");
 
         });
 
         resetStock.setOnClickListener(view -> {
             clearSoftwareComponents();
             clearHardwareComponents();
-            loadStockFromJson(view.getContext(), "requester.json");
+            loadStockFromJson(view.getContext(), "file1.json");
 
         });
 
@@ -463,10 +465,10 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     // Charger les requesters du fichier JSON
-    public void loadRequestersFromJson(Context context, String fileName) {
+    public void loadRequestersFromJson(Context context, String fileNames) {
         try {
             databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
-            String jsonString = readJsonFile(context, fileName);
+            String jsonString = readJsonFile(context, fileNames);
             JSONObject jsonObject = new JSONObject(jsonString);
 
             JSONObject usersObject = jsonObject.getJSONObject("User");
@@ -549,7 +551,6 @@ public class AdminActivity extends AppCompatActivity {
         }
     }
 
-    // Nouvelle méthode pour charger les composants hardware et software
     private void loadHardwareAndSoftwareComponents(DatabaseReference componentsRef, JSONObject jsonObject) {
         try {
             // Récupérer la section "Components"
@@ -561,6 +562,9 @@ public class AdminActivity extends AppCompatActivity {
                 String key = it.next();
                 JSONObject component = hardwareComponents.getJSONObject(key);
 
+                // Récupérer la description pour l'utiliser comme clé unique
+                String description = component.getString("description");
+
                 // Utiliser un HashMap pour stocker les détails du composant hardware
                 HashMap<String, Object> hardwareDetails = new HashMap<>();
                 for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
@@ -568,25 +572,10 @@ public class AdminActivity extends AppCompatActivity {
                     hardwareDetails.put(compKey, component.get(compKey));
                 }
 
-                // Vérifier la collision pour hardware et mettre à jour si non présent
-                componentsRef.child("Hardware").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            // Ajouter le composant s'il n'existe pas déjà
-                            componentsRef.child("Hardware").child(key).setValue(hardwareDetails)
-                                    .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Hardware component added: " + key))
-                                    .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage()));
-                        } else {
-                            Log.d("AdminActivity", "Hardware component already exists: " + key);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
-                    }
-                });
+                // Ajouter le composant dans Firebase en utilisant la description comme clé unique
+                componentsRef.child("Hardware").child(description).setValue(hardwareDetails)
+                        .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Hardware component added: " + description))
+                        .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage()));
             }
 
             // Charger les composants software
@@ -595,6 +584,9 @@ public class AdminActivity extends AppCompatActivity {
                 String key = it.next();
                 JSONObject component = softwareComponents.getJSONObject(key);
 
+                // Récupérer la description pour l'utiliser comme clé unique
+                String description = component.getString("description");
+
                 // Créer un HashMap pour stocker les détails du composant software
                 HashMap<String, Object> softwareDetails = new HashMap<>();
                 for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
@@ -602,25 +594,10 @@ public class AdminActivity extends AppCompatActivity {
                     softwareDetails.put(compKey, component.get(compKey));
                 }
 
-                // Vérifier la collision pour software et mettre à jour si non présent
-                componentsRef.child("Software").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            // Ajouter le composant s'il n'existe pas déjà
-                            componentsRef.child("Software").child(key).setValue(softwareDetails)
-                                    .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Software component added: " + key))
-                                    .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add software component: " + e.getMessage()));
-                        } else {
-                            Log.d("AdminActivity", "Software component already exists: " + key);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
-                    }
-                });
+                // Ajouter le composant dans Firebase en utilisant la description comme clé unique
+                componentsRef.child("Software").child(description).setValue(softwareDetails)
+                        .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Software component added: " + description))
+                        .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add software component: " + e.getMessage()));
             }
 
             Log.i("AdminActivity", "Chargement des composants du stock depuis le JSON terminé.");
@@ -629,5 +606,7 @@ public class AdminActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
 
 }

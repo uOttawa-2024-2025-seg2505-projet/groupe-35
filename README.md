@@ -23,6 +23,15 @@ Voici les logins pour la base de donnée FireBase (pour que vous puissiez avoir 
     password : Azerty123@
 
 
+Point à modifier :
+- Les boutons return ne fonctionnent pas encore.
+
+Pour la lecture du fichier : 
+    - le fichier à importer dans la base de données est nommé "file1.json". Vous pourrez le modifier directement sur AndroidStudio, pour effectuer vos tests.
+
+
+
+
 
 
 
