@@ -1,8 +1,11 @@
 package com.example.projetseg2505;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -29,6 +32,7 @@ import java.util.Locale;
 public class StorekeeperActivity extends AppCompatActivity {
     // Logout Variables
     private Button logoutButton;
+    private boolean showTextToClient = true;
 
     // Add Item Variables
     private DatabaseReference databaseRef;
@@ -127,7 +131,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                 }
 
                 // Check if the item already exists based on description
-                checkIfItemExists(description, componentType, subType, quantity, comment);
+                checkIfItemExistsAndAdd(description, componentType, subType, quantity, comment, databaseRef, infoTextAddItem);
+                clearInputFields();
             });
         });
 
@@ -167,33 +172,43 @@ public class StorekeeperActivity extends AppCompatActivity {
     }
 
     // Add item method
-    private void checkIfItemExists(String description, String componentType, String subType, int quantity, String comment) {
+    public static void checkIfItemExistsAndAdd(String description, String componentType, String subType, int quantity, String comment, DatabaseReference databaseRef, TextView textView) {
         // Search in Hardware
         databaseRef.child("Hardware").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot hardwareSnapshot) {
                 if (hardwareSnapshot.exists()) {
-                    // Item exists in Hardware
-                    infoTextAddItem.setText("An item with this description already exists in Hardware.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null){
+                        textView.setText("An item with this description already exists in Hardware.");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        Log.d(TAG, "An item with this description already exists in Hardware. ");
+                    }
+
                 } else {
-                    // If not found in Hardware, check in Software
+
                     databaseRef.child("Software").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot softwareSnapshot) {
                             if (softwareSnapshot.exists()) {
-                                // Item exists in Software
-                                infoTextAddItem.setText("An item with this description already exists in Software.");
-                                infoTextAddItem.setVisibility(View.VISIBLE);
+                                if(textView != null){
+                                    textView.setText("An item with this description already exists in Software.");
+                                    textView.setVisibility(View.VISIBLE);
+                                }
+                                else{
+                                    Log.d(TAG, "An item with this description already exists in Software. ");
+                                }
+
                             } else {
                                 // If no match in both Hardware and Software, proceed to add the new item
-                                addNewItem(subType, description, quantity, comment, componentType);
+                                addNewItem(subType, description, quantity, comment, componentType, databaseRef,textView);
                             }
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(StorekeeperActivity.this, "Error checking Software: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error checking Software: " + databaseError.getMessage());
                         }
                     });
                 }
@@ -201,42 +216,54 @@ public class StorekeeperActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error checking Hardware: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Error checking Hardware: " + databaseError.getMessage());
+                databaseError.toException().printStackTrace();
             }
         });
     }
 
 
-    private void addNewItem(String subType, String description, int quantity, String comment, String componentType) {
+    private static void addNewItem(String subType, String description, int quantity, String comment, String componentType, DatabaseReference databaseRef, TextView textView) {
         DatabaseReference componentRef = databaseRef.child(componentType);
 
         if (componentType.equals("Hardware")) {
             HardwareComponent newItem = new HardwareComponent(subType, description, quantity, comment);
             componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    infoTextAddItem.setText("Hardware item added successfully!");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    clearInputFields();
+                    if(textView != null){
+                        textView.setText("Hardware item added successfully!");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 } else {
-                    infoTextAddItem.setText("Failed to add hardware item. Please try again.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null) {
+                        textView.setText("Failed to add hardware item. Please try again.");
+                        textView.setVisibility(View.VISIBLE);
+                    }
                 }
             });
         } else if (componentType.equals("Software")) {
             SoftwareComponent newItem = new SoftwareComponent(subType, description, quantity, comment);
             componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    infoTextAddItem.setText("Software item added successfully!");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    clearInputFields();
+                    if(textView != null) {
+                        textView.setText("Software item added successfully!");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 } else {
-                    infoTextAddItem.setText("Failed to add software item. Please try again.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null) {
+                        textView.setText("Failed to add software item. Please try again.");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 }
             });
         } else {
-            infoTextAddItem.setText("Invalid component type selected.");
-            infoTextAddItem.setVisibility(View.VISIBLE);
+            if(textView != null) {
+                textView.setText("Invalid component type selected.");
+                textView.setVisibility(View.VISIBLE);
+            }
         }
     }
 

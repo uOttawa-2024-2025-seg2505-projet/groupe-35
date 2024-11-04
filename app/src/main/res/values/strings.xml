@@ -4,4 +4,13 @@
         <item>Hardware</item>
         <item>Software</item>
     </string-array>
+
+    <string-array name="file_name_array">
+        <item>Select one file or more</item>
+        <item>file1.json</item>
+        <item>file2.json</item>
+
+    </string-array>
+
+
 </resources>

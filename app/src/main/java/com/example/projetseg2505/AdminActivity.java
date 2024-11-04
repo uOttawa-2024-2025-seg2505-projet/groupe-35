@@ -1,15 +1,22 @@
 package com.example.projetseg2505;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
@@ -22,23 +29,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 
 public class AdminActivity extends AppCompatActivity {
 
+    //dataBase refs
+    private DatabaseReference userDatabaseRef, componentDatabaseRef, ordersDatabaseRef;
+
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton, resetDatabase, resetStock;
-    private DatabaseReference databaseRef;
+    private Button addRequesterButton;
     private TextView errorTextAddRequester, textAddedRequester;
 
     // Requester search for modification or suppression
@@ -47,11 +60,16 @@ public class AdminActivity extends AppCompatActivity {
     // Edit/Delete variables
     private Button sendToAddRequesterLayoutButton, senToEditDeleteRequesterButton, logoutButton, applyChangesButton, deleteRequesterButton;
     private EditText emailEditText, firstNameEditText, lastNameEditText, passwordEditText;
-    private DatabaseReference databaseReference;
     private View clearDatabaseButton;
 
     // Found requester details
     private String foundFirstName, foundLastName, foundEmail, foundPassword;
+
+    //reset methods variable
+    private Button resetDatabase, resetStock;
+    private ArrayList<String> listJsonFileNames;
+    private Spinner fileNameSpinner;
+    private boolean fileSelected;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -59,7 +77,15 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        //Database refs
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
+        componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
+        ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
+
+
+
         // Initialization of views in the admin layout
+
         sendToAddRequesterLayoutButton = findViewById(R.id.sendToAddRequesterLayoutButton);
         senToEditDeleteRequesterButton = findViewById(R.id.senToEditDeleteRequesterButton);
         logoutButton = findViewById(R.id.logoutButton);
@@ -67,39 +93,62 @@ public class AdminActivity extends AppCompatActivity {
         errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
         resetDatabase = findViewById(R.id.resetDatabase);
         resetStock = findViewById(R.id.resetStock);
-
-        // Firebase reference initialization
-        databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
-        databaseReference = FirebaseDatabase.getInstance().getReference("User");
-        clearDatabaseButton = findViewById(R.id.button_clear_database);
-        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearRequesters(); // Appeler la méthode pour vider tous les requesters
-                clearSoftwareComponents();
-                clearHardwareComponents();
-                clearOrders();
-            }
-        });
+        fileNameSpinner = findViewById(R.id.fileNameSpinner);
+        listJsonFileNames = new ArrayList<>();
 
         // Log Out functionality
         logoutButton.setOnClickListener(v -> finish());
 
-        // ADD requesters from JSON
-        resetDatabase.setOnClickListener(view -> {
-            clearRequesters(); // Appeler la méthode pour vider tous les requesters
-            clearSoftwareComponents();
-            clearHardwareComponents();
-            // Appel de la méthode pour charger les requesters depuis le fichier JSON
-            loadRequestersFromJson(view.getContext(), "file1.json");
-            loadStockFromJson(view.getContext(), "file1.json");
+
+        //Select file to read from spinner
+        fileNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedFileName = parent.getItemAtPosition(position).toString();
+                if (!selectedFileName.equals("Select one file or more")) {
+                    addFileNameToJsonFilesArray(selectedFileName);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "Nothing selected ");
+            }
 
         });
 
+        // resetdatabase and load from JSON
+        resetDatabase.setOnClickListener(view -> {
+            if(listJsonFileNames.isEmpty()){
+                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
+            }
+            else{
+                clearRequesters(userDatabaseRef);
+                clearSoftwareComponents(componentDatabaseRef);
+                clearHardwareComponents(componentDatabaseRef);
+                loadRequestersFromManyJsonFiles(view.getContext());
+                loadStockFromManyJsonFiles(view.getContext());
+                fileNameSpinner.setSelection(0);
+                listJsonFileNames.clear();
+
+            }
+
+
+        });
+
+        //reset Stock from json file
         resetStock.setOnClickListener(view -> {
-            clearSoftwareComponents();
-            clearHardwareComponents();
-            loadStockFromJson(view.getContext(), "file1.json");
+            if(listJsonFileNames.isEmpty()){
+                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
+            }
+            else {
+                clearSoftwareComponents(componentDatabaseRef);
+                clearHardwareComponents(componentDatabaseRef);
+                loadStockFromManyJsonFiles(view.getContext());
+                fileNameSpinner.setSelection(0);
+                listJsonFileNames.clear();
+
+            }
 
         });
 
@@ -132,7 +181,7 @@ public class AdminActivity extends AppCompatActivity {
                 HashMap<String, String> hashMap = new HashMap<>();
 
                 if (!emailNewRequesterString.isEmpty() && !passwordNewRequesterString.isEmpty()) {
-                    databaseRef.child(emailNewRequesterString.replace(".", ",")).get().addOnCompleteListener(task -> {
+                    userDatabaseRef.child(emailNewRequesterString.replace(".", ",")).get().addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult().exists()) {
                             errorTextAddRequester.setText("This requester already has an account");
                             errorTextAddRequester.setVisibility(View.VISIBLE);
@@ -145,7 +194,7 @@ public class AdminActivity extends AppCompatActivity {
                             hashMap.put("date of creation", dateCreationRequester);
                             hashMap.put("date of the last modification", dateModificationRequester);
 
-                            databaseRef.child(emailNewRequesterString.replace(".", ",")).setValue(hashMap)
+                            userDatabaseRef.child(emailNewRequesterString.replace(".", ",")).setValue(hashMap)
                                     .addOnCompleteListener(task1 -> {
                                         if (task1.isSuccessful()) {
                                             textAddedRequester.setText("Requester Added");
@@ -176,11 +225,23 @@ public class AdminActivity extends AppCompatActivity {
                 errorTextEmailInput.setVisibility(View.VISIBLE);
             }
         });
+
+        // Firebase reference initialization
+        clearDatabaseButton = findViewById(R.id.button_clear_database);
+        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearRequesters(userDatabaseRef);
+                clearSoftwareComponents(componentDatabaseRef);
+                clearHardwareComponents(componentDatabaseRef);
+                clearOrders(ordersDatabaseRef);
+            }
+        });
     }
 
     // Method to search requester by email
     private void searchRequesterByEmail(String email) {
-        databaseReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -238,7 +299,7 @@ public class AdminActivity extends AppCompatActivity {
         String updatedPassword = passwordEditText.getText().toString().trim();
         String updateTime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        databaseReference.orderByChild("email").equalTo(foundEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.orderByChild("email").equalTo(foundEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -272,7 +333,7 @@ public class AdminActivity extends AppCompatActivity {
         String currentPassword = passwordEditText.getText().toString().trim();
 
         // Search for the requester by email
-        databaseReference.orderByChild("email").equalTo(foundEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.orderByChild("email").equalTo(foundEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -307,11 +368,8 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
-    public void clearRequesters() {
-        // Références à la base de données
-        DatabaseReference requesterRef = FirebaseDatabase.getInstance().getReference("User");
+    public void clearRequesters(DatabaseReference requesterRef) {
 
-        // Lire tous les requesters
         requesterRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -342,8 +400,8 @@ public class AdminActivity extends AppCompatActivity {
 
 
     // Methods to clear Software Components
-    private void clearSoftwareComponents() {
-        DatabaseReference softwareRef = FirebaseDatabase.getInstance().getReference("Components/Software");
+    private void clearSoftwareComponents(DatabaseReference componentRef) {
+        DatabaseReference softwareRef = componentRef.child("Software");
 
         softwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -376,9 +434,9 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     //Method to clear Hardware Components
-    public void clearHardwareComponents() {
+    public void clearHardwareComponents(DatabaseReference componentRef) {
         // Reference to the Hardware components in the database
-        DatabaseReference hardwareRef = FirebaseDatabase.getInstance().getReference("Components/Hardware");
+        DatabaseReference hardwareRef = componentRef.child("Hardware");
 
         // Retrieve all hardware components and selectively delete them
         hardwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -411,9 +469,7 @@ public class AdminActivity extends AppCompatActivity {
 
 
     //Clear Components
-    public void clearOrders() {
-        // Reference to the Orders in the database
-        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("Orders");
+    public void clearOrders(DatabaseReference ordersRef) {
 
         // Retrieve all orders and selectively delete them
         ordersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -464,11 +520,32 @@ public class AdminActivity extends AppCompatActivity {
         return jsonContent.toString();
     }
 
-    // Charger les requesters du fichier JSON
-    public void loadRequestersFromJson(Context context, String fileNames) {
+    //load requesters from many json files
+    public void loadRequestersFromManyJsonFiles(Context context){
+        if(listJsonFileNames.size() == 0){
+            Toast.makeText(context, "You will need to select at least a file", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            for(int i=0; i < listJsonFileNames.size(); i++){
+                String fileName = listJsonFileNames.get(i);
+                loadRequestersFromJson(context,fileName);
+            }
+
+        }
+
+    }
+
+
+    public void addFileNameToJsonFilesArray(String newJsonFileName){
+        if (!listJsonFileNames.contains(newJsonFileName)) {
+            listJsonFileNames.add(newJsonFileName);
+        }
+    }
+
+    // load requesters from a json file
+    public void loadRequestersFromJson(Context context, String fileName) {
         try {
-            databaseRef = FirebaseDatabase.getInstance().getReference().child("User");
-            String jsonString = readJsonFile(context, fileNames);
+            String jsonString = readJsonFile(context, fileName);
             JSONObject jsonObject = new JSONObject(jsonString);
 
             JSONObject usersObject = jsonObject.getJSONObject("User");
@@ -483,40 +560,143 @@ public class AdminActivity extends AppCompatActivity {
                 String userType = userObject.getString("userType");
 
                 if (userType.equals("requester")) {
-                    String sanitizedEmail = emailNewRequesterString.replace(".", ",");
-                    databaseRef.child(sanitizedEmail).get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().exists()) {
-                            HashMap<String, String> hashMap = new HashMap<>();
-                            hashMap.put("email", emailNewRequesterString);
-                            hashMap.put("password", passwordNewRequesterString);
-                            hashMap.put("userType", userType);
-                            hashMap.put("first name", firstNameNewRequesterString);
-                            hashMap.put("last name", lastNameNewRequesterString);
-                            hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                            hashMap.put("date of the last modification", userObject.optString("last modification", ""));
+                    String finalEmail = emailNewRequesterString.replace(".", ",");
+                    userDatabaseRef.orderByChild("email").equalTo(finalEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                Log.d("Firebase", "Requester already exists: " + emailNewRequesterString);
+                            } else{
+                                HashMap<String, String> hashMap = new HashMap<>();
+                                hashMap.put("email", emailNewRequesterString);
+                                hashMap.put("password", passwordNewRequesterString);
+                                hashMap.put("userType", userType);
+                                hashMap.put("first name", firstNameNewRequesterString);
+                                hashMap.put("last name", lastNameNewRequesterString);
+                                hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+                                hashMap.put("date of the last modification", userObject.optString("last modification", ""));
+                                userDatabaseRef.child(finalEmail).setValue(hashMap)
+                                        .addOnCompleteListener(task1 -> {
+                                            if (task1.isSuccessful()) {
+                                                Log.d("Firebase", "Requester successfully added: " + emailNewRequesterString);
+                                                Toast.makeText(context, "Requester added successfully", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Log.e("Firebase", "Error adding requester: " + emailNewRequesterString + ". " + task1.getException().getMessage());
+                                            }
+                                        });
 
-                            databaseRef.child(sanitizedEmail).setValue(hashMap)
-                                    .addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            Log.d("Firebase", "Requester successfully added: " + emailNewRequesterString);
-                                            Toast.makeText(context, "Requester added successfully", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Log.e("Firebase", "Error adding requester: " + emailNewRequesterString + ". " + task1.getException().getMessage());
-                                        }
-                                    });
-                        } else {
-                            Log.d("Firebase", "Requester already exists: " + emailNewRequesterString);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(context, "Database error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
+
                 }
             }
-        } catch (JSONException e) {
-            Log.e("Firebase", "JSON Parsing Error: " + e.getMessage());
-            e.printStackTrace();
+        }catch (JSONException e){
+            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void loadStockFromJson(Context context, String fileName) {
+    public void loadStockFromManyJsonFiles(Context context){
+        if(listJsonFileNames.size() == 0){
+            Toast.makeText(context, "You will need to select at least a file", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            for (int i = 0; i < listJsonFileNames.size(); i++) {
+                String fileName = listJsonFileNames.get(i);
+                loadStockFromJson(context, fileName);
+            }
+        }
+    }
+
+    private void loadStockFromJson(Context context, String fileName){
+        loadHarwareComponentsFromJson(context,fileName);
+        loadSoftwareComponentsFromJson(context,fileName);
+    }
+
+    private void loadHarwareComponentsFromJson(Context context, String fileName) {
+        try {
+            String jsonString = readJsonFile(context, fileName);
+            JSONObject jsonObject = new JSONObject(jsonString);
+
+            JSONObject hardwareComponents = jsonObject.getJSONObject("Components").getJSONObject("Hardware");
+            Queue<JSONObject> componentQueue = new LinkedList<>();
+            for (Iterator<String> it = hardwareComponents.keys(); it.hasNext();) {
+                String key = it.next();
+                JSONObject hardwareComponent = hardwareComponents.getJSONObject(key);
+                componentQueue.add(hardwareComponent);
+            }
+            processComponentsWithHandler(context, componentQueue);
+
+        }catch (JSONException e){
+            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadSoftwareComponentsFromJson(Context context, String fileName) {
+        try {
+            String jsonString = readJsonFile(context, fileName);
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Queue<JSONObject> componentQueue = new LinkedList<>();
+            JSONObject softwareComponents = jsonObject.getJSONObject("Components").getJSONObject("Software");
+            for (Iterator<String> it = softwareComponents.keys(); it.hasNext();) {
+                String key = it.next();
+                JSONObject softwareComponent = softwareComponents.getJSONObject(key);
+                componentQueue.add(softwareComponent);
+            }
+            processComponentsWithHandler(context, componentQueue);
+
+
+        }catch (JSONException e){
+            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void processComponentsWithHandler(Context context, Queue<JSONObject> componentQueue) {
+        Handler handler = new Handler();
+
+        Runnable processNext = new Runnable() {
+            @Override
+            public void run() {
+                if (componentQueue.isEmpty()) {
+                    return;
+                }
+
+                JSONObject hardwareComponent = componentQueue.poll();
+                try {
+                    String componentTypeJsonObject = hardwareComponent.getString("type");
+                    String descriptionJsonObject = hardwareComponent.getString("description");
+                    String componentSubtypeJsonObject = hardwareComponent.getString("subType");
+                    String quantityJsonObject = hardwareComponent.getString("quantity");
+                    int intQuantity = Integer.parseInt(quantityJsonObject);
+                    String commentJsonObject = hardwareComponent.getString("comment");
+
+
+                    StorekeeperActivity.checkIfItemExistsAndAdd(descriptionJsonObject, componentTypeJsonObject, componentSubtypeJsonObject, intQuantity, commentJsonObject, componentDatabaseRef, null);
+
+
+                    handler.postDelayed(this, 100);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+
+        handler.post(processNext);
+    }
+
+
+
+
+
+
+    /*private void loadStockFromJson(Context context, String fileName) {
         try {
             // Lire le fichier JSON
             String jsonString = readJsonFile(context, fileName);
@@ -605,7 +785,7 @@ public class AdminActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
 
