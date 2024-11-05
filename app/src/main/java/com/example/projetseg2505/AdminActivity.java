@@ -19,6 +19,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -69,7 +71,7 @@ public class AdminActivity extends AppCompatActivity {
     private Button resetDatabase, resetStock;
     private ArrayList<String> listJsonFileNames;
     private Spinner fileNameSpinner;
-    private boolean fileSelected;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -123,13 +125,17 @@ public class AdminActivity extends AppCompatActivity {
                 Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
             }
             else{
-                clearRequesters(userDatabaseRef);
-                clearSoftwareComponents(componentDatabaseRef);
-                clearHardwareComponents(componentDatabaseRef);
-                loadRequestersFromManyJsonFiles(view.getContext());
-                loadStockFromManyJsonFiles(view.getContext());
-                fileNameSpinner.setSelection(0);
-                listJsonFileNames.clear();
+                clearRequesters(userDatabaseRef, () -> {
+                    clearSoftwareComponents(componentDatabaseRef, () -> {
+                        clearHardwareComponents(componentDatabaseRef, () -> {
+                            loadRequestersFromManyJsonFiles(view.getContext());
+                            loadStockFromManyJsonFiles(view.getContext());
+                            fileNameSpinner.setSelection(0);
+                            listJsonFileNames.clear();
+                        });
+                    });
+                });
+
 
             }
 
@@ -142,11 +148,13 @@ public class AdminActivity extends AppCompatActivity {
                 Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
             }
             else {
-                clearSoftwareComponents(componentDatabaseRef);
-                clearHardwareComponents(componentDatabaseRef);
-                loadStockFromManyJsonFiles(view.getContext());
-                fileNameSpinner.setSelection(0);
-                listJsonFileNames.clear();
+                clearSoftwareComponents(componentDatabaseRef, () -> {
+                    clearHardwareComponents(componentDatabaseRef, () -> {
+                        loadStockFromManyJsonFiles(view.getContext());
+                        fileNameSpinner.setSelection(0);
+                        listJsonFileNames.clear();
+                    });
+                });
 
             }
 
@@ -154,10 +162,8 @@ public class AdminActivity extends AppCompatActivity {
 
         // ADD a requester manually
         sendToAddRequesterLayoutButton.setOnClickListener(v -> {
-            // Switch to the Add Requester layout
             setContentView(R.layout.activity_admin_add_requester);
-
-            // Initialize views for adding requester (from the add requester layout)
+            //initialize views
             firstNameNewRequester = findViewById(R.id.firstNameNewRequester);
             lastNameNewRequester = findViewById(R.id.lastNameNewRequester);
             emailNewRequester = findViewById(R.id.emailNewRequester);
@@ -166,52 +172,15 @@ public class AdminActivity extends AppCompatActivity {
             errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
             textAddedRequester = findViewById(R.id.textAddedRequester);
 
+            String passwordNewRequesterString = passwordNewRequester.getText().toString();
+            String emailNewRequesterString = emailNewRequester.getText().toString();
+            String userType = "requester";
+            String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
+            String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
+
+
             addRequesterButton.setOnClickListener(view -> {
-                String passwordNewRequesterString = passwordNewRequester.getText().toString();
-                String emailNewRequesterString = emailNewRequester.getText().toString();
-                String userType = "requester";
-                String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
-                String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
-                String dateCreationRequester = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-                String dateModificationRequester = "";
-
-                errorTextAddRequester.setVisibility(View.GONE);
-                textAddedRequester.setVisibility(View.GONE);
-
-                HashMap<String, String> hashMap = new HashMap<>();
-
-                if (!emailNewRequesterString.isEmpty() && !passwordNewRequesterString.isEmpty()) {
-                    userDatabaseRef.child(emailNewRequesterString.replace(".", ",")).get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult().exists()) {
-                            errorTextAddRequester.setText("This requester already has an account");
-                            errorTextAddRequester.setVisibility(View.VISIBLE);
-                        } else {
-                            hashMap.put("email", emailNewRequesterString);
-                            hashMap.put("password", passwordNewRequesterString);
-                            hashMap.put("userType", userType);
-                            hashMap.put("first name", firstNameNewRequesterString);
-                            hashMap.put("last name", lastNameNewRequesterString);
-                            hashMap.put("date of creation", dateCreationRequester);
-                            hashMap.put("date of the last modification", dateModificationRequester);
-
-                            userDatabaseRef.child(emailNewRequesterString.replace(".", ",")).setValue(hashMap)
-                                    .addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            textAddedRequester.setText("Requester Added");
-                                            textAddedRequester.setVisibility(View.VISIBLE);
-                                            errorTextAddRequester.setVisibility(View.GONE);
-                                        } else {
-                                            textAddedRequester.setText("Error while adding requester");
-                                            textAddedRequester.setVisibility(View.VISIBLE);
-                                            errorTextAddRequester.setVisibility(View.GONE);
-                                        }
-                                    });
-                        }
-                    });
-                } else {
-                    errorTextAddRequester.setText("Please enter email and password");
-                    errorTextAddRequester.setVisibility(View.VISIBLE);
-                }
+                addRequester(passwordNewRequesterString, emailNewRequesterString, userType, firstNameNewRequesterString, lastNameNewRequesterString, errorTextAddRequester,textAddedRequester );
             });
         });
 
@@ -231,13 +200,75 @@ public class AdminActivity extends AppCompatActivity {
         clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearRequesters(userDatabaseRef);
-                clearSoftwareComponents(componentDatabaseRef);
-                clearHardwareComponents(componentDatabaseRef);
-                clearOrders(ordersDatabaseRef);
+                clearRequesters(userDatabaseRef, () -> {
+                    clearSoftwareComponents(componentDatabaseRef, () -> {
+                        clearHardwareComponents(componentDatabaseRef, () -> {
+                            clearOrders(ordersDatabaseRef);
+                        });
+                    });
+                });
             }
         });
     }
+
+    //Method to add a requester
+    private void addRequester( String email, String password, String userType,String firstName,String lastName,TextView errorText, TextView succesText) {
+
+        String dateCreationRequester = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        String dateModificationRequester = "";
+        if (errorText != null) {
+            errorText.setVisibility(View.GONE);
+            succesText.setVisibility(View.GONE);
+        }
+
+        HashMap<String, String> hashMap = new HashMap<>();
+
+        if (!email.isEmpty() && !password.isEmpty()) {
+            userDatabaseRef.child(email.replace(".", ",")).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                    if (errorText != null){
+                        errorText.setText("This requester already has an account");
+                        errorText.setVisibility(View.VISIBLE);
+                    }
+
+                } else {
+                    hashMap.put("email", email);
+                    hashMap.put("password", password);
+                    hashMap.put("userType", userType);
+                    hashMap.put("first name", firstName);
+                    hashMap.put("last name", lastName);
+                    hashMap.put("date of creation", dateCreationRequester);
+                    hashMap.put("date of the last modification", dateModificationRequester);
+
+                    userDatabaseRef.child(email.replace(".", ",")).setValue(hashMap)
+                            .addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    if (errorText != null) {
+                                        succesText.setText("Requester Added");
+                                        succesText.setVisibility(View.VISIBLE);
+                                        errorText.setVisibility(View.GONE);
+                                    }
+                                } else {
+                                    if (errorText != null) {
+                                        succesText.setText("Error while adding requester");
+                                        succesText.setVisibility(View.VISIBLE);
+                                        errorText.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                }
+            });
+        } else {
+            if (errorText != null) {
+                errorText.setText("Please enter email and password");
+                errorText.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+
+
 
     // Method to search requester by email
     private void searchRequesterByEmail(String email) {
@@ -368,104 +399,165 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
-    public void clearRequesters(DatabaseReference requesterRef) {
-
+    public void clearRequesters(DatabaseReference requesterRef, Runnable onComplete) {
         requesterRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    List<Task<Void>> deletionTasks = new ArrayList<>();
+
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        // Vérifier si le userType est 'requester'
                         String userType = userSnapshot.child("userType").getValue(String.class);
                         if ("requester".equals(userType)) {
-                            userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                                Log.d("AdminActivity", "Requester deleted: " + userSnapshot.getKey());
-                            }).addOnFailureListener(e -> {
-                                Log.e("AdminActivity", "Failed to delete requester: " + e.getMessage());
-                            });
+                            deletionTasks.add(userSnapshot.getRef().removeValue()
+                                    .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Requester deleted: " + userSnapshot.getKey()))
+                                    .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to delete requester: " + e.getMessage())));
                         }
                     }
-                    Toast.makeText(AdminActivity.this, "Tous les requesters ont été supprimés avec succès.", Toast.LENGTH_SHORT).show();
+
+                    if (deletionTasks.isEmpty()) {
+                        Toast.makeText(AdminActivity.this, "Aucun requester à supprimer.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                        return;
+                    }
+
+                    // Wait for all deletions to complete
+                    Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
+                        Toast.makeText(AdminActivity.this, "Tous les requesters ont été supprimés avec succès.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+
                 } else {
-                    Toast.makeText(AdminActivity.this, "Aucun requester à supprimer.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "Aucun requester trouvé à supprimer.", Toast.LENGTH_SHORT).show();
+                    if (onComplete != null) {
+                        onComplete.run();
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e("AdminActivity", "Error while checking requesters: " + databaseError.getMessage());
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
         });
     }
 
 
+
     // Methods to clear Software Components
-    private void clearSoftwareComponents(DatabaseReference componentRef) {
+    private void clearSoftwareComponents(DatabaseReference componentRef, Runnable onComplete) {
         DatabaseReference softwareRef = componentRef.child("Software");
 
         softwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot softwareSnapshot) {
                 if (softwareSnapshot.exists()) {
+                    List<Task<Void>> deletionTasks = new ArrayList<>();
+
                     for (DataSnapshot softwareComponent : softwareSnapshot.getChildren()) {
-                        // Skip the component named "status"
-                        if ("status".equals(softwareComponent.getKey())) {
-
-                            continue; // Skip this entry
+                        if (!"status".equals(softwareComponent.getKey())) {
+                            // Collect deletion tasks for each component
+                            deletionTasks.add(softwareComponent.getRef().removeValue());
                         }
-                        // Delete other software components
-                        softwareComponent.getRef().removeValue().addOnSuccessListener(aVoid -> {
-
-                        }).addOnFailureListener(e -> {
-
-                        });
                     }
-                    Toast.makeText(AdminActivity.this, "All the Software components were deleted.", Toast.LENGTH_SHORT).show();
+
+                    if (deletionTasks.isEmpty()) {
+                        Toast.makeText(AdminActivity.this, "No Software components to delete.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                        return;
+                    }
+
+                    // Wait for all deletions to complete
+                    Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
+                        Toast.makeText(AdminActivity.this, "All Software components were deleted.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+
                 } else {
-                    Toast.makeText(AdminActivity.this, "Software components Not CLeared.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "No Software components found to clear.", Toast.LENGTH_SHORT).show();
+                    if (onComplete != null) {
+                        onComplete.run();
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e("AdminActivity", "Error while deleting software components: " + databaseError.getMessage());
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
         });
     }
 
+
     //Method to clear Hardware Components
-    public void clearHardwareComponents(DatabaseReference componentRef) {
-        // Reference to the Hardware components in the database
+    public void clearHardwareComponents(DatabaseReference componentRef, Runnable onComplete) {
         DatabaseReference hardwareRef = componentRef.child("Hardware");
 
-        // Retrieve all hardware components and selectively delete them
         hardwareRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    List<Task<Void>> deletionTasks = new ArrayList<>();
+
                     for (DataSnapshot hardwareSnapshot : dataSnapshot.getChildren()) {
-                        // Check if the current child is named "status" and skip it
                         if ("status".equals(hardwareSnapshot.getKey())) {
                             Log.d("AdminActivity", "Skipping preserved hardware component with key: " + hardwareSnapshot.getKey());
-                            continue; // Skip this entry
+                            continue;
                         }
-                        // Delete other hardware components
-                        hardwareSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                        }).addOnFailureListener(e -> {
-                        });
+
+                        deletionTasks.add(hardwareSnapshot.getRef().removeValue()
+                                .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Hardware component deleted: " + hardwareSnapshot.getKey()))
+                                .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to delete hardware component: " + e.getMessage())));
                     }
-                    Toast.makeText(AdminActivity.this, "All Hardware componetns were deleted.", Toast.LENGTH_SHORT).show();
+
+                    if (deletionTasks.isEmpty()) {
+                        Toast.makeText(AdminActivity.this, "No hardware components to delete.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                        return;
+                    }
+
+                    // Wait for all deletions to complete
+                    Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
+                        Toast.makeText(AdminActivity.this, "All hardware components were deleted.", Toast.LENGTH_SHORT).show();
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+
                 } else {
-                    Toast.makeText(AdminActivity.this, "Hardware components were not deleted.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminActivity.this, "No hardware components found to delete.", Toast.LENGTH_SHORT).show();
+                    if (onComplete != null) {
+                        onComplete.run();
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e("AdminActivity", "Error while deleting hardware components: " + databaseError.getMessage());
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
         });
     }
+
 
 
     //Clear Components
@@ -560,39 +652,7 @@ public class AdminActivity extends AppCompatActivity {
                 String userType = userObject.getString("userType");
 
                 if (userType.equals("requester")) {
-                    String finalEmail = emailNewRequesterString.replace(".", ",");
-                    userDatabaseRef.orderByChild("email").equalTo(finalEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                Log.d("Firebase", "Requester already exists: " + emailNewRequesterString);
-                            } else{
-                                HashMap<String, String> hashMap = new HashMap<>();
-                                hashMap.put("email", emailNewRequesterString);
-                                hashMap.put("password", passwordNewRequesterString);
-                                hashMap.put("userType", userType);
-                                hashMap.put("first name", firstNameNewRequesterString);
-                                hashMap.put("last name", lastNameNewRequesterString);
-                                hashMap.put("date of creation", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                                hashMap.put("date of the last modification", userObject.optString("last modification", ""));
-                                userDatabaseRef.child(finalEmail).setValue(hashMap)
-                                        .addOnCompleteListener(task1 -> {
-                                            if (task1.isSuccessful()) {
-                                                Log.d("Firebase", "Requester successfully added: " + emailNewRequesterString);
-                                                Toast.makeText(context, "Requester added successfully", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Log.e("Firebase", "Error adding requester: " + emailNewRequesterString + ". " + task1.getException().getMessage());
-                                            }
-                                        });
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(context, "Database error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    addRequester(emailNewRequesterString, passwordNewRequesterString,userType, firstNameNewRequesterString, lastNameNewRequesterString, null, null);
 
                 }
             }
@@ -679,7 +739,7 @@ public class AdminActivity extends AppCompatActivity {
                     StorekeeperActivity.checkIfItemExistsAndAdd(descriptionJsonObject, componentTypeJsonObject, componentSubtypeJsonObject, intQuantity, commentJsonObject, componentDatabaseRef, null);
 
 
-                    handler.postDelayed(this, 100);
+                    handler.postDelayed(this, 200);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -690,103 +750,5 @@ public class AdminActivity extends AppCompatActivity {
 
         handler.post(processNext);
     }
-
-
-
-
-
-
-    /*private void loadStockFromJson(Context context, String fileName) {
-        try {
-            // Lire le fichier JSON
-            String jsonString = readJsonFile(context, fileName);
-            JSONObject jsonObject = new JSONObject(jsonString);  // C'est un objet JSON, pas un tableau
-
-            // Référence vers la base de données Firebase pour les composants
-            DatabaseReference componentsRef = FirebaseDatabase.getInstance().getReference("Components");
-
-            // Vérifier si le noeud "Components" existe
-            componentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (!dataSnapshot.exists()) {
-                        // Créer le noeud "Components" s'il n'existe pas
-                        componentsRef.setValue(new HashMap<String, Object>())
-                                .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Node 'Components' created."))
-                                .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to create 'Components' node: " + e.getMessage()));
-                    }
-
-                    // Charger les composants hardware et software après avoir vérifié la création du noeud
-                    loadHardwareAndSoftwareComponents(componentsRef, jsonObject);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("AdminActivity", "Database error: " + databaseError.getMessage());
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadHardwareAndSoftwareComponents(DatabaseReference componentsRef, JSONObject jsonObject) {
-        try {
-            // Récupérer la section "Components"
-            JSONObject components = jsonObject.getJSONObject("Components");
-
-            // Charger les composants hardware
-            JSONObject hardwareComponents = components.getJSONObject("Hardware");
-            for (Iterator<String> it = hardwareComponents.keys(); it.hasNext();) {
-                String key = it.next();
-                JSONObject component = hardwareComponents.getJSONObject(key);
-
-                // Récupérer la description pour l'utiliser comme clé unique
-                String description = component.getString("description");
-
-                // Utiliser un HashMap pour stocker les détails du composant hardware
-                HashMap<String, Object> hardwareDetails = new HashMap<>();
-                for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
-                    String compKey = compKeys.next();
-                    hardwareDetails.put(compKey, component.get(compKey));
-                }
-
-                // Ajouter le composant dans Firebase en utilisant la description comme clé unique
-                componentsRef.child("Hardware").child(description).setValue(hardwareDetails)
-                        .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Hardware component added: " + description))
-                        .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add hardware component: " + e.getMessage()));
-            }
-
-            // Charger les composants software
-            JSONObject softwareComponents = components.getJSONObject("Software");
-            for (Iterator<String> it = softwareComponents.keys(); it.hasNext();) {
-                String key = it.next();
-                JSONObject component = softwareComponents.getJSONObject(key);
-
-                // Récupérer la description pour l'utiliser comme clé unique
-                String description = component.getString("description");
-
-                // Créer un HashMap pour stocker les détails du composant software
-                HashMap<String, Object> softwareDetails = new HashMap<>();
-                for (Iterator<String> compKeys = component.keys(); compKeys.hasNext();) {
-                    String compKey = compKeys.next();
-                    softwareDetails.put(compKey, component.get(compKey));
-                }
-
-                // Ajouter le composant dans Firebase en utilisant la description comme clé unique
-                componentsRef.child("Software").child(description).setValue(softwareDetails)
-                        .addOnSuccessListener(aVoid -> Log.d("AdminActivity", "Software component added: " + description))
-                        .addOnFailureListener(e -> Log.e("AdminActivity", "Failed to add software component: " + e.getMessage()));
-            }
-
-            Log.i("AdminActivity", "Chargement des composants du stock depuis le JSON terminé.");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-
 
 }

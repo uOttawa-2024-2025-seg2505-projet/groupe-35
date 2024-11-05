@@ -29,6 +29,14 @@
         "quantity": 26,
         "subType": "processeur",
         "type": "Software"
+      },"processeur": {
+        "comment": "",
+        "dateTimeCreation": "20-10-2024 23:33:35",
+        "dateTimeModification": "",
+        "description": "test1",
+        "quantity": 26,
+        "subType": "processeur",
+        "type": "Software"
       }
     }
   },

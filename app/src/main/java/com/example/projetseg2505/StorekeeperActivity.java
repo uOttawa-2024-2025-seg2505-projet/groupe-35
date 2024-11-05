@@ -228,7 +228,7 @@ public class StorekeeperActivity extends AppCompatActivity {
 
         if (componentType.equals("Hardware")) {
             HardwareComponent newItem = new HardwareComponent(subType, description, quantity, comment);
-            componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
+            componentRef.child(description.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if(textView != null){
                         textView.setText("Hardware item added successfully!");
@@ -244,7 +244,7 @@ public class StorekeeperActivity extends AppCompatActivity {
             });
         } else if (componentType.equals("Software")) {
             SoftwareComponent newItem = new SoftwareComponent(subType, description, quantity, comment);
-            componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
+            componentRef.child(description.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if(textView != null) {
                         textView.setText("Software item added successfully!");
