@@ -172,15 +172,13 @@ public class AdminActivity extends AppCompatActivity {
             errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
             textAddedRequester = findViewById(R.id.textAddedRequester);
 
-            String passwordNewRequesterString = passwordNewRequester.getText().toString();
-            String emailNewRequesterString = emailNewRequester.getText().toString();
-            String userType = "requester";
-            String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
-            String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
-
-
             addRequesterButton.setOnClickListener(view -> {
-                addRequester(passwordNewRequesterString, emailNewRequesterString, userType, firstNameNewRequesterString, lastNameNewRequesterString, errorTextAddRequester,textAddedRequester );
+                String passwordNewRequesterString = passwordNewRequester.getText().toString();
+                String emailNewRequesterString = emailNewRequester.getText().toString();
+                String userType = "requester";
+                String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
+                String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
+                addRequester(emailNewRequesterString, passwordNewRequesterString, userType, firstNameNewRequesterString, lastNameNewRequesterString, errorTextAddRequester,textAddedRequester );
             });
         });
 
