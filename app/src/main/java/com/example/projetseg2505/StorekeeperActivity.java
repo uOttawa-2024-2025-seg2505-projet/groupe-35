@@ -54,6 +54,8 @@ public class StorekeeperActivity extends AppCompatActivity {
     // tabular view Variable
     private Button tabularListButton;
 
+    // Add return Variable
+    private Button returnButton;
 
 
     @SuppressLint("MissingInflatedId")
@@ -94,6 +96,18 @@ public class StorekeeperActivity extends AppCompatActivity {
             infoTextAddItem = findViewById(R.id.infoTextAddItem);
             addItemButton = findViewById(R.id.addItemButton);
             typeSpinner = findViewById(R.id.typeSpinner);
+
+            returnButton = findViewById(R.id.returnButton);
+
+            returnButton.setOnClickListener(view -> {
+                Intent intent = new Intent(this, StorekeeperActivity.class);
+                startActivity(intent);
+                finish();
+
+
+
+
+            });
 
             // Configure Spinner for Component Type selection
             if (typeSpinner != null) {
@@ -138,6 +152,19 @@ public class StorekeeperActivity extends AppCompatActivity {
 
         // Modify/Delete item layout redirection logic
         sendToRemoveEditItemLayoutButton.setOnClickListener(v -> {
+            // Load the layout that contains `returnButton` if necessary
+            setContentView(R.layout.activity_storekeeper_modify_remove_item);
+
+            // Initialize `returnButton` after the layout is set
+            returnButton = findViewById(R.id.returnButton);
+            returnButton.setOnClickListener(view -> {
+                // Use StorekeeperActivity.this to get the correct context
+                Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
+                startActivity(intent);
+                finish();
+            });
+
+            // Continue with the search functionality
             String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
             if (!descriptionToSearch.isEmpty()) {
                 searchItemByDescription(descriptionToSearch);
@@ -146,12 +173,15 @@ public class StorekeeperActivity extends AppCompatActivity {
                 errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
             }
         });
+
         //view item
         viewItemInformationsButton.setOnClickListener(v -> {
+
             String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
 
             if (!descriptionToSearch.isEmpty()) {
                 searchItemForInformation(descriptionToSearch);
+
             } else {
                 errorTextSubtypeItemInput.setText("Please enter a valid item description.");
                 errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
@@ -167,8 +197,19 @@ public class StorekeeperActivity extends AppCompatActivity {
 
                 // After switching the layout, load components data
                 loadComponentsData();
+
+                returnButton = findViewById(R.id.returnButton);
+                returnButton.setOnClickListener(view -> {
+                    // Use StorekeeperActivity.this to get the correct context
+                    Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
+                    startActivity(intent);
+
+                    finish();
+                });
             }
         });
+
+
     }
 
     // Add item method
@@ -298,6 +339,14 @@ public class StorekeeperActivity extends AppCompatActivity {
                         String modificationDate = snapshot.child("dateTimeModification").getValue(String.class);
 
                         displayItemInformation(type, subType, description, quantity, comment, creationDate, modificationDate);
+
+                        // Initialize and set up the return button
+                        returnButton = findViewById(R.id.returnButton);
+                        returnButton.setOnClickListener(view -> {
+                            Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
                     }
                 } else {
                     // If not found in 'Hardware', search in 'Software'
@@ -311,6 +360,7 @@ public class StorekeeperActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // Method to search item in 'Software'
     private void searchInSoftwareForInformation(String description) {
