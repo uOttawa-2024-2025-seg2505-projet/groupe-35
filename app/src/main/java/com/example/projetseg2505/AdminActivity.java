@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -53,7 +54,7 @@ public class AdminActivity extends AppCompatActivity {
 
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton;
+    private Button addRequesterButton,returnButton;
     private TextView errorTextAddRequester, textAddedRequester;
 
     // Requester search for modification or suppression
@@ -171,6 +172,19 @@ public class AdminActivity extends AppCompatActivity {
             addRequesterButton = findViewById(R.id.addRequesterButton);
             errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
             textAddedRequester = findViewById(R.id.textAddedRequester);
+            returnButton = findViewById(R.id.returnButton);
+
+            returnButton.setOnClickListener(view -> {
+                Intent intent = new Intent(this, AdminActivity.class);
+                startActivity(intent);
+                finish();
+
+
+
+
+            });
+
+
 
             addRequesterButton.setOnClickListener(view -> {
                 String passwordNewRequesterString = passwordNewRequester.getText().toString();
