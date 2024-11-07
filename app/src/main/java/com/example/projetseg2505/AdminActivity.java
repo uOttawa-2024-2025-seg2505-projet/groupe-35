@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -729,7 +730,7 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void processComponentsWithHandler(Context context, Queue<JSONObject> componentQueue) {
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
 
         Runnable processNext = new Runnable() {
             @Override
@@ -748,7 +749,15 @@ public class AdminActivity extends AppCompatActivity {
                     String commentJsonObject = hardwareComponent.getString("comment");
 
 
-                    StorekeeperActivity.checkIfItemExistsAndAdd(descriptionJsonObject, componentTypeJsonObject, componentSubtypeJsonObject, intQuantity, commentJsonObject, componentDatabaseRef, null);
+                    StorekeeperActivity.checkIfItemExists(descriptionJsonObject,  componentDatabaseRef, null,new ItemExistenceCallback() {
+                        public void onResult(boolean exists, Integer quantity) {
+                            if (exists) {
+                                Log.d(TAG, "The item already exists.");
+                            } else {
+                                StorekeeperActivity.addNewItem(componentSubtypeJsonObject, descriptionJsonObject, intQuantity, commentJsonObject, componentTypeJsonObject, componentDatabaseRef,null);
+                            }
+                        }
+                    });
 
 
                     handler.postDelayed(this, 200);

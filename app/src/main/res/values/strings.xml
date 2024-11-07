@@ -12,5 +12,16 @@
 
     </string-array>
 
+    <!-- Prompt for selection up to 4 items (Memory Modules) -->
+    <string name="select_up_to_4">Select up to 4</string>
+
+    <!-- Prompt for selection up to 2 items (Hard Drives) -->
+    <string name="select_up_to_2">Select up to 2</string>
+
+    <!-- Prompt for selection up to 3 items (Monitors and Development Tools) -->
+    <string name="select_up_to_3">Select up to 3</string>
+
+
+
 
 </resources>

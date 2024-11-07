@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -44,7 +45,7 @@ public class StorekeeperActivity extends AppCompatActivity {
     // Modify/Delete Item variables
     private Button sendToRemoveEditItemLayoutButton, modifyItemButton, deleteItemButton, incrementButton, decrementButton;
     private String foundComment, foundDescription, foundSubType, foundQuantity;
-    private TextView errorTextSubtypeItemInput, errorTextModifyDeleteItem;
+    private TextView errorTextDescriptionItemInput, errorTextModifyDeleteItem;
     private EditText textSubtypeModificationItem, textDescriptionModificationItem, textQuantityModificationItem, textCommentModificationItem, modifyRemoveDescriptionItemInput;
     private int quantity;
 
@@ -71,7 +72,7 @@ public class StorekeeperActivity extends AppCompatActivity {
         sendToRemoveEditItemLayoutButton = findViewById(R.id.sendToModifyRemoveItemLayoutButton);
         tabularListButton = findViewById(R.id.sendToTabularList);
         viewItemInformationsButton = findViewById(R.id.viewItemInformationsButton);
-        errorTextSubtypeItemInput = findViewById(R.id.errorTextSubtypeItemInput);
+        errorTextDescriptionItemInput = findViewById(R.id.errorTextSubtypeItemInput);
 
         // Initialize the Database Reference globally for Components
         databaseRef = FirebaseDatabase.getInstance().getReference().child("Components");
@@ -145,7 +146,15 @@ public class StorekeeperActivity extends AppCompatActivity {
                 }
 
                 // Check if the item already exists based on description
-                checkIfItemExistsAndAdd(description, componentType, subType, quantity, comment, databaseRef, infoTextAddItem);
+                checkIfItemExists(description, databaseRef, infoTextAddItem, new ItemExistenceCallback() {
+                    @Override
+                    public void onResult(boolean exists, Integer x) {
+                        if (!exists) {
+                            addNewItem(subType, description, quantity, comment, componentType, databaseRef,infoTextAddItem);
+                        }
+                    }
+                });
+
                 clearInputFields();
             });
         });
@@ -169,8 +178,8 @@ public class StorekeeperActivity extends AppCompatActivity {
             if (!descriptionToSearch.isEmpty()) {
                 searchItemByDescription(descriptionToSearch);
             } else {
-                errorTextSubtypeItemInput.setText("Please enter a valid description title.");
-                errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                errorTextDescriptionItemInput.setText("Please enter a valid description title.");
+                errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
             }
         });
 
@@ -183,8 +192,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                 searchItemForInformation(descriptionToSearch);
 
             } else {
-                errorTextSubtypeItemInput.setText("Please enter a valid item description.");
-                errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                errorTextDescriptionItemInput.setText("Please enter a valid item description.");
+                errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
             }
         });
 
@@ -213,43 +222,47 @@ public class StorekeeperActivity extends AppCompatActivity {
     }
 
     // Add item method
-    public static void checkIfItemExistsAndAdd(String description, String componentType, String subType, int quantity, String comment, DatabaseReference databaseRef, TextView textView) {
+    public static void checkIfItemExists(String description, DatabaseReference databaseRef, TextView textView, ItemExistenceCallback callback) {
         // Search in Hardware
         databaseRef.child("Hardware").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot hardwareSnapshot) {
                 if (hardwareSnapshot.exists()) {
-                    if(textView != null){
+                    if(textView != null) {
                         textView.setText("An item with this description already exists in Hardware.");
                         textView.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d(TAG, "An item with this description already exists in Hardware.");
                     }
-                    else{
-                        Log.d(TAG, "An item with this description already exists in Hardware. ");
-                    }
+                    DataSnapshot firstMatch = hardwareSnapshot.getChildren().iterator().next();
+                    Integer quantity = firstMatch.child("quantity").getValue(Integer.class);
 
+                    callback.onResult(true, quantity);
                 } else {
-
+                    // Check in Software
                     databaseRef.child("Software").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot softwareSnapshot) {
                             if (softwareSnapshot.exists()) {
-                                if(textView != null){
+                                if(textView != null) {
                                     textView.setText("An item with this description already exists in Software.");
                                     textView.setVisibility(View.VISIBLE);
+                                } else {
+                                    Log.d(TAG, "An item with this description already exists in Software.");
                                 }
-                                else{
-                                    Log.d(TAG, "An item with this description already exists in Software. ");
-                                }
-
+                                DataSnapshot firstMatch = softwareSnapshot.getChildren().iterator().next();
+                                Integer quantity = firstMatch.child("quantity").getValue(Integer.class);
+                                callback.onResult(true, quantity);
                             } else {
-                                // If no match in both Hardware and Software, proceed to add the new item
-                                addNewItem(subType, description, quantity, comment, componentType, databaseRef,textView);
+                                // Item does not exist in Hardware or Software
+                                callback.onResult(false, 0);
                             }
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             Log.d(TAG, "Error checking Software: " + databaseError.getMessage());
+                            callback.onResult(false, 0);
                         }
                     });
                 }
@@ -258,13 +271,15 @@ public class StorekeeperActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d(TAG, "Error checking Hardware: " + databaseError.getMessage());
-                databaseError.toException().printStackTrace();
+                callback.onResult(false, 0);
             }
         });
     }
 
 
-    private static void addNewItem(String subType, String description, int quantity, String comment, String componentType, DatabaseReference databaseRef, TextView textView) {
+
+
+    public static void addNewItem(String subType, String description, int quantity, String comment, String componentType, DatabaseReference databaseRef, TextView textView) {
         DatabaseReference componentRef = databaseRef.child(componentType);
 
         if (componentType.equals("Hardware")) {
@@ -322,7 +337,7 @@ public class StorekeeperActivity extends AppCompatActivity {
     // Method to search item and display information
     private void searchItemForInformation(String description) {
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        DatabaseReference softwareRef = databaseRef.child("Software");
+
 
         // Search in 'Hardware' components
         hardwareRef.orderByChild("description").equalTo(description.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -383,8 +398,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                     }
                 } else {
                     // Item not found
-                    errorTextSubtypeItemInput.setText("Item with this description not found.");
-                    errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                    errorTextDescriptionItemInput.setText("Item with this description not found.");
+                    errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -472,8 +487,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                     }
                 } else {
                     // Si l'élément n'est trouvé ni dans "Hardware" ni dans "Software", afficher un message d'erreur
-                    errorTextSubtypeItemInput.setText("Item with this description not found.");
-                    errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                    errorTextDescriptionItemInput.setText("Item with this description not found.");
+                    errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -497,6 +512,7 @@ public class StorekeeperActivity extends AppCompatActivity {
         errorTextModifyDeleteItem = findViewById(R.id.errorTextModifyDeleteItem);
         modifyItemButton = findViewById(R.id.modifyItemButton);
         deleteItemButton = findViewById(R.id.deleteItemButton);
+
 
         // Initialize buttons for increment/decrement
         incrementButton = findViewById(R.id.incrementButton);
@@ -526,7 +542,11 @@ public class StorekeeperActivity extends AppCompatActivity {
         decrementButton.setOnClickListener(v -> decrementQuantity());
 
         // Modify button logic
-        modifyItemButton.setOnClickListener(v -> applyChanges());
+        modifyItemButton.setOnClickListener(v -> {
+            String updatedComment = textCommentModificationItem.getText().toString().trim();
+            applyChanges(databaseRef, foundDescription, quantity,updatedComment,true,errorTextModifyDeleteItem);
+        });
+
 
         // Delete button logic
         deleteItemButton.setOnClickListener(v -> deleteItem());
@@ -552,65 +572,71 @@ public class StorekeeperActivity extends AppCompatActivity {
     }
 
     // Modify item method
-    public void applyChanges() {
-        String updatedComment = textCommentModificationItem.getText().toString().trim();
-
-        // Validate inputs
-        if (quantity <= 0) {
-            errorTextModifyDeleteItem.setText("Please enter a valid quantity.");
-            errorTextModifyDeleteItem.setVisibility(View.VISIBLE);
-            return;
-        }
-
+    public static void applyChanges(DatabaseReference databaseRef, String description, int quantity, String comment, boolean isStorekeeper, TextView infoText) {
+        
         // Update the item in 'Hardware' first, based on description
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        hardwareRef.orderByChild("description").equalTo(foundDescription).addListenerForSingleValueEvent(new ValueEventListener() {
+        hardwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        // Only update comment and quantity
-                        userSnapshot.getRef().child("comment").setValue(updatedComment);
+                        if (comment != null){
+                            userSnapshot.getRef().child("comment").setValue(comment);
+                        }
                         userSnapshot.getRef().child("quantity").setValue(quantity);
-                        userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                        Toast.makeText(StorekeeperActivity.this, "Hardware item updated successfully", Toast.LENGTH_SHORT).show();
+                        if(isStorekeeper) {
+                            userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+                        }
                     }
                 } else {
                     // If not found in 'Hardware', check 'Software'
-                    updateSoftwareComponent(quantity, updatedComment);
+                    updateSoftwareComponent(databaseRef, description,quantity, comment,isStorekeeper, infoText);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error while updating: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onCancelled: error");
             }
         });
     }
 
     // Update 'Software' components if not found in 'Hardware'
-    private void updateSoftwareComponent(int quantity, String updatedComment) {
+    public static void updateSoftwareComponent(DatabaseReference databaseRef,String description, int quantity, String comment, boolean isStorekeeper, TextView infoText) {
         DatabaseReference softwareRef = databaseRef.child("Software");
-        softwareRef.orderByChild("description").equalTo(foundDescription).addListenerForSingleValueEvent(new ValueEventListener() {
+        softwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         // Only update comment and quantity
-                        userSnapshot.getRef().child("comment").setValue(updatedComment);
+                        if (comment != null){
+                            userSnapshot.getRef().child("comment").setValue(comment);
+                        }
                         userSnapshot.getRef().child("quantity").setValue(quantity);
-                        userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                        Toast.makeText(StorekeeperActivity.this, "Software item updated successfully", Toast.LENGTH_SHORT).show();
+                        if(isStorekeeper) {
+                            userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+                        }
                     }
                 } else {
-                    errorTextModifyDeleteItem.setText("Item not found.");
-                    errorTextModifyDeleteItem.setVisibility(View.VISIBLE);
+                    if(isStorekeeper) {
+                        if(infoText != null){
+                            infoText.setText("Item not found.");
+                            infoText.setVisibility(View.VISIBLE);
+                        }
+
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error while updating: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                if(isStorekeeper) {
+                    Log.d(TAG, "onCancelled: error");
+                }
             }
         });
     }
@@ -725,9 +751,11 @@ public class StorekeeperActivity extends AppCompatActivity {
                             TextView detailTextView = new TextView(StorekeeperActivity.this);
                             detailTextView.setText(detail);
                             detailTextView.setGravity(Gravity.CENTER);
-                            detailTextView.setPadding(8, 8, 8, 8);
+                            detailTextView.setPadding(2, 2, 2, 2);
                             detailTextView.setBackgroundColor(0xFFE3F2FD); // Light blue background for rows
                             detailTextView.setTextColor(0xFF000000);
+                            detailTextView.setSingleLine(false);
+                            detailTextView.setMaxWidth(150);
                             componentRow.addView(detailTextView);
                         }
 

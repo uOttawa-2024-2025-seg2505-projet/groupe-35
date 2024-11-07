@@ -1,41 +1,167 @@
 {
   "Components": {
     "Hardware": {
-      "boitier2": {
-        "comment": "c'est un boitier",
+      "case_XYZ500": {
+        "comment": "High-quality metal case for server builds",
         "dateTimeCreation": "20-10-2024 23:32:30",
         "dateTimeModification": "22-10-2024 21:20:36",
-        "description": "XYZ500",
-        "quantity": 12,
-        "subType": "boitier",
+        "description": "Case XYZ500",
+        "quantity": 10,
+        "subType": "case",
         "type": "Hardware"
       },
-      "a": {
-        "comment": "c'est un boitier",
-        "dateTimeCreation": "20-10-2024 23:32:30",
-        "dateTimeModification": "22-10-2024 21:20:36",
-        "description": "b",
-        "quantity": 12,
-        "subType": "boitier",
+      "case_ABC700": {
+        "comment": "Compact case with noise-canceling features",
+        "dateTimeCreation": "21-10-2024 10:15:45",
+        "dateTimeModification": "22-10-2024 13:45:12",
+        "description": "Case ABC700",
+        "quantity": 8,
+        "subType": "case",
+        "type": "Hardware"
+      },
+      "motherboard_GX800": {
+        "comment": "High-performance motherboard with multiple PCI slots",
+        "dateTimeCreation": "23-10-2024 08:32:22",
+        "dateTimeModification": "24-10-2024 14:11:33",
+        "description": "Motherboard GX800",
+        "quantity": 5,
+        "subType": "motherboard",
+        "type": "Hardware"
+      },
+      "motherboard_QW400": {
+        "comment": "Compact motherboard suitable for small cases",
+        "dateTimeCreation": "23-10-2024 09:15:44",
+        "dateTimeModification": "24-10-2024 15:10:45",
+        "description": "Motherboard QW400",
+        "quantity": 6,
+        "subType": "motherboard",
+        "type": "Hardware"
+      },
+      "memory_16GBDDR4": {
+        "comment": "High-speed 16GB DDR4 memory module",
+        "dateTimeCreation": "24-10-2024 12:30:00",
+        "dateTimeModification": "24-10-2024 12:45:00",
+        "description": "Memory 16GBDDR4",
+        "quantity": 4,
+        "subType": "memory",
+        "type": "Hardware"
+      },
+      "Memory 8GBDDR3": {
+        "comment": "8GB DDR3 memory for legacy support",
+        "dateTimeCreation": "24-10-2024 13:00:00",
+        "dateTimeModification": "24-10-2024 13:15:00",
+        "description": "Memory 8GBDDR3",
+        "quantity": 6,
+        "subType": "memory",
+        "type": "Hardware"
+      },
+      "Hard Drive HDD1TB": {
+        "comment": "1TB HDD for mass storage",
+        "dateTimeCreation": "24-10-2024 14:10:10",
+        "dateTimeModification": "24-10-2024 14:20:20",
+        "description": "Hard Drive HDD1TB",
+        "quantity": 3,
+        "subType": "hard drive",
+        "type": "Hardware"
+      },
+      "Hard Drive SSD512GB": {
+        "comment": "512GB SSD for fast data access",
+        "dateTimeCreation": "24-10-2024 14:30:30",
+        "dateTimeModification": "24-10-2024 14:40:40",
+        "description": "Hard Drive SSD512GB",
+        "quantity": 2,
+        "subType": "hard drive",
+        "type": "Hardware"
+      },
+      "monitor_HD24inch": {
+        "comment": "24-inch HD monitor with HDMI input",
+        "dateTimeCreation": "24-10-2024 15:00:00",
+        "dateTimeModification": "24-10-2024 15:10:00",
+        "description": "Monitor HD24inch",
+        "quantity": 5,
+        "subType": "monitor",
+        "type": "Hardware"
+      },
+      "monitor_4K27inch": {
+        "comment": "27-inch 4K monitor for detailed visuals",
+        "dateTimeCreation": "24-10-2024 15:20:00",
+        "dateTimeModification": "24-10-2024 15:30:00",
+        "description": "Monitor 4K27inch",
+        "quantity": 3,
+        "subType": "monitor",
+        "type": "Hardware"
+      },
+      "keyboardMouse_WirelessCombo": {
+        "comment": "Wireless keyboard and mouse combo",
+        "dateTimeCreation": "24-10-2024 15:45:00",
+        "dateTimeModification": "24-10-2024 15:50:00",
+        "description": "Keyboard_Mouse WirelessCombo",
+        "quantity": 10,
+        "subType": "Keyboard_Mouse",
+        "type": "Hardware"
+      },
+      "keyboardMouse_GamingCombo": {
+        "comment": "RGB-lit gaming keyboard and mouse combo",
+        "dateTimeCreation": "24-10-2024 16:00:00",
+        "dateTimeModification": "24-10-2024 16:10:00",
+        "description": "Keyboard_Mouse GamingCombo",
+        "quantity": 8,
+        "subType": "Keyboard_Mouse",
         "type": "Hardware"
       }
     },
     "Software": {
-      "processeur": {
-        "comment": "",
-        "dateTimeCreation": "20-10-2024 23:33:35",
+      "WebBrowser X": {
+        "comment": "Lightweight operating system for embedded systems",
+        "dateTimeCreation": "23-10-2024 10:15:23",
         "dateTimeModification": "",
-        "description": "test2",
-        "quantity": 26,
-        "subType": "processeur",
+        "description": "Web Browser X",
+        "quantity": 20,
+        "subType": "Web Browser",
         "type": "Software"
-      },"processeur": {
-        "comment": "",
-        "dateTimeCreation": "20-10-2024 23:33:35",
+      },
+      "WebBrowser Y": {
+        "comment": "Lightweight operating system for embedded systems",
+        "dateTimeCreation": "23-10-2024 10:15:23",
         "dateTimeModification": "",
-        "description": "test1",
-        "quantity": 26,
-        "subType": "processeur",
+        "description": "Web Browser Y",
+        "quantity": 20,
+        "subType": "Web Browser",
+        "type": "Software"
+      },
+      "Office Suite A": {
+        "comment": "Operating system tailored for lightweight applications",
+        "dateTimeCreation": "23-10-2024 11:30:45",
+        "dateTimeModification": "",
+        "description": "Office Suite A",
+        "quantity": 15,
+        "subType": "Office Suite",
+        "type": "Software"
+      },
+      "Office Suite B": {
+        "comment": "Advanced software for graphic design and 3D modeling",
+        "dateTimeCreation": "24-10-2024 09:00:00",
+        "dateTimeModification": "",
+        "description": "Office Suite B",
+        "quantity": 10,
+        "subType": "Office Suite",
+        "type": "Software"
+      },
+      "Development Tool X": {
+        "comment": "Code editor with AI-assisted syntax suggestions",
+        "dateTimeCreation": "24-10-2024 11:00:00",
+        "dateTimeModification": "",
+        "description": "Development Tool X",
+        "quantity": 30,
+        "subType": "Development Tool",
+        "type": "Software"
+      }, "Development Tool Y": {
+        "comment": "Code editor with AI-assisted syntax suggestions",
+        "dateTimeCreation": "24-10-2024 11:00:00",
+        "dateTimeModification": "",
+        "description": "Development Tool Y",
+        "quantity": 30,
+        "subType": "Development Tool",
         "type": "Software"
       }
     }
@@ -61,59 +187,6 @@
       "last name": "StorekeeperLast",
       "password": "storekeeper",
       "userType": "storekeeper"
-    },
-    "a": {
-      "date of creation": "19-10-2024 23:57:08",
-      "date of the last modification": "",
-      "email": "fichier2",
-      "first name": "",
-      "last name": "",
-      "password": "ff",
-      "userType": "requester"
-    },
-    "f": {
-      "email": "firstrequester@gmail.com",
-      "first name": "fistrequesterFirst",
-      "last modification": "18-10-2024 21:20:47",
-      "last name": "firstrequesterLast",
-      "password": "requester",
-      "userType": "requester"
-    },
-    "r": {
-      "date of creation": "19-10-2024 23:24:12",
-      "date of the last modification": "",
-      "email": "fichier2",
-      "first name": "",
-      "last name": "",
-      "password": "r",
-      "userType": "requester"
-    },
-    "x": {
-      "date of creation": "19-10-2024 23:17:57",
-      "date of the last modification": "",
-      "email": "x",
-      "first name": "",
-      "last name": "",
-      "password": "x",
-      "userType": "requester"
-    },
-    "z": {
-      "date of creation": "1ddd",
-      "date of the last modification": "dddddd",
-      "email": "zz",
-      "first name": "ddd",
-      "last name": "dddd",
-      "password": "ddddd",
-      "userType": "requester"
-    },
-    "zz": {
-      "date of creation": "19-10-2024 23:44:44",
-      "date of the last modification": "",
-      "email": "zz",
-      "first name": "",
-      "last name": "",
-      "password": "z",
-      "userType": "requester"
     }
   }
 }

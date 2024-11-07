@@ -47,6 +47,9 @@ public class Component {
         this.quantity = quantity;
         updateDateTimeModification();
     }
+    public void decrementQuantity(){
+        this.quantity -= 1;
+    }
 
     public void setComment(String comment) {
         this.comment = comment;
@@ -57,6 +60,8 @@ public class Component {
     private void updateDateTimeModification() {
         this.dateTimeModification = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
     }
+
+
 
 
 

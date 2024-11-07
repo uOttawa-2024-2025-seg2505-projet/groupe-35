@@ -1,0 +1,64 @@
+<resources>
+    <!-- Options for Case -->
+    <string-array name="case_options">
+        <item>Select an option</item>
+        <item>Case XYZ500</item>
+        <item>Case ABC700</item>
+    </string-array>
+
+    <!-- Options for Motherboard -->
+    <string-array name="motherboard_options">
+        <item>Select an option</item>
+        <item>Motherboard GX800</item>
+        <item>Motherboard QW400</item>
+    </string-array>
+
+    <!-- Options for Memory Modules -->
+    <string-array name="memory_modules_options">
+        <item>Select an option</item>
+        <item>Memory 16GBDDR4</item>
+        <item>Memory 8GBDDR3</item>
+    </string-array>
+
+    <!-- Options for Hard Drives -->
+    <string-array name="hard_drives_options">
+        <item>Select one or two items</item>
+        <item>Hard Drive SSD512GB</item>
+        <item>Hard Drive HDD1TB</item>
+    </string-array>
+
+    <!-- Options for Monitors -->
+    <string-array name="monitors_options">
+        <item>Select an option</item>
+        <item>Monitor HD24inch</item>
+        <item>Monitor 4K27inch</item>
+    </string-array>
+
+    <!-- Options for Keyboard-Mouse Combo -->
+    <string-array name="keyboard_mouse_options">
+        <item>Select an option</item>
+        <item>Keyboard_Mouse WirelessCombo</item>
+        <item>Keyboard_Mouse GamingCombo</item>
+    </string-array>
+
+    <!-- Options for Web Browser -->
+    <string-array name="web_browser_options">
+        <item>Select an option</item>
+        <item>Web Browser X</item>
+        <item>Web Browser Y</item>
+    </string-array>
+
+    <!-- Options for Office Suite -->
+    <string-array name="office_suite_options">
+        <item>Select an option</item>
+        <item>Office Suite A</item>
+        <item>Office Suite B</item>
+    </string-array>
+
+    <!-- Options for Development Tools -->
+    <string-array name="development_tools_options">
+        <item>Select from 0 to 3 items</item>
+        <item>Development Tool X</item>
+        <item>Development Tool Y</item>
+    </string-array>
+</resources>

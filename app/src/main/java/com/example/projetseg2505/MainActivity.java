@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Button loginButton;
     private DatabaseReference db;
     private TextView errorTextView;
+    String userEmail;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loginUser() {
         String email = emailText.getText().toString().trim();
+        userEmail = email;
         String password = passwordText.getText().toString().trim();
 
         errorTextView.setVisibility(View.GONE);
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "requester":
                 intent = new Intent(this, RequesterActivity.class);
+                intent.putExtra("userEmail", userEmail);
                 break;
             case "storekeeper":
                 intent = new Intent(this, StorekeeperActivity.class);
@@ -127,4 +130,5 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
+    public String getUserEmail(){return userEmail;}
 }
