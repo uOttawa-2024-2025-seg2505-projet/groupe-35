@@ -87,7 +87,7 @@
         android:id="@+id/viewMyOrderButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="View My Orders"
+        android:text="View / Delete My Orders"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
