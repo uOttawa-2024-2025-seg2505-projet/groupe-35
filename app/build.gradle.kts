@@ -46,7 +46,10 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
     testImplementation(libs.junit)
+    testImplementation ("org.mockito:mockito-core:4.8.0")
+    testImplementation ("org.mockito:mockito-inline:4.8.0")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+
 }

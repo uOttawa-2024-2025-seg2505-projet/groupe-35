@@ -1,0 +1,299 @@
+{
+  "Components": {
+    "Hardware": {
+      "Case ABC200": {
+        "comment": "",
+        "dateTimeCreation": "06-11-2024 20:34:33",
+        "dateTimeModification": "",
+        "description": "Case ABC200",
+        "quantity": 12,
+        "subType": "case",
+        "type": "Hardware"
+      },
+      "Case ABC700": {
+        "comment": "Compact case with noise-canceling features",
+        "dateTimeCreation": "06-11-2024 20:33:03",
+        "dateTimeModification": "",
+        "description": "Case ABC700",
+        "quantity": 7,
+        "subType": "case",
+        "type": "Hardware"
+      },
+      "Case ABC800": {
+        "comment": "",
+        "dateTimeCreation": "06-11-2024 21:07:53",
+        "dateTimeModification": "",
+        "description": "Case ABC800",
+        "quantity": 19,
+        "subType": "case",
+        "type": "Hardware"
+      },
+      "Case XYZ500": {
+        "comment": "High-quality metal case for server builds",
+        "dateTimeCreation": "06-11-2024 20:33:03",
+        "dateTimeModification": "",
+        "description": "Case XYZ500",
+        "quantity": 4,
+        "subType": "case",
+        "type": "Hardware"
+      },
+      "Hard Drive HDD1TB": {
+        "comment": "1TB HDD for mass storage",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Hard Drive HDD1TB",
+        "quantity": 8,
+        "subType": "hard drive",
+        "type": "Hardware"
+      },
+      "Hard Drive SSD512GB": {
+        "comment": "512GB SSD for fast data access",
+        "dateTimeCreation": "06-11-2024 20:33:05",
+        "dateTimeModification": "",
+        "description": "Hard Drive SSD512GB",
+        "quantity": 0,
+        "subType": "hard drive",
+        "type": "Hardware"
+      },
+      "Keyboard_Mouse GamingCombo": {
+        "comment": "RGB-lit gaming keyboard and mouse combo",
+        "dateTimeCreation": "06-11-2024 20:33:06",
+        "dateTimeModification": "",
+        "description": "Keyboard_Mouse GamingCombo",
+        "quantity": -3,
+        "subType": "Keyboard_Mouse",
+        "type": "Hardware"
+      },
+      "Keyboard_Mouse WirelessCombo": {
+        "comment": "Wireless keyboard and mouse combo",
+        "dateTimeCreation": "06-11-2024 20:33:05",
+        "dateTimeModification": "",
+        "description": "Keyboard_Mouse WirelessCombo",
+        "quantity": 5,
+        "subType": "Keyboard_Mouse",
+        "type": "Hardware"
+      },
+      "Memory 16GBDDR4": {
+        "comment": "High-speed 16GB DDR4 memory module",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Memory 16GBDDR4",
+        "quantity": 15,
+        "subType": "memory",
+        "type": "Hardware"
+      },
+      "Memory 8GBDDR3": {
+        "comment": "8GB DDR3 memory for legacy support",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Memory 8GBDDR3",
+        "quantity": -1,
+        "subType": "memory",
+        "type": "Hardware"
+      },
+      "Monitor 4K27inch": {
+        "comment": "27-inch 4K monitor for detailed visuals",
+        "dateTimeCreation": "06-11-2024 20:33:05",
+        "dateTimeModification": "",
+        "description": "Monitor 4K27inch",
+        "quantity": 1,
+        "subType": "monitor",
+        "type": "Hardware"
+      },
+      "Monitor HD24inch": {
+        "comment": "24-inch HD monitor with HDMI input",
+        "dateTimeCreation": "06-11-2024 20:33:05",
+        "dateTimeModification": "",
+        "description": "Monitor HD24inch",
+        "quantity": 10,
+        "subType": "monitor",
+        "type": "Hardware"
+      },
+      "Motherboard GX800": {
+        "comment": "High-performance motherboard with multiple PCI slots",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Motherboard GX800",
+        "quantity": 25,
+        "subType": "motherboard",
+        "type": "Hardware"
+      },
+      "Motherboard QW400": {
+        "comment": "Compact motherboard suitable for small cases",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Motherboard QW400",
+        "quantity": 4,
+        "subType": "motherboard",
+        "type": "Hardware"
+      },
+      "a": {
+        "comment": "",
+        "dateTimeCreation": "06-11-2024 20:34:11",
+        "dateTimeModification": "",
+        "description": "a",
+        "quantity": 10,
+        "subType": "a",
+        "type": "Hardware"
+      },
+      "status": {
+        "status": "le stockage de Hardware:"
+      }
+    },
+    "Software": {
+      "Development Tool X": {
+        "comment": "Code editor with AI-assisted syntax suggestions",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Development Tool X",
+        "quantity": 5,
+        "subType": "Development Tool",
+        "type": "Software"
+      },
+      "Development Tool Y": {
+        "comment": "Code editor with AI-assisted syntax suggestions",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Development Tool Y",
+        "quantity": 18,
+        "subType": "Development Tool",
+        "type": "Software"
+      },
+      "Office Suite A": {
+        "comment": "Operating system tailored for lightweight applications",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Office Suite A",
+        "quantity": 0,
+        "subType": "Office Suite",
+        "type": "Software"
+      },
+      "Office Suite B": {
+        "comment": "Advanced software for graphic design and 3D modeling",
+        "dateTimeCreation": "06-11-2024 20:33:04",
+        "dateTimeModification": "",
+        "description": "Office Suite B",
+        "quantity": 1,
+        "subType": "Office Suite",
+        "type": "Software"
+      },
+      "Web Browser X": {
+        "comment": "Lightweight operating system for embedded systems",
+        "dateTimeCreation": "06-11-2024 20:33:03",
+        "dateTimeModification": "",
+        "description": "Web Browser X",
+        "quantity": 6,
+        "subType": "Web Browser",
+        "type": "Software"
+      },
+      "Web Browser Y": {
+        "comment": "Lightweight operating system for embedded systems",
+        "dateTimeCreation": "06-11-2024 20:33:03",
+        "dateTimeModification": "",
+        "description": "Web Browser Y",
+        "quantity": 28,
+        "subType": "Web Browser",
+        "type": "Software"
+      },
+      "status": {
+        "status": "le stockage de software:"
+      }
+    }
+  },
+  "Orders": {
+    "Orders": "This section contains the orders",
+    "a": {
+      "-OB7DC8uxY-iE8GmYbxg": {
+        "Date Of Creation": "07-11-2024 20:02:39",
+        "Date Of Modification": "",
+        "Status": "Waiting for acceptance",
+        "computerCase": "Case XYZ500",
+        "developmentTools": "Development Tool X",
+        "hardDrive": "Hard Drive SSD512GB",
+        "keyboardMouse": "Keyboard_Mouse WirelessCombo",
+        "memoryStick": "Memory 16GBDDR4",
+        "monitor": "Monitor HD24inch",
+        "motherboard": "Motherboard GX800",
+        "numberOfMemorySticks": 1,
+        "numberOfMonitors": 1,
+        "officeSuite": "Office Suite A",
+        "requesterID": "a",
+        "webBrowser": "Web Browser X"
+      },
+      "-OB7IJBHdfJI9SEAItVW": {
+        "Date Of Creation": "07-11-2024 20:24:59",
+        "Date Of Modification": "",
+        "Status": "Waiting for acceptance",
+        "computerCase": "Case XYZ500",
+        "developmentTools": "Development Tool Y",
+        "hardDrive": "Hard Drive HDD1TB",
+        "keyboardMouse": "Keyboard_Mouse GamingCombo",
+        "memoryStick": "Memory 8GBDDR3",
+        "monitor": "Monitor 4K27inch",
+        "motherboard": "Motherboard QW400",
+        "numberOfMemorySticks": 1,
+        "numberOfMonitors": 1,
+        "officeSuite": "Office Suite B",
+        "requesterID": "a",
+        "webBrowser": "Web Browser Y"
+      }
+    },
+    "b": {
+      "-OB6Xfwh1jVwHZbYBXD8": {
+        "computerCase": "Case XYZ500",
+        "developmentTools": "Development Tool X",
+        "hardDrive": "Hard Drive SSD512GB",
+        "keyboardMouse": "Keyboard_Mouse WirelessCombo",
+        "memoryStick": "Memory 16GBDDR4",
+        "monitor": "Monitor HD24inch",
+        "motherboard": "Motherboard GX800",
+        "numberOfMemorySticks": 1,
+        "numberOfMonitors": 1,
+        "officeSuite": "Office Suite A",
+        "requesterID": "b",
+        "webBrowser": "Web Browser X"
+      }
+    }
+  },
+  "User": {
+    "Admin": {
+      "email": "admin@gmail.com",
+      "first name": "AdminFirst",
+      "last name": "AdminLast",
+      "password": "admin",
+      "userType": "admin"
+    },
+    "Assembler": {
+      "email": "assembler@gmail.com",
+      "first name": "AssemblerFirst",
+      "last name": "AssemblerLast",
+      "password": "assembler",
+      "userType": "assembler"
+    },
+    "StoreKeeper": {
+      "email": "storekeeper@gmail.com",
+      "first name": "StorekeeperFirst",
+      "last name": "StorekeeperLast",
+      "password": "storekeeper",
+      "userType": "storekeeper"
+    },
+    "a": {
+      "date of creation": "06-11-2024 20:33:15",
+      "date of the last modification": "",
+      "email": "a",
+      "first name": "",
+      "last name": "",
+      "password": "a",
+      "userType": "requester"
+    },
+    "b": {
+      "date of creation": "07-11-2024 16:51:56",
+      "date of the last modification": "",
+      "email": "b",
+      "first name": "",
+      "last name": "",
+      "password": "b",
+      "userType": "requester"
+    }
+  }
+}
