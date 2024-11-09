@@ -13,11 +13,8 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Orders {
-    // database ref
-    private DatabaseReference userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
-    private DatabaseReference componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
-    private DatabaseReference ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
 
+    DatabaseReference userDatabaseRef, componentDatabaseRef, ordersDatabaseRef;
 
     //order info
     private String requesterID;
@@ -29,28 +26,29 @@ public class Orders {
     private String computerCase;
     private String motherboard;
     private String memoryStick;
-    private int numberOfMemorySticks;
-    private ArrayList<String> listOfHardDrive;
+     int numberOfMemorySticks;
+     ArrayList<String> listOfHardDrive;
     private String monitor;
-    private int numberOfMonitors;
+     int numberOfMonitors;
     private String keyboardMouse;
 
     //Software components
     private String webBrowser;
-    private String officeSuite;
-    private ArrayList<String> listOfDevelopmentTools;
+    String officeSuite;
+     ArrayList<String> listOfDevelopmentTools;
 
     //componenet info
-    private ArrayList<Integer> quantityTable;
-    private int computerCaseQuantityDatabase;
-    private int motherboardQuantityDatabase;
-    private int memoryStickQuantityDatabase;
-    private int[] listOfHardDriveQuantityDatabase;
-    private int monitorQuantityDatabase;
-    private int keyboardMouseQuantityDatabase;
-    private int webBrowserQuantityDatabase;
-    private int officeSuiteQuantityDatabase;
-    private int[] listOfDevelopmentToolsQuantityDatabase;
+    ArrayList<Integer> quantityTable;
+    ArrayList<Boolean> existingTable;
+    int computerCaseQuantityDatabase;
+    int motherboardQuantityDatabase;
+    int memoryStickQuantityDatabase;
+    int[] listOfHardDriveQuantityDatabase;
+    int monitorQuantityDatabase;
+    int keyboardMouseQuantityDatabase;
+    int webBrowserQuantityDatabase;
+    int officeSuiteQuantityDatabase;
+    int[] listOfDevelopmentToolsQuantityDatabase;
 
 
     public Orders(String requesterID, String computerCase, String motherboard, String memoryStick, int numberOfMemorySticks, ArrayList<String> listOfHardDrive, String monitor, int numberOfMonitors, String keyboardMouse, String webBrowser, String officeSuite, ArrayList<String> listOfDevelopmentTools) {
@@ -71,8 +69,15 @@ public class Orders {
         this.status = "Waiting for acceptance";
 
     }
+    private void initFirebaseReferences() {
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
+        componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
+        ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
+
+    }
 
     public void pushOrderToDatabase() {
+        initFirebaseReferences();
         HashMap<String, Object> orderDetails = new HashMap<>();
         orderDetails.put("requesterID", requesterID);
         orderDetails.put("computerCase", computerCase);
@@ -108,7 +113,8 @@ public class Orders {
 
 
     public boolean checkIfItemsExist(final ItemExistenceCallback finalCallback) {
-        ArrayList<Boolean> existingTable = new ArrayList<>();
+        initFirebaseReferences();
+        existingTable = new ArrayList<>();
         quantityTable = new ArrayList<>();
         AtomicInteger totalItems = new AtomicInteger(6 + listOfHardDrive.size() + listOfDevelopmentTools.size());
         if (officeSuite != null) {
@@ -183,7 +189,7 @@ public class Orders {
     }
 
     public boolean checkAvailableQuantities(){
-        if(computerCaseQuantityDatabase < 1 && motherboardQuantityDatabase < 1 && memoryStickQuantityDatabase < numberOfMemorySticks && motherboardQuantityDatabase < numberOfMonitors && keyboardMouseQuantityDatabase < 1 && webBrowserQuantityDatabase < 1){
+        if(computerCaseQuantityDatabase < 1 || motherboardQuantityDatabase < 1 || memoryStickQuantityDatabase < numberOfMemorySticks || monitorQuantityDatabase < numberOfMonitors || keyboardMouseQuantityDatabase < 1 || webBrowserQuantityDatabase < 1){
             return false;
         }
         else{
@@ -226,7 +232,7 @@ public class Orders {
 
 
     public void refreshDatabaseInfo(){
-
+        initFirebaseReferences();
         int newComputerCaseQuantityDatabase = computerCaseQuantityDatabase-1;
         int newMotherboardQuantityDatabase = motherboardQuantityDatabase-1;
         int newMemoryStickQuantityDatabase = memoryStickQuantityDatabase - numberOfMemorySticks;
@@ -260,5 +266,66 @@ public class Orders {
         StorekeeperActivity.applyChanges(componentDatabaseRef,webBrowser,newWebBrowserQuantityDatabase,null,false,null);
 
     }
+
+    public String getRequesterID() {
+        return requesterID;
+    }
+
+    public String getComputerCase() {
+        return computerCase;
+    }
+
+    public String getMotherboard() {
+        return motherboard;
+    }
+
+    public String getMemoryStick() {
+        return memoryStick;
+    }
+
+    public int getNumberOfMemorySticks() {
+        return numberOfMemorySticks;
+    }
+
+    public ArrayList<String> getListOfHardDrive() {
+        return listOfHardDrive;
+    }
+
+    public String getMonitor() {
+        return monitor;
+    }
+
+    public int getNumberOfMonitors() {
+        return numberOfMonitors;
+    }
+
+    public String getKeyboardMouse() {
+        return keyboardMouse;
+    }
+
+    public String getWebBrowser() {
+        return webBrowser;
+    }
+
+    public String getOfficeSuite() {
+        return officeSuite;
+    }
+
+    public ArrayList<String> getListOfDevelopmentTools() {
+        return listOfDevelopmentTools;
+    }
+
+    public String getDateTimeOrder() {
+        return dateTimeOrder;
+    }
+
+    public String getDateTimeModification() {
+        return dateTimeModification;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
 }
 
