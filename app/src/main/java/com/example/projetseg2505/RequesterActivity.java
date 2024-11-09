@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -18,6 +19,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
@@ -36,12 +38,14 @@ public class RequesterActivity extends AppCompatActivity {
     private Spinner computerCase, motherboard, memoryStick, hardDrive, monitor, keyboardMouse, webBrowser, officeSuite, developmentTools;
     private EditText numberOfMonitors,  numberOfMemorySticks ;
     private TextView errorTextNewOrderLayout;
-    private ArrayList<String> hardDriveArray, developmentToolsArray;
+    private ArrayList<String> hardDriveArray, developmentToolsArray, itemsWithSameSubtype;
     private String computerCaseDescription, motherboardDescription, memoryStickDescription, monitorDescription, keyboardMouseDescription, webBrowserDescription, requesterEmail, officeSuiteDescription;
     private int numberOfMonitorsInt,numberOfMemorySticksInt;
 
     //view orders
     private DatabaseReference ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
+    private DatabaseReference componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
+
     private Button viewMyOrderButton;
 
     @SuppressLint("MissingInflatedId")
@@ -97,56 +101,16 @@ public class RequesterActivity extends AppCompatActivity {
             hardDriveArray = new ArrayList<>();
             developmentToolsArray = new ArrayList<>();
 
-            hardDrive.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String hardDrive = parent.getItemAtPosition(position).toString();
-                    if(hardDriveArray.size()<2){
-                        if (!hardDrive.equals("Select one or two items")) {
-                            hardDriveArray.add(hardDrive);
-                        }
-                    }
-                    else{
-                        errorTextNewOrderLayout.setText("You can chose maximum 2 HardDrive.");
-                        errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-                    }
+            searchItemBySubtypeAndCreateSpinner("case",computerCase);
+            searchItemBySubtypeAndCreateSpinner("motherboard",motherboard);
+            searchItemBySubtypeAndCreateSpinner("memory",memoryStick);
+            searchItemBySubtypeAndCreateSpinner("hard drive",hardDrive);
+            searchItemBySubtypeAndCreateSpinner("monitor",monitor);
+            searchItemBySubtypeAndCreateSpinner("Keyboard_Mouse",keyboardMouse);
+            searchItemBySubtypeAndCreateSpinner("Web Browser",webBrowser);
+            searchItemBySubtypeAndCreateSpinner("Office Suite",officeSuite);
+            searchItemBySubtypeAndCreateSpinner("Development Tool",developmentTools);
 
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Log.d(TAG, "Nothing selected ");
-                }
-
-            });
-            developmentTools.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String devTool = parent.getItemAtPosition(position).toString();
-                    if (!devTool.equals("Select from 0 to 3 items")) {
-                        if(developmentToolsArray.size()<3){
-                            if(!developmentToolsArray.contains(devTool)) {
-                                developmentToolsArray.add(devTool);
-                            }
-                            else{
-                                errorTextNewOrderLayout.setText("You will need to choose different Development Tools.");
-                                errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        else{
-                            errorTextNewOrderLayout.setText("You can chose maximum 3 different Development Tools.");
-                            errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-                        }
-
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Log.d(TAG, "Nothing selected ");
-                }
-
-            });
             createOrderButton.setOnClickListener(view -> {
                 createOrder();
             });
@@ -356,7 +320,120 @@ public class RequesterActivity extends AppCompatActivity {
 
 
 
+    public void searchItemBySubtypeAndCreateSpinner(String subtype, Spinner spinner) {
+
+        ArrayList<String> subtypeItems = new ArrayList<>();
+        if (subtype.equals("case") || subtype.equals("motherboard") || subtype.equals("memory") || subtype.equals("monitor") || subtype.equals("Keyboard_Mouse") || subtype.equals("Web Browser") || subtype.equals("Office Suite")){
+            subtypeItems.add("Select an option");
+        }
+        else if(subtype.equals("hard drive")){
+            subtypeItems.add("Select one or two items");
+        }
+        else{
+            subtypeItems.add("Select from 0 to 3 items");
+        }
+
+        searchItemBySubtypeInHardware(subtype, spinner, subtypeItems);
+
+        searchItemBySubtypeInSoftware(subtype, spinner, subtypeItems);
+    }
+
+    public void searchItemBySubtypeInHardware(String subtype, Spinner spinner, ArrayList<String> subtypeItems){
+        DatabaseReference hardwareRef = componentDatabaseRef.child("Hardware");
+        hardwareRef.orderByChild("subType").equalTo(subtype.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                        String itemDescription = itemSnapshot.child("description").getValue(String.class);
+                        subtypeItems.add(itemDescription);
+                    }
+                }
+
+                initializeSpinner(spinner, new ArrayList<>(subtypeItems));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "onCancelled: " + error.getMessage());
+            }
+        });
+    }
+
+    public void searchItemBySubtypeInSoftware(String subtype, Spinner spinner, ArrayList<String> subtypeItems){
+        DatabaseReference softwareRef = componentDatabaseRef.child("Software");
+        softwareRef.orderByChild("subType").equalTo(subtype.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                        String itemDescription = itemSnapshot.child("description").getValue(String.class);
+                        subtypeItems.add(itemDescription);
+                    }
+                }
+
+                initializeSpinner(spinner, new ArrayList<>(subtypeItems));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "onCancelled: " + error.getMessage());
+            }
+        });
+    }
+
+
+
+    private void initializeSpinner(Spinner spinner, ArrayList<String> dataList) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dataList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                if (spinner == hardDrive) {
+                    handleHardDriveSelection(selectedItem);
+                } else if (spinner == developmentTools) {
+                    handleDevelopmentToolsSelection(selectedItem);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d("SpinnerInit", "Nothing selected in " + spinner.getId());
+            }
+        });
+    }
+    private void handleHardDriveSelection(String selectedItem) {
+        if (hardDriveArray.size() < 2) {
+            if (!selectedItem.equals("Select one or two items")) {
+                hardDriveArray.add(selectedItem);
+            }
+        } else {
+            errorTextNewOrderLayout.setText("You can choose a maximum of 2 Hard Drives.");
+            errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Method for development tools selection handling
+    private void handleDevelopmentToolsSelection(String selectedItem) {
+        if (!selectedItem.equals("Select from 0 to 3 items")) {
+            if (developmentToolsArray.size() < 3) {
+                if (!developmentToolsArray.contains(selectedItem)) {
+                    developmentToolsArray.add(selectedItem);
+                } else {
+                    errorTextNewOrderLayout.setText("You need to choose different Development Tools.");
+                    errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+                }
+            } else {
+                errorTextNewOrderLayout.setText("You can choose a maximum of 3 different Development Tools.");
+                errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 
 
 }
+
+
 

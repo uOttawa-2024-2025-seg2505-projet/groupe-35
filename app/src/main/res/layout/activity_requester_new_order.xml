@@ -89,8 +89,7 @@
             <Spinner
                 android:id="@+id/computerCase"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/case_options" />
+                android:layout_height="wrap_content" />
 
             <!-- Spinner for Motherboard -->
             <TextView
@@ -103,8 +102,7 @@
             <Spinner
                 android:id="@+id/motherboard"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/motherboard_options" />
+                android:layout_height="wrap_content"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -125,7 +123,6 @@
                     android:layout_width="95dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:entries="@array/memory_modules_options"
                     android:prompt="@string/select_up_to_4" />
                 <!-- Input field on the left -->
                 <EditText
@@ -151,7 +148,6 @@
                 android:id="@+id/hardDrive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/hard_drives_options"
                 android:prompt="@string/select_up_to_2" />
 
             <!-- Spinner for Monitors (up to 3) -->
@@ -172,7 +168,6 @@
                     android:id="@+id/monitors"
                     android:layout_width="215dp"
                     android:layout_height="wrap_content"
-                    android:entries="@array/monitors_options"
                     android:prompt="@string/select_up_to_3" />
                 <!-- Input field on the left -->
                 <EditText
@@ -200,8 +195,7 @@
             <Spinner
                 android:id="@+id/keyboardMouse"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/keyboard_mouse_options" />
+                android:layout_height="wrap_content"/>
 
             <!-- Spinner for Web Browser -->
             <TextView
@@ -214,8 +208,7 @@
             <Spinner
                 android:id="@+id/webBrowser"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/web_browser_options" />
+                android:layout_height="wrap_content" />
 
             <!-- Spinner for Office Suite -->
             <TextView
@@ -228,8 +221,7 @@
             <Spinner
                 android:id="@+id/officeSuite"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/office_suite_options" />
+                android:layout_height="wrap_content" />
 
             <!-- Spinner for Development Tools (up to 3) -->
             <TextView
@@ -243,7 +235,6 @@
                 android:id="@+id/developmentTools"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/development_tools_options"
                 android:prompt="@string/select_up_to_3" />
 
             <TextView
