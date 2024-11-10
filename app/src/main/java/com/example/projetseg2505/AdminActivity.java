@@ -55,7 +55,7 @@ public class AdminActivity extends AppCompatActivity {
 
     // Add requester variables
     private EditText emailNewRequester, passwordNewRequester, firstNameNewRequester, lastNameNewRequester;
-    private Button addRequesterButton,returnButton;
+    private Button addRequesterButton;
     private TextView errorTextAddRequester, textAddedRequester;
 
     // Requester search for modification or suppression
@@ -74,154 +74,17 @@ public class AdminActivity extends AppCompatActivity {
     private ArrayList<String> listJsonFileNames;
     private Spinner fileNameSpinner;
 
+    //return buttons
+    private Button returnButtonModifyDeleteLayout, returnButtonAddRequester;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+        initializeMainLayout();
 
-        //Database refs
-        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
-        componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
-        ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
-
-
-
-        // Initialization of views in the admin layout
-
-        sendToAddRequesterLayoutButton = findViewById(R.id.sendToAddRequesterLayoutButton);
-        senToEditDeleteRequesterButton = findViewById(R.id.senToEditDeleteRequesterButton);
-        logoutButton = findViewById(R.id.logoutButton);
-        emailEditText = findViewById(R.id.emailEditText);
-        errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
-        resetDatabase = findViewById(R.id.resetDatabase);
-        resetStock = findViewById(R.id.resetStock);
-        fileNameSpinner = findViewById(R.id.fileNameSpinner);
-        listJsonFileNames = new ArrayList<>();
-
-        // Log Out functionality
-        logoutButton.setOnClickListener(v -> finish());
-
-
-        //Select file to read from spinner
-        fileNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedFileName = parent.getItemAtPosition(position).toString();
-                if (!selectedFileName.equals("Select one file or more")) {
-                    addFileNameToJsonFilesArray(selectedFileName);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.d(TAG, "Nothing selected ");
-            }
-
-        });
-
-        // resetdatabase and load from JSON
-        resetDatabase.setOnClickListener(view -> {
-            if(listJsonFileNames.isEmpty()){
-                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
-            }
-            else{
-                clearRequesters(userDatabaseRef, () -> {
-                    clearSoftwareComponents(componentDatabaseRef, () -> {
-                        clearHardwareComponents(componentDatabaseRef, () -> {
-                            loadRequestersFromManyJsonFiles(view.getContext());
-                            loadStockFromManyJsonFiles(view.getContext());
-                            fileNameSpinner.setSelection(0);
-                            listJsonFileNames.clear();
-                        });
-                    });
-                });
-
-
-            }
-
-
-        });
-
-        //reset Stock from json file
-        resetStock.setOnClickListener(view -> {
-            if(listJsonFileNames.isEmpty()){
-                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file" , Toast.LENGTH_SHORT).show();
-            }
-            else {
-                clearSoftwareComponents(componentDatabaseRef, () -> {
-                    clearHardwareComponents(componentDatabaseRef, () -> {
-                        loadStockFromManyJsonFiles(view.getContext());
-                        fileNameSpinner.setSelection(0);
-                        listJsonFileNames.clear();
-                    });
-                });
-
-            }
-
-        });
-
-        // ADD a requester manually
-        sendToAddRequesterLayoutButton.setOnClickListener(v -> {
-            setContentView(R.layout.activity_admin_add_requester);
-            //initialize views
-            firstNameNewRequester = findViewById(R.id.firstNameNewRequester);
-            lastNameNewRequester = findViewById(R.id.lastNameNewRequester);
-            emailNewRequester = findViewById(R.id.emailNewRequester);
-            passwordNewRequester = findViewById(R.id.passwordNewRequester);
-            addRequesterButton = findViewById(R.id.addRequesterButton);
-            errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
-            textAddedRequester = findViewById(R.id.textAddedRequester);
-            returnButton = findViewById(R.id.returnButton);
-
-            returnButton.setOnClickListener(view -> {
-                Intent intent = new Intent(this, AdminActivity.class);
-                startActivity(intent);
-                finish();
-
-
-
-
-            });
-
-
-
-            addRequesterButton.setOnClickListener(view -> {
-                String passwordNewRequesterString = passwordNewRequester.getText().toString();
-                String emailNewRequesterString = emailNewRequester.getText().toString();
-                String userType = "requester";
-                String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
-                String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
-                addRequester(emailNewRequesterString, passwordNewRequesterString, userType, firstNameNewRequesterString, lastNameNewRequesterString, errorTextAddRequester,textAddedRequester );
-            });
-        });
-
-        // Requester Search and sending to edit/delete layout
-        senToEditDeleteRequesterButton.setOnClickListener(v -> {
-            String emailToSearch = emailEditText.getText().toString().trim();
-            if (!emailToSearch.isEmpty()) {
-                searchRequesterByEmail(emailToSearch);
-            } else {
-                errorTextEmailInput.setText("Please enter email");
-                errorTextEmailInput.setVisibility(View.VISIBLE);
-            }
-        });
-
-        // Firebase reference initialization
-        clearDatabaseButton = findViewById(R.id.button_clear_database);
-        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearRequesters(userDatabaseRef, () -> {
-                    clearSoftwareComponents(componentDatabaseRef, () -> {
-                        clearHardwareComponents(componentDatabaseRef, () -> {
-                            clearOrders(ordersDatabaseRef);
-                        });
-                    });
-                });
-            }
-        });
     }
 
     //Method to add a requester
@@ -279,8 +142,140 @@ public class AdminActivity extends AppCompatActivity {
         }
 
     }
+    //methods for initialization
+    private void initializeMainLayout() {
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
+        componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
+        ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
+
+        sendToAddRequesterLayoutButton = findViewById(R.id.sendToAddRequesterLayoutButton);
+        senToEditDeleteRequesterButton = findViewById(R.id.senToEditDeleteRequesterButton);
+        logoutButton = findViewById(R.id.logoutButton);
+        emailEditText = findViewById(R.id.emailEditText);
+        errorTextEmailInput = findViewById(R.id.errorTextEmailInput);
+        resetDatabase = findViewById(R.id.resetDatabase);
+        resetStock = findViewById(R.id.resetStock);
+        fileNameSpinner = findViewById(R.id.fileNameSpinner);
+        clearDatabaseButton = findViewById(R.id.button_clear_database);
+
+        listJsonFileNames = new ArrayList<>();
+
+        logoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+        sendToAddRequesterLayoutButton.setOnClickListener(v -> {
+            setContentView(R.layout.activity_admin_add_requester);
+            initializeAddRequesterLayout();
+        });
+        senToEditDeleteRequesterButton.setOnClickListener(v -> {
+            initializeEditDeleteRequester();
+        });
 
 
+        // Initialization of listeners
+        initializeFileNameSpinnerListener();
+        initializeResetDatabaseButtonListener();
+        initializeResetStockButtonListener();
+        initializeClearDatabaseButtonListener();
+    }
+
+    private void initializeAddRequesterLayout() {
+        firstNameNewRequester = findViewById(R.id.firstNameNewRequester);
+        lastNameNewRequester = findViewById(R.id.lastNameNewRequester);
+        emailNewRequester = findViewById(R.id.emailNewRequester);
+        passwordNewRequester = findViewById(R.id.passwordNewRequester);
+        addRequesterButton = findViewById(R.id.addRequesterButton);
+        errorTextAddRequester = findViewById(R.id.errorTextAddRequester);
+        textAddedRequester = findViewById(R.id.textAddedRequester);
+
+
+        returnButtonAddRequester = findViewById(R.id.returnButtonAddRequester);
+        returnButtonAddRequester.setOnClickListener(v -> {
+            setContentView(R.layout.activity_admin);
+            initializeMainLayout();
+        });
+
+        addRequesterButton.setOnClickListener(view -> {
+            String passwordNewRequesterString = passwordNewRequester.getText().toString();
+            String emailNewRequesterString = emailNewRequester.getText().toString();
+            String userType = "requester";
+            String firstNameNewRequesterString = firstNameNewRequester.getText().toString();
+            String lastNameNewRequesterString = lastNameNewRequester.getText().toString();
+            addRequester(emailNewRequesterString, passwordNewRequesterString, userType, firstNameNewRequesterString, lastNameNewRequesterString, errorTextAddRequester, textAddedRequester);
+        });
+    }
+    private void initializeEditDeleteRequester() {
+        String emailToSearch = emailEditText.getText().toString().trim();
+        if (!emailToSearch.isEmpty()) {
+            searchRequesterByEmail(emailToSearch);
+        } else {
+            errorTextEmailInput.setText("Please enter email");
+            errorTextEmailInput.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initializeClearDatabaseButtonListener() {
+        clearDatabaseButton.setOnClickListener(v -> {
+            clearRequesters(userDatabaseRef, () -> {
+                clearSoftwareComponents(componentDatabaseRef, () -> {
+                    clearHardwareComponents(componentDatabaseRef, () -> {
+                        clearOrders(ordersDatabaseRef);
+                    });
+                });
+            });
+        });
+    }
+    private void initializeFileNameSpinnerListener() {
+        fileNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedFileName = parent.getItemAtPosition(position).toString();
+                if (!selectedFileName.equals("Select one file or more")) {
+                    addFileNameToJsonFilesArray(selectedFileName);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "Nothing selected");
+            }
+        });
+    }
+    private void initializeResetDatabaseButtonListener() {
+        resetDatabase.setOnClickListener(view -> {
+            if (listJsonFileNames.isEmpty()) {
+                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file", Toast.LENGTH_SHORT).show();
+            } else {
+                clearRequesters(userDatabaseRef, () -> {
+                    clearSoftwareComponents(componentDatabaseRef, () -> {
+                        clearHardwareComponents(componentDatabaseRef, () -> {
+                            loadRequestersFromManyJsonFiles(view.getContext());
+                            loadStockFromManyJsonFiles(view.getContext());
+                            fileNameSpinner.setSelection(0);
+                            listJsonFileNames.clear();
+                        });
+                    });
+                });
+            }
+        });
+    }
+    private void initializeResetStockButtonListener() {
+        resetStock.setOnClickListener(view -> {
+            if (listJsonFileNames.isEmpty()) {
+                Toast.makeText(AdminActivity.this, "Error: You will need to select at least one file", Toast.LENGTH_SHORT).show();
+            } else {
+                clearSoftwareComponents(componentDatabaseRef, () -> {
+                    clearHardwareComponents(componentDatabaseRef, () -> {
+                        loadStockFromManyJsonFiles(view.getContext());
+                        fileNameSpinner.setSelection(0);
+                        listJsonFileNames.clear();
+                    });
+                });
+            }
+        });
+    }
 
 
     // Method to search requester by email
@@ -311,6 +306,7 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     // Switch to modify/delete layout
+    @SuppressLint("MissingInflatedId")
     private void switchToModifyDeleteLayout() {
         setContentView(R.layout.activity_admin_edit_delete_requester);
 
@@ -321,6 +317,12 @@ public class AdminActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.passwordEditText);
         applyChangesButton = findViewById(R.id.applyRequesterButton);
         deleteRequesterButton = findViewById(R.id.addRequesterButton);
+
+        returnButtonModifyDeleteLayout = findViewById(R.id.returnButtonModifyDeleteLayout);
+        returnButtonModifyDeleteLayout.setOnClickListener(v -> {
+            setContentView(R.layout.activity_admin);
+            initializeMainLayout();
+        });
 
         // Populate the fields with found requester data
         firstNameEditText.setText(foundFirstName);

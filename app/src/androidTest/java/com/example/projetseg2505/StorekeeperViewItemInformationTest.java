@@ -23,7 +23,7 @@ public class StorekeeperViewItemInformationTest {
 
     @Before
     public void setUp() {
-        // Initial setup if needed
+
     }
 
     @Test
@@ -37,14 +37,12 @@ public class StorekeeperViewItemInformationTest {
 
             Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-            // Navigate to input for modifying/removing item
             Espresso.onView(withId(R.id.modifyRemoveDescriptionItemInput)).perform(click());
             Espresso.onView(withId(R.id.modifyRemoveDescriptionItemInput)).perform(typeText("Development Tool X"));
             Thread.sleep(500);
-            // View item information and return
             Espresso.onView(withId(R.id.viewItemInformationsButton)).perform(click());
             Thread.sleep(500);
-            Espresso.onView(withId(R.id.returnButton)).perform(click());
+            Espresso.onView(withId(R.id.returnButtonItemInfo)).perform(click());
 
             Espresso.onView(withId(R.id.modifyRemoveDescriptionItemInput)).perform(typeText("Development Tool X"));
 
@@ -55,12 +53,12 @@ public class StorekeeperViewItemInformationTest {
             Thread.sleep(200);
             Espresso.onView(withId(R.id.incrementButton)).perform(click());
             Thread.sleep(200);
-            Espresso.onView(withId(R.id.returnButton)).perform(click());
+            Espresso.onView(withId(R.id.returnButtonModifyRemoveItem)).perform(click());
 
 
             Thread.sleep(200);
-            // Log out
-            Espresso.onView(withId(R.id.logoutButton)).perform(click());]
+
+            Espresso.onView(withId(R.id.logoutButton)).perform(click());
 
         } catch (Exception e) {
             e.printStackTrace();
