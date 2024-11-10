@@ -104,12 +104,10 @@
                 android:text="Sub Type"
                 android:textSize="16sp" />
 
-            <EditText
-                android:id="@+id/textInputSubTypeNewItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:hint="Enter sub type" />
+            <Spinner
+                android:id="@+id/subTypeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <!-- Input for description -->
             <TextView

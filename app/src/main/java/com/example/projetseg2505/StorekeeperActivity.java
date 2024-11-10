@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,9 +39,9 @@ public class StorekeeperActivity extends AppCompatActivity {
     // Add Item Variables
     private DatabaseReference databaseRef;
     private Button sendToAddItemLayoutButton, addItemButton;
-    private EditText textInputSubTypeNewItem, textInputDescriptionNewItem, textInputQuantityNewItem, textInputCommentNewItem;
+    private EditText  textInputDescriptionNewItem, textInputQuantityNewItem, textInputCommentNewItem;
     private TextView infoTextAddItem;
-    private Spinner typeSpinner;
+    private Spinner typeSpinner, subtypeSpinner;
 
     // Modify/Delete Item variables
     private Button sendToRemoveEditItemLayoutButton, modifyItemButton, deleteItemButton, incrementButton, decrementButton;
@@ -90,7 +91,7 @@ public class StorekeeperActivity extends AppCompatActivity {
             setContentView(R.layout.activity_storekeeper_add_item);
 
             // Initialization for add layout
-            textInputSubTypeNewItem = findViewById(R.id.textInputSubTypeNewItem);
+            subtypeSpinner = findViewById(R.id.subTypeSpinner);
             textInputDescriptionNewItem = findViewById(R.id.textInputDescriptionNewItem);
             textInputQuantityNewItem = findViewById(R.id.textInputQuantityNewItem);
             textInputCommentNewItem = findViewById(R.id.textInputCommentNewItem);
@@ -111,25 +112,42 @@ public class StorekeeperActivity extends AppCompatActivity {
             });
 
             // Configure Spinner for Component Type selection
-            if (typeSpinner != null) {
+            /*if (typeSpinner != null) {
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                         StorekeeperActivity.this, R.array.component_types, android.R.layout.simple_spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 typeSpinner.setAdapter(adapter);
             } else {
                 Toast.makeText(StorekeeperActivity.this, "Spinner is null", Toast.LENGTH_SHORT).show();
-            }
+            }*/
+            ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.component_types, android.R.layout.simple_spinner_item);
+            typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            typeSpinner.setAdapter(typeAdapter);
+            typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    updateSubTypeSpinner(position);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    // Do nothing
+                }
+            });
+
+
 
             // Add item button click logic
             addItemButton.setOnClickListener(view -> {
-                String subType = textInputSubTypeNewItem.getText().toString().trim();
+                String subType = subtypeSpinner.getSelectedItem().toString();
                 String description = textInputDescriptionNewItem.getText().toString().trim();
                 String quantityStr = textInputQuantityNewItem.getText().toString().trim();
                 String comment = textInputCommentNewItem.getText().toString().trim();
                 String componentType = typeSpinner.getSelectedItem().toString();
 
                 // Validate inputs
-                if (subType.isEmpty() || description.isEmpty() || quantityStr.isEmpty()) {
+                if (description.isEmpty() || quantityStr.isEmpty() ||subtypeSpinner.equals("Choose Type") ||typeSpinner.equals("Choose Type")) {
                     infoTextAddItem.setText("Please fill in all required fields.");
                     infoTextAddItem.setVisibility(View.VISIBLE);
                     return;
@@ -325,11 +343,11 @@ public class StorekeeperActivity extends AppCompatActivity {
 
     // Clear input fields after adding an item
     private void clearInputFields() {
-        textInputSubTypeNewItem.setText("");
         textInputDescriptionNewItem.setText("");
         textInputQuantityNewItem.setText("");
         textInputCommentNewItem.setText("");
         typeSpinner.setSelection(0);
+        subtypeSpinner.setSelection(0);
     }
 
     //view methods
@@ -641,9 +659,8 @@ public class StorekeeperActivity extends AppCompatActivity {
         });
     }
 
-    // Delete item method
     public void deleteItem() {
-        // First, check in 'Hardware'
+
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
         hardwareRef.orderByChild("subType").equalTo(foundSubType).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -653,7 +670,7 @@ public class StorekeeperActivity extends AppCompatActivity {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
                             Toast.makeText(StorekeeperActivity.this, "Hardware item deleted successfully", Toast.LENGTH_SHORT).show();
-                            setContentView(R.layout.activity_storekeeper); // Return to initial layout
+                            setContentView(R.layout.activity_storekeeper);
                         }).addOnFailureListener(e -> {
                             Toast.makeText(StorekeeperActivity.this, "Error while deleting: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
@@ -758,8 +775,6 @@ public class StorekeeperActivity extends AppCompatActivity {
                             detailTextView.setMaxWidth(150);
                             componentRow.addView(detailTextView);
                         }
-
-                        // Add the row to the TableLayout
                         componentsTableLayout.addView(componentRow);
                     }
                 }
@@ -770,5 +785,24 @@ public class StorekeeperActivity extends AppCompatActivity {
                 Toast.makeText(StorekeeperActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    //change subtype spinner depending on type
+    private void updateSubTypeSpinner(int typePosition) {
+        int subTypeArrayId;
+        if (typePosition == 1) {
+            subTypeArrayId = R.array.hardware_subtypes_array;
+        }
+        else if(typePosition == 2) {
+            subTypeArrayId = R.array.software_subtypes_array;
+        }
+        else{
+            subTypeArrayId = R.array.subtypes_array;
+        }
+
+        ArrayAdapter<CharSequence> subTypeAdapter = ArrayAdapter.createFromResource(this,
+                subTypeArrayId, android.R.layout.simple_spinner_item);
+        subTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        subtypeSpinner.setAdapter(subTypeAdapter);
     }
 }

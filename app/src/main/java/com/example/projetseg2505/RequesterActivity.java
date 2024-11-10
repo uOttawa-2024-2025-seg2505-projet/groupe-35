@@ -42,9 +42,10 @@ public class RequesterActivity extends AppCompatActivity {
     private String computerCaseDescription, motherboardDescription, memoryStickDescription, monitorDescription, keyboardMouseDescription, webBrowserDescription, requesterEmail, officeSuiteDescription;
     private int numberOfMonitorsInt,numberOfMemorySticksInt;
 
-    //view orders
+    //view orders and delete
     private DatabaseReference ordersDatabaseRef = FirebaseDatabase.getInstance().getReference("Orders");
     private DatabaseReference componentDatabaseRef = FirebaseDatabase.getInstance().getReference("Components");
+    private boolean orderIsDeletable;
 
     private Button viewMyOrderButton;
 
@@ -111,9 +112,34 @@ public class RequesterActivity extends AppCompatActivity {
             searchItemBySubtypeAndCreateSpinner("Office Suite",officeSuite);
             searchItemBySubtypeAndCreateSpinner("Development Tool",developmentTools);
 
+            hardDrive.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedItem = parent.getItemAtPosition(position).toString();
+                    handleHardDriveSelection(selectedItem);
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    Log.d(TAG, "onNothingSelected: ");
+                }
+            });
+
+            developmentTools.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedItem = parent.getItemAtPosition(position).toString();
+                    handleDevelopmentToolsSelection(selectedItem);
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    Log.d(TAG, "onNothingSelected: ");
+                }
+            });
+
             createOrderButton.setOnClickListener(view -> {
                 createOrder();
             });
+
 
         });
         //view orders
@@ -143,13 +169,12 @@ public class RequesterActivity extends AppCompatActivity {
         keyboardMouseDescription = keyboardMouse.getSelectedItem().toString();
         webBrowserDescription = webBrowser.getSelectedItem().toString();
 
-        if (computerCaseDescription.equals("Select an option")) return false;
-        if (motherboardDescription.equals("Select an option")) return false;
-        if (memoryStickDescription.equals("Select an option")) return false;
-        if (monitorDescription.equals("Select an option")) return false;
-        if (keyboardMouseDescription.equals("Select an option")) return false;
-        if (webBrowserDescription.equals("Select an option")) return false;
-        if(hardDriveArray.get(0) == null)return false;
+        if (computerCaseDescription.equals("Select an option") || motherboardDescription.equals("Select an option") ||memoryStickDescription.equals("Select an option") ||monitorDescription.equals("Select an option") || keyboardMouseDescription.equals("Select an option") || webBrowserDescription.equals("Select an option") || hardDriveArray.get(0) == null) {
+            errorTextNewOrderLayout.setText("The computer can't be built with only these items");
+            errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+            return false;
+        }
+
 
 
         return true;
@@ -171,7 +196,7 @@ public class RequesterActivity extends AppCompatActivity {
         numberOfMemorySticksInt=0;
         if (!numberOfMemorySticks.getText().toString().isEmpty()) {
             numberOfMemorySticksInt = Integer.parseInt(numberOfMemorySticks.getText().toString());
-            if(numberOfMonitorsInt> 4 || numberOfMonitorsInt < 1) {
+            if(numberOfMemorySticksInt> 4 || numberOfMemorySticksInt < 1) {
                 errorTextNewOrderLayout.setText("You will need to enter a number of memory sticks between 1 and 4");
                 errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                 return false;
@@ -185,41 +210,82 @@ public class RequesterActivity extends AppCompatActivity {
     }
 
 
-    private void createOrder(){
-        if(checkItemInput() && checkItemSelection()){
+    private boolean isOrderBeingProcessed = false;
+
+    private void createOrder() {
+        if (isOrderBeingProcessed) {
+            return; // Bloque l'exécution si une commande est déjà en cours de traitement
+        }
+
+        if (checkItemInput() && checkItemSelection()) {
+            isOrderBeingProcessed = true; // Marque le début du processus de commande
+
             officeSuiteDescription = officeSuite.getSelectedItem().toString();
-            if (officeSuiteDescription.equals("Select an option")){
+            if (officeSuiteDescription.equals("Select an option")) {
                 officeSuiteDescription = null;
             }
 
-            Orders newOrder = new Orders(requesterEmail,computerCaseDescription,motherboardDescription,memoryStickDescription,numberOfMemorySticksInt,hardDriveArray,monitorDescription,numberOfMonitorsInt,keyboardMouseDescription,webBrowserDescription,officeSuiteDescription,developmentToolsArray);
+            Orders newOrder = new Orders(requesterEmail, computerCaseDescription, motherboardDescription, memoryStickDescription,
+                    numberOfMemorySticksInt, hardDriveArray, monitorDescription, numberOfMonitorsInt,
+                    keyboardMouseDescription, webBrowserDescription, officeSuiteDescription, developmentToolsArray);
+
             newOrder.checkIfItemsExist(new ItemExistenceCallback() {
                 @Override
                 public void onResult(boolean exists, Integer quantity) {
+                    isOrderBeingProcessed = false; // Réinitialise le flag à la fin du traitement
+
                     if (exists) {
                         newOrder.refreshDatabaseInfo();
                         newOrder.pushOrderToDatabase();
+
                         errorTextNewOrderLayout.setText("Computer built successfully");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+
+                        clearCreateOrderLayout(); // Efface les champs seulement si la commande est réussie
                     } else {
                         errorTextNewOrderLayout.setText("Not enough stock to build your computer");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                     }
                 }
             });
-
         }
-        else{
-            errorTextNewOrderLayout.setText("The computer can't be built with only these items");
-            errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-        }
-
     }
 
+    private void clearCreateOrderLayout(){
+        computerCase.setSelection(0);
+        computerCase.setSelection(0);
+        motherboard.setSelection(0);
+        memoryStick.setSelection(0);
+        hardDrive.setSelection(0);
+        monitor.setSelection(0);
+        keyboardMouse.setSelection(0);
+        webBrowser.setSelection(0);
+        officeSuite.setSelection(0);
+        developmentTools.setSelection(0);
+        numberOfMonitors.setText("");
+        numberOfMemorySticks.setText("");
+        errorTextNewOrderLayout.setVisibility(View.GONE);
+    }
+    //visualize orders and delete
+    public void orderIsDeletable(String orderID, OnCheckDeletableCallback callback) {
+        ordersDatabaseRef.child(requesterEmail.replace('.', ',')).child(orderID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String status = dataSnapshot.child("Status").getValue(String.class);
+                boolean isDeletable = status.equals("Waiting for acceptance") || status.equals("Rejected") || status.equals("Delivered");
+                callback.onCheckComplete(isDeletable);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "onCancelled: ");
+                callback.onCheckComplete(false);
+            }
+        });
+    }
     private void loadOrdersDataForRequester() {
         TableLayout OrdersTableLayout = findViewById(R.id.requesterOrdersTableLayout);
 
-        // Créer la ligne d'en-tête
         TableRow headerRow = new TableRow(RequesterActivity.this);
         headerRow.setLayoutParams(new TableLayout.LayoutParams(
                 TableLayout.LayoutParams.MATCH_PARENT,
@@ -235,8 +301,7 @@ public class RequesterActivity extends AppCompatActivity {
             textView.setBackgroundColor(0xFFD1C4E9);
             textView.setTextColor(0xFF000000);
 
-            // Définir une hauteur minimale pour chaque cellule d'en-tête pour permettre l'alignement
-            textView.setMinHeight((int) getResources().getDimension(R.dimen.header_min_height)); // Spécifiez la hauteur dans dimens.xml
+            textView.setMinHeight((int) getResources().getDimension(R.dimen.header_min_height));
 
             TableRow.LayoutParams params;
             if (i == headers.length - 1) {
@@ -250,7 +315,6 @@ public class RequesterActivity extends AppCompatActivity {
         }
         OrdersTableLayout.addView(headerRow);
 
-        // Charger les commandes depuis Firebase
         ordersDatabaseRef.child(requesterEmail.replace('.', ',')).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -259,54 +323,52 @@ public class RequesterActivity extends AppCompatActivity {
                     String dateOfCreation = ordersSnapshot.child("Date Of Creation").getValue(String.class);
                     String status = ordersSnapshot.child("Status").getValue(String.class);
 
-                    // Créer une ligne pour chaque commande
                     TableRow componentRow = new TableRow(RequesterActivity.this);
                     componentRow.setLayoutParams(new TableLayout.LayoutParams(
                             TableLayout.LayoutParams.MATCH_PARENT,
                             TableLayout.LayoutParams.WRAP_CONTENT));
                     componentRow.setPadding(2, 5, 2, 5);
+                    orderIsDeletable(orderID, (isDeletable) -> {
+                        String[] orderDetails = {orderID, dateOfCreation, status};
+                        for (int i = 0; i < orderDetails.length; i++) {
+                            TextView detailTextView = new TextView(RequesterActivity.this);
+                            detailTextView.setText(orderDetails[i]);
+                            detailTextView.setGravity(Gravity.CENTER);
+                            detailTextView.setPadding(2, 5, 2, 5);
+                            detailTextView.setMaxWidth(150);
+                            detailTextView.setBackgroundColor(0xFFE3F2FD);
+                            detailTextView.setTextColor(0xFF000000);
 
-                    String[] orderDetails = {orderID, dateOfCreation, status};
-                    for (int i = 0; i < orderDetails.length; i++) {
-                        TextView detailTextView = new TextView(RequesterActivity.this);
-                        detailTextView.setText(orderDetails[i]);
-                        detailTextView.setGravity(Gravity.CENTER);
-                        detailTextView.setPadding(2, 5, 2, 5);
-                        detailTextView.setMaxWidth(150);
-                        detailTextView.setBackgroundColor(0xFFE3F2FD);
-                        detailTextView.setTextColor(0xFF000000);
-
-                        TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
-                        detailTextView.setLayoutParams(params);
-                        componentRow.addView(detailTextView);
-                    }
-
-                    // Ajouter un bouton de suppression pour la colonne "Action"
-                    Button deleteButton = new Button(RequesterActivity.this);
-                    deleteButton.setText("✕");
-                    deleteButton.setTextColor(Color.WHITE);
-                    deleteButton.setTextSize(10);
-                    deleteButton.setBackgroundColor(Color.BLACK);
-
-                    TableRow.LayoutParams buttonParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.5f);
-                    deleteButton.setLayoutParams(buttonParams);
-                    deleteButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            ordersDatabaseRef.child(requesterEmail.replace('.', ',')).child(orderID).removeValue()
-                                    .addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            OrdersTableLayout.removeView(componentRow);
-                                            Toast.makeText(RequesterActivity.this, "Commande supprimée", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(RequesterActivity.this, "Erreur lors de la suppression", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+                            detailTextView.setLayoutParams(params);
+                            componentRow.addView(detailTextView);
                         }
+                        if (isDeletable) {
+                            Button deleteButton = new Button(RequesterActivity.this);
+                            deleteButton.setText("X");
+                            deleteButton.setTextColor(Color.WHITE);
+                            deleteButton.setTextSize(10);
+                            deleteButton.setBackgroundColor(Color.BLACK);
+
+                            TableRow.LayoutParams buttonParams = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.5f);
+                            deleteButton.setLayoutParams(buttonParams);
+                            deleteButton.setPadding(2, 2, 2, 2);
+                            deleteButton.setWidth(60);
+                            deleteButton.setHeight(60);
+
+                            deleteButton.setOnClickListener(v -> {
+                                ordersDatabaseRef.child(requesterEmail.replace('.', ',')).child(orderID).removeValue()
+                                        .addOnCompleteListener(task -> {
+                                            if (task.isSuccessful()) {
+                                                OrdersTableLayout.removeView(componentRow);
+                                            }
+                                        });
+                            });
+                            componentRow.addView(deleteButton);
+                        }
+                        OrdersTableLayout.addView(componentRow);
                     });
 
-                    componentRow.addView(deleteButton);
-                    OrdersTableLayout.addView(componentRow);
                 }
             }
 
@@ -319,7 +381,7 @@ public class RequesterActivity extends AppCompatActivity {
 
 
 
-
+    // methods for spinner creation
     public void searchItemBySubtypeAndCreateSpinner(String subtype, Spinner spinner) {
 
         ArrayList<String> subtypeItems = new ArrayList<>();
@@ -337,7 +399,6 @@ public class RequesterActivity extends AppCompatActivity {
 
         searchItemBySubtypeInSoftware(subtype, spinner, subtypeItems);
     }
-
     public void searchItemBySubtypeInHardware(String subtype, Spinner spinner, ArrayList<String> subtypeItems){
         DatabaseReference hardwareRef = componentDatabaseRef.child("Hardware");
         hardwareRef.orderByChild("subType").equalTo(subtype.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -358,7 +419,6 @@ public class RequesterActivity extends AppCompatActivity {
             }
         });
     }
-
     public void searchItemBySubtypeInSoftware(String subtype, Spinner spinner, ArrayList<String> subtypeItems){
         DatabaseReference softwareRef = componentDatabaseRef.child("Software");
         softwareRef.orderByChild("subType").equalTo(subtype.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -379,30 +439,12 @@ public class RequesterActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
     private void initializeSpinner(Spinner spinner, ArrayList<String> dataList) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dataList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = parent.getItemAtPosition(position).toString();
-                if (spinner == hardDrive) {
-                    handleHardDriveSelection(selectedItem);
-                } else if (spinner == developmentTools) {
-                    handleDevelopmentToolsSelection(selectedItem);
-                }
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.d("SpinnerInit", "Nothing selected in " + spinner.getId());
-            }
-        });
     }
     private void handleHardDriveSelection(String selectedItem) {
         if (hardDriveArray.size() < 2) {
@@ -414,8 +456,6 @@ public class RequesterActivity extends AppCompatActivity {
             errorTextNewOrderLayout.setVisibility(View.VISIBLE);
         }
     }
-
-    // Method for development tools selection handling
     private void handleDevelopmentToolsSelection(String selectedItem) {
         if (!selectedItem.equals("Select from 0 to 3 items")) {
             if (developmentToolsArray.size() < 3) {
@@ -431,6 +471,9 @@ public class RequesterActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
 
 
 }

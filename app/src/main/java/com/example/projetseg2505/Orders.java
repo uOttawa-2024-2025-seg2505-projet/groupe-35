@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Orders {
@@ -84,9 +85,8 @@ public class Orders {
         orderDetails.put("motherboard", motherboard);
         orderDetails.put("memoryStick", memoryStick);
         orderDetails.put("numberOfMemorySticks", numberOfMemorySticks);
-        for (String hardDrive : listOfHardDrive) {
-            orderDetails.put("hardDrive", hardDrive);
-        }
+        orderDetails.put("hardDrives", new ArrayList<>(listOfHardDrive));
+
         orderDetails.put("monitor", monitor);
         orderDetails.put("numberOfMonitors", numberOfMonitors);
         orderDetails.put("keyboardMouse", keyboardMouse);
@@ -95,9 +95,7 @@ public class Orders {
             orderDetails.put("officeSuite", officeSuite);
         }
         if (listOfDevelopmentTools.get(0) != null) {
-            for (String devTools : listOfDevelopmentTools) {
-                orderDetails.put("developmentTools", devTools);
-            }
+            orderDetails.put("developmentTools", new ArrayList<>(listOfDevelopmentTools));
         }
         orderDetails.put("Date Of Creation", dateTimeOrder);
         orderDetails.put("Date Of Modification", dateTimeModification);
@@ -116,6 +114,8 @@ public class Orders {
         initFirebaseReferences();
         existingTable = new ArrayList<>();
         quantityTable = new ArrayList<>();
+        Map<String, Integer> quantityMap = new HashMap<>(); // Utiliser un Map avec la description de l'item comme clé
+
         AtomicInteger totalItems = new AtomicInteger(6 + listOfHardDrive.size() + listOfDevelopmentTools.size());
         if (officeSuite != null) {
             totalItems.incrementAndGet();
@@ -127,44 +127,66 @@ public class Orders {
             public void onResult(boolean exists, Integer quantity) {
                 synchronized (existingTable) {
                     existingTable.add(exists);
-                    quantityTable.add(quantity);
                     completedChecks.incrementAndGet();
 
                     if (completedChecks.get() == totalItems.get()) {
+                        // Remplir quantityTable en suivant l'ordre spécifique requis
+                        quantityTable.add(quantityMap.get("computerCase"));
+                        quantityTable.add(quantityMap.get("motherboard"));
+                        quantityTable.add(quantityMap.get("memoryStick"));
+                        quantityTable.add(quantityMap.get("monitor"));
+                        quantityTable.add(quantityMap.get("keyboardMouse"));
+                        quantityTable.add(quantityMap.get("webBrowser"));
+
+                        for (String hardDrive : listOfHardDrive) {
+                            quantityTable.add(quantityMap.get(hardDrive));
+                        }
+                        for (String developmentTool : listOfDevelopmentTools) {
+                            quantityTable.add(quantityMap.get(developmentTool));
+                        }
+                        if (officeSuite != null) {
+                            quantityTable.add(quantityMap.get("officeSuite"));
+                        }
+
                         boolean result = !existingTable.contains(Boolean.FALSE);
                         boolean quantityCheck = processQuantities();
-                        if(result && quantityCheck){
+                        if (result && quantityCheck) {
                             finalCallback.onResult(true, -1);
-                        }
-                        else{
+                        } else {
                             finalCallback.onResult(false, -1);
                         }
-
-
                     }
                 }
             }
         };
 
-        StorekeeperActivity.checkIfItemExists(computerCase, componentDatabaseRef, null, itemCallback);
-        StorekeeperActivity.checkIfItemExists(motherboard, componentDatabaseRef, null, itemCallback);
-        StorekeeperActivity.checkIfItemExists(memoryStick, componentDatabaseRef, null, itemCallback);
-        StorekeeperActivity.checkIfItemExists(monitor, componentDatabaseRef, null, itemCallback);
-        StorekeeperActivity.checkIfItemExists(keyboardMouse, componentDatabaseRef, null, itemCallback);
-        StorekeeperActivity.checkIfItemExists(webBrowser, componentDatabaseRef, null, itemCallback);
+        // Utiliser les descriptions comme clés dans quantityMap pour chaque composant
+        StorekeeperActivity.checkIfItemExists(computerCase, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("computerCase", quantity)));
+        StorekeeperActivity.checkIfItemExists(motherboard, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("motherboard", quantity)));
+        StorekeeperActivity.checkIfItemExists(memoryStick, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("memoryStick", quantity)));
+        StorekeeperActivity.checkIfItemExists(monitor, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("monitor", quantity)));
+        StorekeeperActivity.checkIfItemExists(keyboardMouse, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("keyboardMouse", quantity)));
+        StorekeeperActivity.checkIfItemExists(webBrowser, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("webBrowser", quantity)));
 
-        for (int i = 0; i < listOfHardDrive.size(); i++) {
-            StorekeeperActivity.checkIfItemExists(listOfHardDrive.get(i), componentDatabaseRef, null, itemCallback);
+        // Vérification pour chaque disque dur
+        for (String hardDrive : listOfHardDrive) {
+            StorekeeperActivity.checkIfItemExists(hardDrive, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put(hardDrive, quantity)));
         }
-        for (int i = 0; i < listOfDevelopmentTools.size(); i++) {
-            StorekeeperActivity.checkIfItemExists(listOfDevelopmentTools.get(i), componentDatabaseRef, null, itemCallback);
+
+        // Vérification pour chaque outil de développement
+        for (String developmentTool : listOfDevelopmentTools) {
+            StorekeeperActivity.checkIfItemExists(developmentTool, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put(developmentTool, quantity)));
         }
+
+        // Vérification pour officeSuite si elle est présente
         if (officeSuite != null) {
-            StorekeeperActivity.checkIfItemExists(officeSuite, componentDatabaseRef, null, itemCallback);
+            StorekeeperActivity.checkIfItemExists(officeSuite, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("officeSuite", quantity)));
         }
 
-        return false;
+        return false; // La méthode est asynchrone, donc elle retourne toujours false ici
     }
+
+
 
     public boolean processQuantities() {
         computerCaseQuantityDatabase = quantityTable.get(0);

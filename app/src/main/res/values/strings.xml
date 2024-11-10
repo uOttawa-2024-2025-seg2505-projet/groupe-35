@@ -1,14 +1,36 @@
 <resources>
     <string name="app_name">Projet SEG2505</string>
     <string-array name="component_types">
+        <item>Choose Type</item>
         <item>Hardware</item>
         <item>Software</item>
+    </string-array>
+    <string-array name="hardware_subtypes_array">
+        <item>Choose Type</item>
+        <item>case</item>
+        <item>motherboard</item>
+        <item>memory</item>
+        <item>hard drive</item>
+        <item>monitor</item>
+        <item>Keyboard_Mouse</item>
+    </string-array>
+    <string-array name="software_subtypes_array">
+        <item>Choose Type</item>
+        <item>Web Browser</item>
+        <item>Office Suite</item>
+        <item>Development Tool</item>
+    </string-array>
+    <string-array name="subtypes_array">
+        <item>Choose Type</item>
+
     </string-array>
 
     <string-array name="file_name_array">
         <item>Select one file or more</item>
         <item>file1.json</item>
         <item>file2.json</item>
+
+
 
     </string-array>
 
