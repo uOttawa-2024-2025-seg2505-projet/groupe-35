@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -87,61 +88,7 @@ public class AdminActivity extends AppCompatActivity {
 
     }
 
-    //Method to add a requester
-    private void addRequester( String email, String password, String userType,String firstName,String lastName,TextView errorText, TextView succesText) {
 
-        String dateCreationRequester = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-        String dateModificationRequester = "";
-        if (errorText != null) {
-            errorText.setVisibility(View.GONE);
-            succesText.setVisibility(View.GONE);
-        }
-
-        HashMap<String, String> hashMap = new HashMap<>();
-
-        if (!email.isEmpty() && !password.isEmpty()) {
-            userDatabaseRef.child(email.replace(".", ",")).get().addOnCompleteListener(task -> {
-                if (task.isSuccessful() && task.getResult().exists()) {
-                    if (errorText != null){
-                        errorText.setText("This requester already has an account");
-                        errorText.setVisibility(View.VISIBLE);
-                    }
-
-                } else {
-                    hashMap.put("email", email);
-                    hashMap.put("password", password);
-                    hashMap.put("userType", userType);
-                    hashMap.put("first name", firstName);
-                    hashMap.put("last name", lastName);
-                    hashMap.put("date of creation", dateCreationRequester);
-                    hashMap.put("date of the last modification", dateModificationRequester);
-
-                    userDatabaseRef.child(email.replace(".", ",")).setValue(hashMap)
-                            .addOnCompleteListener(task1 -> {
-                                if (task1.isSuccessful()) {
-                                    if (errorText != null) {
-                                        succesText.setText("Requester Added");
-                                        succesText.setVisibility(View.VISIBLE);
-                                        errorText.setVisibility(View.GONE);
-                                    }
-                                } else {
-                                    if (errorText != null) {
-                                        succesText.setText("Error while adding requester");
-                                        succesText.setVisibility(View.VISIBLE);
-                                        errorText.setVisibility(View.GONE);
-                                    }
-                                }
-                            });
-                }
-            });
-        } else {
-            if (errorText != null) {
-                errorText.setText("Please enter email and password");
-                errorText.setVisibility(View.VISIBLE);
-            }
-        }
-
-    }
     //methods for initialization
     private void initializeMainLayout() {
         userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("User");
@@ -275,6 +222,77 @@ public class AdminActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    //Method to add a requester
+    private void addRequester( String email, String password, String userType,String firstName,String lastName,TextView errorText, TextView succesText) {
+
+        String dateCreationRequester = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        String dateModificationRequester = "";
+        if (errorText != null) {
+            errorText.setVisibility(View.GONE);
+            succesText.setVisibility(View.GONE);
+        }
+
+        HashMap<String, String> hashMap = new HashMap<>();
+
+        if (!email.isEmpty() && !password.isEmpty()) {
+            userDatabaseRef.child(email.replace(".", ",")).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                    if (errorText != null){
+                        errorText.setText("This requester already has an account");
+                        errorText.setVisibility(View.VISIBLE);
+                    }
+
+                } else {
+                    hashMap.put("email", email);
+                    hashMap.put("password", password);
+                    hashMap.put("userType", userType);
+                    hashMap.put("first name", firstName);
+                    hashMap.put("last name", lastName);
+                    hashMap.put("date of creation", dateCreationRequester);
+                    hashMap.put("date of the last modification", dateModificationRequester);
+
+                    userDatabaseRef.child(email.replace(".", ",")).setValue(hashMap)
+                            .addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    if (errorText != null) {
+                                        succesText.setText("Requester Added");
+                                        succesText.setTextColor(Color.parseColor("#0000FF"));
+                                        succesText.setVisibility(View.VISIBLE);
+                                        errorText.setVisibility(View.GONE);
+                                        new android.os.Handler().postDelayed(() -> {
+                                            clearAddRequesterInputs(succesText);
+                                            succesText.setTextColor(Color.parseColor("#FF0000"));
+                                            succesText.setVisibility(View.GONE);
+                                        }, 2000);
+
+                                    }
+                                } else {
+                                    if (errorText != null) {
+                                        succesText.setText("Error while adding requester");
+                                        succesText.setVisibility(View.VISIBLE);
+                                        errorText.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                }
+            });
+        } else {
+            if (errorText != null) {
+                errorText.setText("Please enter email and password");
+                errorText.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+    private void clearAddRequesterInputs(TextView succesText){
+        firstNameNewRequester.setText("");
+        lastNameNewRequester.setText("");
+        emailNewRequester.setText("");
+        passwordNewRequester.setText("");
+
     }
 
 
