@@ -219,11 +219,11 @@ public class RequesterActivity extends AppCompatActivity {
 
     private void createOrder() {
         if (isOrderBeingProcessed) {
-            return; // Bloque l'exécution si une commande est déjà en cours de traitement
+            return;
         }
 
         if (checkItemInput() && checkItemSelection()) {
-            isOrderBeingProcessed = true; // Marque le début du processus de commande
+            isOrderBeingProcessed = true;
 
             officeSuiteDescription = officeSuite.getSelectedItem().toString();
             if (officeSuiteDescription.equals("Select an option")) {
@@ -237,16 +237,19 @@ public class RequesterActivity extends AppCompatActivity {
             newOrder.checkIfItemsExist(new ItemExistenceCallback() {
                 @Override
                 public void onResult(boolean exists, Integer quantity) {
-                    isOrderBeingProcessed = false; // Réinitialise le flag à la fin du traitement
+                    isOrderBeingProcessed = false;
 
                     if (exists) {
                         newOrder.refreshDatabaseInfo();
                         newOrder.pushOrderToDatabase();
-
+                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
                         errorTextNewOrderLayout.setText("Computer built successfully");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
 
-                        clearCreateOrderLayout(); // Efface les champs seulement si la commande est réussie
+                        new android.os.Handler().postDelayed(() -> {
+                            clearCreateOrderLayout();
+                            errorTextNewOrderLayout.setVisibility(View.GONE);
+                        }, 2000);
                     } else {
                         errorTextNewOrderLayout.setText("Not enough stock to build your computer");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
