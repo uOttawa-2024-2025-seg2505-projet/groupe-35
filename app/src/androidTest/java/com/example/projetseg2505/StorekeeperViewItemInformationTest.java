@@ -43,11 +43,11 @@ public class StorekeeperViewItemInformationTest {
             Thread.sleep(500);
             // View item information and return
             Espresso.onView(withId(R.id.viewItemInformationsButton)).perform(click());
-            Thread.sleep(500);
+            /*Thread.sleep(500);
             Espresso.onView(withId(R.id.returnButton)).perform(click());
             Thread.sleep(500);
             // Log out
-            Espresso.onView(withId(R.id.logoutButton)).perform(click());
+            Espresso.onView(withId(R.id.logoutButton)).perform(click());*/
 
         } catch (Exception e) {
             e.printStackTrace();

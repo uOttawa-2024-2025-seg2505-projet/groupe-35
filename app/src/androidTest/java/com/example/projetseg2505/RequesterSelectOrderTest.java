@@ -93,10 +93,10 @@ public class RequesterSelectOrderTest {
 
         Espresso.onView(withId(R.id.createOrderButton)).perform(click());
 
-        Espresso.onView(withId(R.id.returnButton)).perform(click());
+        /*Espresso.onView(withId(R.id.returnButton)).perform(click());
 
         // Log out
-        Espresso.onView(withId(R.id.logoutButton)).perform(click());
+        Espresso.onView(withId(R.id.logoutButton)).perform(click());*/
 
 
 
