@@ -210,7 +210,7 @@
 
     <!-- Return Button at the Bottom -->
     <Button
-        android:id="@+id/returnButton"
+        android:id="@+id/returnButtonModifyRemoveItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Return"

@@ -242,17 +242,19 @@ public class RequesterActivity extends AppCompatActivity {
                     if (exists) {
                         newOrder.refreshDatabaseInfo();
                         newOrder.pushOrderToDatabase();
-                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
+                        hardDriveArray.clear();
+                        developmentToolsArray.clear();
                         errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
                         errorTextNewOrderLayout.setText("Computer built successfully");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
 
                         new android.os.Handler().postDelayed(() -> {
                             clearCreateOrderLayout();
+                            errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
                             errorTextNewOrderLayout.setVisibility(View.GONE);
                         }, 2000);
                     } else {
-                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
+
                         errorTextNewOrderLayout.setText("Not enough stock to build your computer");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                     }

@@ -57,7 +57,7 @@ public class StorekeeperActivity extends AppCompatActivity {
     private Button tabularListButton;
 
     // Add return Variable
-    private Button returnButton;
+    private Button returnButtonTabularList, returnButtonModifyRemoveItem, returnButtonAddItem, returnButtonItemInfo;;
 
 
     @SuppressLint("MissingInflatedId")
@@ -65,179 +65,148 @@ public class StorekeeperActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_storekeeper);
+        initializeMainLayout();
 
-        // Initialization
-        logoutButton = findViewById(R.id.logoutButton);
-        sendToAddItemLayoutButton = findViewById(R.id.sendToAddItemLayoutButton);
-        modifyRemoveDescriptionItemInput = findViewById(R.id.modifyRemoveDescriptionItemInput);
-        sendToRemoveEditItemLayoutButton = findViewById(R.id.sendToModifyRemoveItemLayoutButton);
-        tabularListButton = findViewById(R.id.sendToTabularList);
-        viewItemInformationsButton = findViewById(R.id.viewItemInformationsButton);
-        errorTextDescriptionItemInput = findViewById(R.id.errorTextSubtypeItemInput);
+    }
 
-        // Initialize the Database Reference globally for Components
-        databaseRef = FirebaseDatabase.getInstance().getReference().child("Components");
+    private void initializeMainLayout() {
+            logoutButton = findViewById(R.id.logoutButton);
+            sendToAddItemLayoutButton = findViewById(R.id.sendToAddItemLayoutButton);
+            modifyRemoveDescriptionItemInput = findViewById(R.id.modifyRemoveDescriptionItemInput);
+            sendToRemoveEditItemLayoutButton = findViewById(R.id.sendToModifyRemoveItemLayoutButton);
+            tabularListButton = findViewById(R.id.sendToTabularList);
+            viewItemInformationsButton = findViewById(R.id.viewItemInformationsButton);
+            errorTextDescriptionItemInput = findViewById(R.id.errorTextSubtypeItemInput);
 
-        // Logout button logic
-        logoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(StorekeeperActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+            // Initialisation de la référence de base de données
+            databaseRef = FirebaseDatabase.getInstance().getReference().child("Components");
 
-        // Add item layout redirection logic
-        sendToAddItemLayoutButton.setOnClickListener(v -> {
-            setContentView(R.layout.activity_storekeeper_add_item);
-
-            // Initialization for add layout
-            subtypeSpinner = findViewById(R.id.subTypeSpinner);
-            textInputDescriptionNewItem = findViewById(R.id.textInputDescriptionNewItem);
-            textInputQuantityNewItem = findViewById(R.id.textInputQuantityNewItem);
-            textInputCommentNewItem = findViewById(R.id.textInputCommentNewItem);
-            infoTextAddItem = findViewById(R.id.infoTextAddItem);
-            addItemButton = findViewById(R.id.addItemButton);
-            typeSpinner = findViewById(R.id.typeSpinner);
-
-            returnButton = findViewById(R.id.returnButton);
-
-            returnButton.setOnClickListener(view -> {
-                Intent intent = new Intent(this, StorekeeperActivity.class);
-                startActivity(intent);
-                finish();
-
-
-
-
-            });
-
-            // Configure Spinner for Component Type selection
-            /*if (typeSpinner != null) {
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                        StorekeeperActivity.this, R.array.component_types, android.R.layout.simple_spinner_item);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                typeSpinner.setAdapter(adapter);
-            } else {
-                Toast.makeText(StorekeeperActivity.this, "Spinner is null", Toast.LENGTH_SHORT).show();
-            }*/
-            ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
-                    R.array.component_types, android.R.layout.simple_spinner_item);
-            typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            typeSpinner.setAdapter(typeAdapter);
-            typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    updateSubTypeSpinner(position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    // Do nothing
-                }
-            });
-
-
-
-            // Add item button click logic
-            addItemButton.setOnClickListener(view -> {
-                String subType = subtypeSpinner.getSelectedItem().toString();
-                String description = textInputDescriptionNewItem.getText().toString().trim();
-                String quantityStr = textInputQuantityNewItem.getText().toString().trim();
-                String comment = textInputCommentNewItem.getText().toString().trim();
-                String componentType = typeSpinner.getSelectedItem().toString();
-
-                // Validate inputs
-                if (description.isEmpty() || quantityStr.isEmpty() ||subtypeSpinner.equals("Choose Type") ||typeSpinner.equals("Choose Type")) {
-                    infoTextAddItem.setText("Please fill in all required fields.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                // Parse quantity
-                int quantity;
-                try {
-                    quantity = Integer.parseInt(quantityStr);
-                } catch (NumberFormatException e) {
-                    infoTextAddItem.setText("Please enter a valid quantity.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                // Check if the item already exists based on description
-                checkIfItemExists(description, databaseRef, infoTextAddItem, new ItemExistenceCallback() {
-                    @Override
-                    public void onResult(boolean exists, Integer x) {
-                        if (!exists) {
-                            addNewItem(subType, description, quantity, comment, componentType, databaseRef,infoTextAddItem);
-                        }
-                    }
-                });
-
-                clearInputFields();
-            });
-        });
-
-        // Modify/Delete item layout redirection logic
-        sendToRemoveEditItemLayoutButton.setOnClickListener(v -> {
-            // Load the layout that contains `returnButton` if necessary
-            setContentView(R.layout.activity_storekeeper_modify_remove_item);
-
-            // Initialize `returnButton` after the layout is set
-            returnButton = findViewById(R.id.returnButton);
-            returnButton.setOnClickListener(view -> {
-                // Use StorekeeperActivity.this to get the correct context
-                Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
+            logoutButton.setOnClickListener(v -> {
+                Intent intent = new Intent(StorekeeperActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
             });
+            sendToAddItemLayoutButton.setOnClickListener(v -> {
+                setContentView(R.layout.activity_storekeeper_add_item);
+                initializeAddItemLayout();
+            });
+            sendToRemoveEditItemLayoutButton.setOnClickListener(v -> {
+                initializeModifyRemoveItemLayout();
 
-            // Continue with the search functionality
-            String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
-            if (!descriptionToSearch.isEmpty()) {
-                searchItemByDescription(descriptionToSearch);
-            } else {
-                errorTextDescriptionItemInput.setText("Please enter a valid description title.");
-                errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
-            }
-        });
+            });
 
-        //view item
-        viewItemInformationsButton.setOnClickListener(v -> {
+            viewItemInformationsButton.setOnClickListener(v -> {
+                initializeViewInformationItem();
+            });
 
-            String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
-
-            if (!descriptionToSearch.isEmpty()) {
-                searchItemForInformation(descriptionToSearch);
-
-            } else {
-                errorTextDescriptionItemInput.setText("Please enter a valid item description.");
-                errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
-            }
-        });
-
-        //Tabular view
-        tabularListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Switch to the Welcome layout
+            tabularListButton.setOnClickListener(v -> {
                 setContentView(R.layout.activity_storekeeper_tabular_list);
+                initializeTabularListLayout();
 
-                // After switching the layout, load components data
-                loadComponentsData();
+            });
 
-                returnButton = findViewById(R.id.returnButton);
-                returnButton.setOnClickListener(view -> {
-                    // Use StorekeeperActivity.this to get the correct context
-                    Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
-                    startActivity(intent);
+    }
 
-                    finish();
-                });
-            }
+
+    private void initializeViewInformationItem(){
+        String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
+
+        if (!descriptionToSearch.isEmpty()) {
+            searchItemForInformation(descriptionToSearch);
+        } else {
+            errorTextDescriptionItemInput.setText("Please enter a valid item description.");
+            errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initializeTabularListLayout() {
+        loadComponentsData();
+        returnButtonTabularList = findViewById(R.id.returnButtonTabularList);
+        returnButtonTabularList.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
         });
+
+    }
+
+    private void initializeModifyRemoveItemLayout() {
+        String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
+        if (!descriptionToSearch.isEmpty()) {
+            searchItemByDescription(descriptionToSearch);
+        } else {
+            errorTextDescriptionItemInput.setText("Please enter a valid description title.");
+            errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
+        }
 
 
     }
+    private void initializeAddItemLayout() {
+        subtypeSpinner = findViewById(R.id.subTypeSpinner);
+        textInputDescriptionNewItem = findViewById(R.id.textInputDescriptionNewItem);
+        textInputQuantityNewItem = findViewById(R.id.textInputQuantityNewItem);
+        textInputCommentNewItem = findViewById(R.id.textInputCommentNewItem);
+        infoTextAddItem = findViewById(R.id.infoTextAddItem);
+        addItemButton = findViewById(R.id.addItemButton);
+        typeSpinner = findViewById(R.id.typeSpinner);
+        returnButtonAddItem = findViewById(R.id.returnButtonAddItem);
+
+        returnButtonAddItem.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
+
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
+                R.array.component_types, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateSubTypeSpinner(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+        addItemButton.setOnClickListener(view -> {
+            String subType = subtypeSpinner.getSelectedItem().toString();
+            String description = textInputDescriptionNewItem.getText().toString().trim();
+            String quantityStr = textInputQuantityNewItem.getText().toString().trim();
+            String comment = textInputCommentNewItem.getText().toString().trim();
+            String componentType = typeSpinner.getSelectedItem().toString();
+
+            if (description.isEmpty() || quantityStr.isEmpty() || subtypeSpinner.equals("Choose Type") || typeSpinner.equals("Choose Type")) {
+                infoTextAddItem.setText("Please fill in all required fields.");
+                infoTextAddItem.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityStr);
+            } catch (NumberFormatException e) {
+                infoTextAddItem.setText("Please enter a valid quantity.");
+                infoTextAddItem.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            checkIfItemExists(description, databaseRef, infoTextAddItem, new ItemExistenceCallback() {
+                @Override
+                public void onResult(boolean exists, Integer x) {
+                    if (!exists) {
+                        addNewItem(subType, description, quantity, comment, componentType, databaseRef, infoTextAddItem);
+                    }
+                }
+            });
+
+
+            clearInputFields();
+        });
+    }
+
 
     // Add item method
     public static void checkIfItemExists(String description, DatabaseReference databaseRef, TextView textView, ItemExistenceCallback callback) {
@@ -373,13 +342,6 @@ public class StorekeeperActivity extends AppCompatActivity {
 
                         displayItemInformation(type, subType, description, quantity, comment, creationDate, modificationDate);
 
-                        // Initialize and set up the return button
-                        returnButton = findViewById(R.id.returnButton);
-                        returnButton.setOnClickListener(view -> {
-                            Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
-                            startActivity(intent);
-                            finish();
-                        });
                     }
                 } else {
                     // If not found in 'Hardware', search in 'Software'
@@ -432,12 +394,7 @@ public class StorekeeperActivity extends AppCompatActivity {
     private void displayItemInformation(String type, String subType, String description, String quantity, String comment, String creationDate, String modificationDate) {
         // Switch to the information display layout
         setContentView(R.layout.activity_storekeeper_view_item_informations);
-        returnButton = findViewById(R.id.returnButton);
-        returnButton.setOnClickListener(view -> {
-            Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
-            startActivity(intent);
-            finish();
-        });
+
         // Initialize TextViews
         EditText textType = findViewById(R.id.textType);
         EditText textSubType = findViewById(R.id.textSubType);
@@ -455,6 +412,12 @@ public class StorekeeperActivity extends AppCompatActivity {
         textComment.setText(comment);
         textCreationDate.setText(creationDate);
         textModificationDate.setText(modificationDate);
+
+        returnButtonItemInfo = findViewById(R.id.returnButtonItemInfo);
+        returnButtonItemInfo.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
 
     }
 
@@ -535,6 +498,11 @@ public class StorekeeperActivity extends AppCompatActivity {
         errorTextModifyDeleteItem = findViewById(R.id.errorTextModifyDeleteItem);
         modifyItemButton = findViewById(R.id.modifyItemButton);
         deleteItemButton = findViewById(R.id.deleteItemButton);
+        returnButtonModifyRemoveItem = findViewById(R.id.returnButtonModifyRemoveItem);
+        returnButtonModifyRemoveItem.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
 
 
         // Initialize buttons for increment/decrement
