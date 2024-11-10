@@ -376,27 +376,31 @@ public class AdminActivity extends AppCompatActivity {
         String currentLastName = lastNameEditText.getText().toString().trim();
         String currentPassword = passwordEditText.getText().toString().trim();
 
-        // Search for the requester by email
         userDatabaseRef.orderByChild("email").equalTo(foundEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        // Fetch the information stored in the database and compare it
                         if (foundFirstName.equals(currentFirstName) &&
                                 foundLastName.equals(currentLastName) &&
                                 foundPassword.equals(currentPassword)) {
 
-                            // If all information matches, proceed to delete the requester
-                            userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                                Toast.makeText(AdminActivity.this, "Requester deleted successfully", Toast.LENGTH_SHORT).show();
-                                setContentView(R.layout.activity_admin);  // Return to the main layout after deletion
-                            }).addOnFailureListener(e -> {
-                                Toast.makeText(AdminActivity.this, "Error while deleting: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                            ordersDatabaseRef.child(foundEmail.replace('.', ',')).removeValue()
+                                    .addOnSuccessListener(aVoid -> {
 
+                                        userSnapshot.getRef().removeValue()
+                                                .addOnSuccessListener(aVoid1 -> {
+                                                    Toast.makeText(AdminActivity.this, "Requester and associated orders deleted successfully", Toast.LENGTH_SHORT).show();
+                                                    setContentView(R.layout.activity_admin);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(AdminActivity.this, "Error while deleting requester: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                });
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(AdminActivity.this, "Error while deleting orders: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
                         } else {
-                            // If the information does not match, show an error message
                             Toast.makeText(AdminActivity.this, "Requester's information does not match", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -411,6 +415,7 @@ public class AdminActivity extends AppCompatActivity {
             }
         });
     }
+
 
     public void clearRequesters(DatabaseReference requesterRef, Runnable onComplete) {
         requesterRef.addListenerForSingleValueEvent(new ValueEventListener() {
