@@ -243,6 +243,7 @@ public class RequesterActivity extends AppCompatActivity {
                         newOrder.refreshDatabaseInfo();
                         newOrder.pushOrderToDatabase();
                         errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
+                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
                         errorTextNewOrderLayout.setText("Computer built successfully");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
 
@@ -251,6 +252,7 @@ public class RequesterActivity extends AppCompatActivity {
                             errorTextNewOrderLayout.setVisibility(View.GONE);
                         }, 2000);
                     } else {
+                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
                         errorTextNewOrderLayout.setText("Not enough stock to build your computer");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                     }

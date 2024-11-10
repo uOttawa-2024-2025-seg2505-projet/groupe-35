@@ -54,6 +54,12 @@ dependencies {
 
     testImplementation("org.robolectric:robolectric:4.7.3")
 
+    // Add Espresso dependencies for UI testing
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0")
+
+
     testImplementation("com.google.firebase:firebase-database") {
         exclude(group = "com.google.firebase", module = "firebase-core")
     }

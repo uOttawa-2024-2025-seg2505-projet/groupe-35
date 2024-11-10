@@ -130,5 +130,4 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
-    public String getUserEmail(){return userEmail;}
 }
