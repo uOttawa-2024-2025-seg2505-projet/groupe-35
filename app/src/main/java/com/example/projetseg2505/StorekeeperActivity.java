@@ -414,7 +414,12 @@ public class StorekeeperActivity extends AppCompatActivity {
     private void displayItemInformation(String type, String subType, String description, String quantity, String comment, String creationDate, String modificationDate) {
         // Switch to the information display layout
         setContentView(R.layout.activity_storekeeper_view_item_informations);
-
+        returnButton = findViewById(R.id.returnButton);
+        returnButton.setOnClickListener(view -> {
+            Intent intent = new Intent(StorekeeperActivity.this, StorekeeperActivity.class);
+            startActivity(intent);
+            finish();
+        });
         // Initialize TextViews
         EditText textType = findViewById(R.id.textType);
         EditText textSubType = findViewById(R.id.textSubType);

@@ -111,9 +111,21 @@ public class RequesterActivity extends AppCompatActivity {
             searchItemBySubtypeAndCreateSpinner("Office Suite",officeSuite);
             searchItemBySubtypeAndCreateSpinner("Development Tool",developmentTools);
 
+            returnButton = findViewById(R.id.returnButton);
+
+            returnButton.setOnClickListener(returnView -> {
+                Intent intent = new Intent(RequesterActivity.this, RequesterActivity.class);
+                startActivity(intent);
+                finish();
+            });
+
+
             createOrderButton.setOnClickListener(view -> {
                 createOrder();
+
             });
+
+
 
         });
         //view orders
@@ -199,9 +211,11 @@ public class RequesterActivity extends AppCompatActivity {
                     if (exists) {
                         newOrder.refreshDatabaseInfo();
                         newOrder.pushOrderToDatabase();
+                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
                         errorTextNewOrderLayout.setText("Computer built successfully");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                     } else {
+                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
                         errorTextNewOrderLayout.setText("Not enough stock to build your computer");
                         errorTextNewOrderLayout.setVisibility(View.VISIBLE);
                     }
@@ -213,6 +227,7 @@ public class RequesterActivity extends AppCompatActivity {
             errorTextNewOrderLayout.setText("The computer can't be built with only these items");
             errorTextNewOrderLayout.setVisibility(View.VISIBLE);
         }
+
 
     }
 
@@ -302,6 +317,7 @@ public class RequesterActivity extends AppCompatActivity {
                                             Toast.makeText(RequesterActivity.this, "Erreur lors de la suppression", Toast.LENGTH_SHORT).show();
                                         }
                                     });
+
                         }
                     });
 
