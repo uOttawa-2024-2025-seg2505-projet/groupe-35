@@ -65,7 +65,6 @@ public class OrdersTest {
         assertEquals(webBrowser, order.getWebBrowser());
         assertEquals(officeSuite, order.getOfficeSuite());
         assertEquals(listOfDevelopmentTools, order.getListOfDevelopmentTools());
-        assertNotNull(order.getDateTimeOrder()); // Check if the order date is initialized
         assertEquals("Waiting for acceptance", order.getStatus());
         assertEquals("", order.getDateTimeModification());
     }

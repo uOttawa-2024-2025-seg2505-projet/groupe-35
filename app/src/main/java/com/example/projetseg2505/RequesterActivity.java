@@ -34,7 +34,7 @@ public class RequesterActivity extends AppCompatActivity {
     //logout
     private Button logoutButton;
     //add order
-    private Button sendToPlaceOrderLayout, createOrderButton, returnButton;
+    private Button sendToPlaceOrderLayout, createOrderButton, returnButtonViewOrderStatus, returnButtonCreateOrder;
     private Spinner computerCase, motherboard, memoryStick, hardDrive, monitor, keyboardMouse, webBrowser, officeSuite, developmentTools;
     private EditText numberOfMonitors,  numberOfMemorySticks ;
     private TextView errorTextNewOrderLayout;
@@ -54,12 +54,16 @@ public class RequesterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_requester);
-        //initialize view
+        initializeMainLayout();
+    }
+
+    //methods for initializing
+    private void initializeMainLayout() {
+
         logoutButton = findViewById(R.id.logoutButton);
-        sendToPlaceOrderLayout  = findViewById(R.id.sendToPlaceOrderLayout);
+        sendToPlaceOrderLayout = findViewById(R.id.sendToPlaceOrderLayout);
         viewMyOrderButton = findViewById(R.id.viewMyOrderButton);
 
-        //Save requester email
         requesterEmail = getIntent().getStringExtra("userEmail");
         if (requesterEmail != null) {
             getSharedPreferences("RequesterPrefs", MODE_PRIVATE).edit().putString("requesterEmail", requesterEmail).apply();
@@ -67,99 +71,100 @@ public class RequesterActivity extends AppCompatActivity {
             requesterEmail = getSharedPreferences("RequesterPrefs", MODE_PRIVATE).getString("requesterEmail", null);
         }
 
-
-
-        //logout button
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(RequesterActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            }
+        logoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(RequesterActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
 
-        //send to new order Layout
         sendToPlaceOrderLayout.setOnClickListener(v -> {
             setContentView(R.layout.activity_requester_new_order);
-
-            //initialize view
-            computerCase = findViewById(R.id.computerCase);
-            motherboard = findViewById(R.id.motherboard);
-            memoryStick = findViewById(R.id.memoryStick);
-            hardDrive = findViewById(R.id.hardDrive);
-            monitor = findViewById(R.id.monitors);
-            keyboardMouse = findViewById(R.id.keyboardMouse);
-            webBrowser = findViewById(R.id.webBrowser);
-            officeSuite = findViewById(R.id.officeSuite);
-            developmentTools = findViewById(R.id.developmentTools);
-            numberOfMonitors = findViewById(R.id.inputMonitorAmount);
-            numberOfMemorySticks = findViewById(R.id.inputMemoryAmount);
-            errorTextNewOrderLayout = findViewById(R.id.errorTextNewOrderLayout);
-            createOrderButton = findViewById(R.id.createOrderButton);
-            returnButton = findViewById(R.id.returnButton);
-            hardDriveArray = new ArrayList<>();
-            developmentToolsArray = new ArrayList<>();
-
-            searchItemBySubtypeAndCreateSpinner("case",computerCase);
-            searchItemBySubtypeAndCreateSpinner("motherboard",motherboard);
-            searchItemBySubtypeAndCreateSpinner("memory",memoryStick);
-            searchItemBySubtypeAndCreateSpinner("hard drive",hardDrive);
-            searchItemBySubtypeAndCreateSpinner("monitor",monitor);
-            searchItemBySubtypeAndCreateSpinner("Keyboard_Mouse",keyboardMouse);
-            searchItemBySubtypeAndCreateSpinner("Web Browser",webBrowser);
-            searchItemBySubtypeAndCreateSpinner("Office Suite",officeSuite);
-            searchItemBySubtypeAndCreateSpinner("Development Tool",developmentTools);
-
-            hardDrive.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String selectedItem = parent.getItemAtPosition(position).toString();
-                    handleHardDriveSelection(selectedItem);
-                }
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Log.d(TAG, "onNothingSelected: ");
-                }
-            });
-
-            developmentTools.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String selectedItem = parent.getItemAtPosition(position).toString();
-                    handleDevelopmentToolsSelection(selectedItem);
-                }
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Log.d(TAG, "onNothingSelected: ");
-                }
-            });
-
-            createOrderButton.setOnClickListener(view -> {
-                createOrder();
-            });
-
-
+            initializeOrderLayout();
         });
-        //view orders
-        viewMyOrderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                setContentView(R.layout.activity_requester_orders_status);
-
-                loadOrdersDataForRequester();
-
-                returnButton = findViewById(R.id.returnButtonViewOrderStatus);
-                returnButton.setOnClickListener(view -> {
-                    Intent intent = new Intent(RequesterActivity.this, RequesterActivity.class);
-                    startActivity(intent);
-                    finish();
-                });
-            }
+        viewMyOrderButton.setOnClickListener(v -> {
+            setContentView(R.layout.activity_requester_orders_status);
+            loadOrdersDataForRequester();
+            initializeOrderStatusLayout();
         });
     }
+
+
+    private void initializeOrderStatusLayout() {
+        returnButtonViewOrderStatus = findViewById(R.id.returnButtonViewOrderStatus);
+        returnButtonViewOrderStatus.setOnClickListener(v -> {
+            setContentView(R.layout.activity_requester);
+            initializeMainLayout();
+        });
+    }
+
+    private void initializeOrderLayout() {
+
+        computerCase = findViewById(R.id.computerCase);
+        motherboard = findViewById(R.id.motherboard);
+        memoryStick = findViewById(R.id.memoryStick);
+        hardDrive = findViewById(R.id.hardDrive);
+        monitor = findViewById(R.id.monitors);
+        keyboardMouse = findViewById(R.id.keyboardMouse);
+        webBrowser = findViewById(R.id.webBrowser);
+        officeSuite = findViewById(R.id.officeSuite);
+        developmentTools = findViewById(R.id.developmentTools);
+        numberOfMonitors = findViewById(R.id.inputMonitorAmount);
+        numberOfMemorySticks = findViewById(R.id.inputMemoryAmount);
+        errorTextNewOrderLayout = findViewById(R.id.errorTextNewOrderLayout);
+        createOrderButton = findViewById(R.id.createOrderButton);
+        returnButtonCreateOrder = findViewById(R.id.returnButtonCreateOrder);
+        hardDriveArray = new ArrayList<>();
+        developmentToolsArray = new ArrayList<>();
+
+
+        returnButtonCreateOrder.setOnClickListener(v -> {
+            setContentView(R.layout.activity_requester);
+            initializeMainLayout();
+        });
+
+
+
+        searchItemBySubtypeAndCreateSpinner("case", computerCase);
+        searchItemBySubtypeAndCreateSpinner("motherboard", motherboard);
+        searchItemBySubtypeAndCreateSpinner("memory", memoryStick);
+        searchItemBySubtypeAndCreateSpinner("hard drive", hardDrive);
+        searchItemBySubtypeAndCreateSpinner("monitor", monitor);
+        searchItemBySubtypeAndCreateSpinner("Keyboard_Mouse", keyboardMouse);
+        searchItemBySubtypeAndCreateSpinner("Web Browser", webBrowser);
+        searchItemBySubtypeAndCreateSpinner("Office Suite", officeSuite);
+        searchItemBySubtypeAndCreateSpinner("Development Tool", developmentTools);
+
+        hardDrive.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                handleHardDriveSelection(selectedItem);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "onNothingSelected: ");
+            }
+        });
+
+        developmentTools.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                handleDevelopmentToolsSelection(selectedItem);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "onNothingSelected: ");
+            }
+        });
+
+        createOrderButton.setOnClickListener(view -> {
+            createOrder();
+        });
+    }
+
 
     private boolean checkItemSelection(){
         computerCaseDescription = computerCase.getSelectedItem().toString();
