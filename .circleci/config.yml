@@ -14,6 +14,16 @@ jobs:
   setup-environment:
     executor: android
     steps:
+    - run:
+    #Etape 0 :Vérifie si mkdir est disponible 
+          name: Check available tools
+          command: |
+            echo "Checking if mkdir is available..."
+            which mkdir || echo "mkdir is missing"
+            echo "Checking if coreutils is installed..."
+            mkdir -p test_dir && echo "mkdir works!"
+            ls -al
+
       # Étape 1 : Ajouter GitHub à known_hosts
       - run:
           name: Add GitHub to known_hosts
