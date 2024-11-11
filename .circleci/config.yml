@@ -3,7 +3,7 @@ version: 2.1
 executors:
   android:
     docker:
-      - image: circleci/android:api-30  # Une image prête pour les builds Android
+      - image: circleci/android:api-30
     environment:
       JVM_OPTS: -Xmx3200m
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
@@ -19,10 +19,7 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
-      - run:
-          name: Test SSH Connection
-          command: ssh -T git@github.com
-      - checkout
+      - checkout  # Cloner le dépôt via SSH
 
   build-and-test:
     executor: android
