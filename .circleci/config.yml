@@ -10,25 +10,47 @@ executors:
     working_directory: ~/project
 
 jobs:
+  setup-environment:
+    executor: android
+    steps:
+      - run:
+          name: Install Java 17 and SSH
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk openssh-client
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+      - checkout
+
   test-unit:
     executor: android
     steps:
       - checkout
       - run:
-          name: Install Java 17
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-      - run:
-          name: Configure SDK
+          name: Install SDK
           command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
       - run:
           name: Run Unit Tests
           command: ./gradlew testDebugUnitTest
 
+  test-integration:
+    executor: android
+    steps:
+      - checkout
+      - run:
+          name: Install SDK
+          command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
+      - run:
+          name: Run Integration Tests
+          command: ./gradlew connectedDebugAndroidTest
+
 workflows:
   version: 2
   test-workflow:
     jobs:
-      - test-unit
+      - setup-environment
+      - test-unit:
+          requires:
+            - setup-environment
+      - test-integration:
+          requires:
+            - setup-environment
