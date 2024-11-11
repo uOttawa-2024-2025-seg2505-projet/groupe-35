@@ -1,19 +1,41 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/code
+version: 2.1
+
+executors:
+  android:
     docker:
-      - image: cimg/android:2023.08  # Utilisation d'une image récente avec Java 17 et apt-get
+      - image: cimg/android:2023.08  # Image Android CircleCI avec support de apt-get
     environment:
-      JVM_OPTS: -Xmx3200m
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
       PATH: "/usr/lib/jvm/java-17-openjdk/bin:$PATH"
+    working_directory: ~/project
+
+jobs:
+  setup-environment:
+    executor: android
+    steps:
+      - run:
+          name: Install SSH Client
+          command: |
+            apt-get update
+            apt-get install -y openssh-client
+      - run:
+          name: Add GitHub to known_hosts
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - run:
+          name: Test SSH Connection
+          command: ssh -T git@github.com
+      - checkout  # Cloner le dépôt via SSH
+
+  build-and-test:
+    executor: android
     steps:
       - checkout
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
       - run:
-          name: chmod permissions
+          name: Set Gradle Permissions
           command: chmod +x ./gradlew
       - run:
           name: Install Dependencies
@@ -33,3 +55,12 @@ jobs:
           destination: reports
       - store_test_results:
           path: app/build/test-results
+
+workflows:
+  version: 2
+  build-and-test-workflow:
+    jobs:
+      - setup-environment
+      - build-and-test:
+          requires:
+            - setup-environment
