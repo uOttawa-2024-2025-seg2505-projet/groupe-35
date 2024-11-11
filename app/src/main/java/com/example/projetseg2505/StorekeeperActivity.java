@@ -1,10 +1,14 @@
 package com.example.projetseg2505;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,24 +27,26 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 public class StorekeeperActivity extends AppCompatActivity {
     // Logout Variables
     private Button logoutButton;
+    private boolean showTextToClient = true;
 
     // Add Item Variables
     private DatabaseReference databaseRef;
     private Button sendToAddItemLayoutButton, addItemButton;
-    private EditText textInputSubTypeNewItem, textInputDescriptionNewItem, textInputQuantityNewItem, textInputCommentNewItem;
+    private EditText  textInputDescriptionNewItem, textInputQuantityNewItem, textInputCommentNewItem;
     private TextView infoTextAddItem;
-    private Spinner typeSpinner;
+    private Spinner typeSpinner, subtypeSpinner;
 
     // Modify/Delete Item variables
     private Button sendToRemoveEditItemLayoutButton, modifyItemButton, deleteItemButton, incrementButton, decrementButton;
     private String foundComment, foundDescription, foundSubType, foundQuantity;
-    private TextView errorTextSubtypeItemInput, errorTextModifyDeleteItem;
+    private TextView errorTextDescriptionItemInput, errorTextModifyDeleteItem;
     private EditText textSubtypeModificationItem, textDescriptionModificationItem, textQuantityModificationItem, textCommentModificationItem, modifyRemoveDescriptionItemInput;
     private int quantity;
 
@@ -50,6 +56,8 @@ public class StorekeeperActivity extends AppCompatActivity {
     // tabular view Variable
     private Button tabularListButton;
 
+    // Add return Variable
+    private Button returnButtonTabularList, returnButtonModifyRemoveItem, returnButtonAddItem, returnButtonItemInfo;;
 
 
     @SuppressLint("MissingInflatedId")
@@ -57,143 +65,191 @@ public class StorekeeperActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_storekeeper);
+        initializeMainLayout();
 
-        // Initialization
-        logoutButton = findViewById(R.id.logoutButton);
-        sendToAddItemLayoutButton = findViewById(R.id.sendToAddItemLayoutButton);
-        modifyRemoveDescriptionItemInput = findViewById(R.id.modifyRemoveDescriptionItemInput);
-        sendToRemoveEditItemLayoutButton = findViewById(R.id.sendToModifyRemoveItemLayoutButton);
-        tabularListButton = findViewById(R.id.sendToTabularList);
-        viewItemInformationsButton = findViewById(R.id.viewItemInformationsButton);
-        errorTextSubtypeItemInput = findViewById(R.id.errorTextSubtypeItemInput);
+    }
 
-        // Initialize the Database Reference globally for Components
-        databaseRef = FirebaseDatabase.getInstance().getReference().child("Components");
+    private void initializeMainLayout() {
+            logoutButton = findViewById(R.id.logoutButton);
+            sendToAddItemLayoutButton = findViewById(R.id.sendToAddItemLayoutButton);
+            modifyRemoveDescriptionItemInput = findViewById(R.id.modifyRemoveDescriptionItemInput);
+            sendToRemoveEditItemLayoutButton = findViewById(R.id.sendToModifyRemoveItemLayoutButton);
+            tabularListButton = findViewById(R.id.sendToTabularList);
+            viewItemInformationsButton = findViewById(R.id.viewItemInformationsButton);
+            errorTextDescriptionItemInput = findViewById(R.id.errorTextSubtypeItemInput);
 
-        // Logout button logic
-        logoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(StorekeeperActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+            // Initialisation de la référence de base de données
+            databaseRef = FirebaseDatabase.getInstance().getReference().child("Components");
 
-        // Add item layout redirection logic
-        sendToAddItemLayoutButton.setOnClickListener(v -> {
-            setContentView(R.layout.activity_storekeeper_add_item);
-
-            // Initialization for add layout
-            textInputSubTypeNewItem = findViewById(R.id.textInputSubTypeNewItem);
-            textInputDescriptionNewItem = findViewById(R.id.textInputDescriptionNewItem);
-            textInputQuantityNewItem = findViewById(R.id.textInputQuantityNewItem);
-            textInputCommentNewItem = findViewById(R.id.textInputCommentNewItem);
-            infoTextAddItem = findViewById(R.id.infoTextAddItem);
-            addItemButton = findViewById(R.id.addItemButton);
-            typeSpinner = findViewById(R.id.typeSpinner);
-
-            // Configure Spinner for Component Type selection
-            if (typeSpinner != null) {
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                        StorekeeperActivity.this, R.array.component_types, android.R.layout.simple_spinner_item);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                typeSpinner.setAdapter(adapter);
-            } else {
-                Toast.makeText(StorekeeperActivity.this, "Spinner is null", Toast.LENGTH_SHORT).show();
-            }
-
-            // Add item button click logic
-            addItemButton.setOnClickListener(view -> {
-                String subType = textInputSubTypeNewItem.getText().toString().trim();
-                String description = textInputDescriptionNewItem.getText().toString().trim();
-                String quantityStr = textInputQuantityNewItem.getText().toString().trim();
-                String comment = textInputCommentNewItem.getText().toString().trim();
-                String componentType = typeSpinner.getSelectedItem().toString();
-
-                // Validate inputs
-                if (subType.isEmpty() || description.isEmpty() || quantityStr.isEmpty()) {
-                    infoTextAddItem.setText("Please fill in all required fields.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                // Parse quantity
-                int quantity;
-                try {
-                    quantity = Integer.parseInt(quantityStr);
-                } catch (NumberFormatException e) {
-                    infoTextAddItem.setText("Please enter a valid quantity.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                // Check if the item already exists based on description
-                checkIfItemExists(description, componentType, subType, quantity, comment);
+            logoutButton.setOnClickListener(v -> {
+                Intent intent = new Intent(StorekeeperActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             });
-        });
+            sendToAddItemLayoutButton.setOnClickListener(v -> {
+                setContentView(R.layout.activity_storekeeper_add_item);
+                initializeAddItemLayout();
+            });
+            sendToRemoveEditItemLayoutButton.setOnClickListener(v -> {
+                initializeModifyRemoveItemLayout();
 
-        // Modify/Delete item layout redirection logic
-        sendToRemoveEditItemLayoutButton.setOnClickListener(v -> {
-            String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
-            if (!descriptionToSearch.isEmpty()) {
-                searchItemByDescription(descriptionToSearch);
-            } else {
-                errorTextSubtypeItemInput.setText("Please enter a valid description title.");
-                errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
-            }
-        });
-        //view item
-        viewItemInformationsButton.setOnClickListener(v -> {
-            String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
+            });
 
-            if (!descriptionToSearch.isEmpty()) {
-                searchItemForInformation(descriptionToSearch);
-            } else {
-                errorTextSubtypeItemInput.setText("Please enter a valid item description.");
-                errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
-            }
-        });
+            viewItemInformationsButton.setOnClickListener(v -> {
+                initializeViewInformationItem();
+            });
 
-        //Tabular view
-        tabularListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Switch to the Welcome layout
+            tabularListButton.setOnClickListener(v -> {
                 setContentView(R.layout.activity_storekeeper_tabular_list);
+                initializeTabularListLayout();
 
-                // After switching the layout, load components data
-                loadComponentsData();
+            });
+
+    }
+
+
+    private void initializeViewInformationItem(){
+        String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
+
+        if (!descriptionToSearch.isEmpty()) {
+            searchItemForInformation(descriptionToSearch);
+        } else {
+            errorTextDescriptionItemInput.setText("Please enter a valid item description.");
+            errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initializeTabularListLayout() {
+        loadComponentsData();
+        returnButtonTabularList = findViewById(R.id.returnButtonTabularList);
+        returnButtonTabularList.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
+
+    }
+
+    private void initializeModifyRemoveItemLayout() {
+        String descriptionToSearch = modifyRemoveDescriptionItemInput.getText().toString().trim();
+        if (!descriptionToSearch.isEmpty()) {
+            searchItemByDescription(descriptionToSearch);
+        } else {
+            errorTextDescriptionItemInput.setText("Please enter a valid description title.");
+            errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
+        }
+
+
+    }
+    private void initializeAddItemLayout() {
+        subtypeSpinner = findViewById(R.id.subTypeSpinner);
+        textInputDescriptionNewItem = findViewById(R.id.textInputDescriptionNewItem);
+        textInputQuantityNewItem = findViewById(R.id.textInputQuantityNewItem);
+        textInputCommentNewItem = findViewById(R.id.textInputCommentNewItem);
+        infoTextAddItem = findViewById(R.id.infoTextAddItem);
+        addItemButton = findViewById(R.id.addItemButton);
+        typeSpinner = findViewById(R.id.typeSpinner);
+        returnButtonAddItem = findViewById(R.id.returnButtonAddItem);
+
+        returnButtonAddItem.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
+
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
+                R.array.component_types, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateSubTypeSpinner(position);
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+        addItemButton.setOnClickListener(view -> {
+            String subType = subtypeSpinner.getSelectedItem().toString();
+            String description = textInputDescriptionNewItem.getText().toString().trim();
+            String quantityStr = textInputQuantityNewItem.getText().toString().trim();
+            String comment = textInputCommentNewItem.getText().toString().trim();
+            String componentType = typeSpinner.getSelectedItem().toString();
+
+            if (description.isEmpty() || quantityStr.isEmpty() || subtypeSpinner.equals("Choose Type") || typeSpinner.equals("Choose Type")) {
+                infoTextAddItem.setText("Please fill in all required fields.");
+                infoTextAddItem.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityStr);
+            } catch (NumberFormatException e) {
+                infoTextAddItem.setText("Please enter a valid quantity.");
+                infoTextAddItem.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            checkIfItemExists(description, databaseRef, infoTextAddItem, new ItemExistenceCallback() {
+                @Override
+                public void onResult(boolean exists, Integer x) {
+                    if (!exists) {
+                        addNewItem(subType, description, quantity, comment, componentType, databaseRef, infoTextAddItem);
+                    }
+                }
+            });
+
+
+            clearInputFields();
         });
     }
 
+
     // Add item method
-    private void checkIfItemExists(String description, String componentType, String subType, int quantity, String comment) {
+    public static void checkIfItemExists(String description, DatabaseReference databaseRef, TextView textView, ItemExistenceCallback callback) {
         // Search in Hardware
         databaseRef.child("Hardware").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot hardwareSnapshot) {
                 if (hardwareSnapshot.exists()) {
-                    // Item exists in Hardware
-                    infoTextAddItem.setText("An item with this description already exists in Hardware.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null) {
+                        textView.setText("An item with this description already exists in Hardware.");
+                        textView.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d(TAG, "An item with this description already exists in Hardware.");
+                    }
+                    DataSnapshot firstMatch = hardwareSnapshot.getChildren().iterator().next();
+                    Integer quantity = firstMatch.child("quantity").getValue(Integer.class);
+
+                    callback.onResult(true, quantity);
                 } else {
-                    // If not found in Hardware, check in Software
+                    // Check in Software
                     databaseRef.child("Software").orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot softwareSnapshot) {
                             if (softwareSnapshot.exists()) {
-                                // Item exists in Software
-                                infoTextAddItem.setText("An item with this description already exists in Software.");
-                                infoTextAddItem.setVisibility(View.VISIBLE);
+                                if(textView != null) {
+                                    textView.setText("An item with this description already exists in Software.");
+                                    textView.setVisibility(View.VISIBLE);
+                                } else {
+                                    Log.d(TAG, "An item with this description already exists in Software.");
+                                }
+                                DataSnapshot firstMatch = softwareSnapshot.getChildren().iterator().next();
+                                Integer quantity = firstMatch.child("quantity").getValue(Integer.class);
+                                callback.onResult(true, quantity);
                             } else {
-                                // If no match in both Hardware and Software, proceed to add the new item
-                                addNewItem(subType, description, quantity, comment, componentType);
+                                // Item does not exist in Hardware or Software
+                                callback.onResult(false, 0);
                             }
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(StorekeeperActivity.this, "Error checking Software: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error checking Software: " + databaseError.getMessage());
+                            callback.onResult(false, 0);
                         }
                     });
                 }
@@ -201,52 +257,66 @@ public class StorekeeperActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error checking Hardware: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Error checking Hardware: " + databaseError.getMessage());
+                callback.onResult(false, 0);
             }
         });
     }
 
 
-    private void addNewItem(String subType, String description, int quantity, String comment, String componentType) {
+
+
+    public static void addNewItem(String subType, String description, int quantity, String comment, String componentType, DatabaseReference databaseRef, TextView textView) {
         DatabaseReference componentRef = databaseRef.child(componentType);
 
         if (componentType.equals("Hardware")) {
             HardwareComponent newItem = new HardwareComponent(subType, description, quantity, comment);
-            componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
+            componentRef.child(description.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    infoTextAddItem.setText("Hardware item added successfully!");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    clearInputFields();
+                    if(textView != null){
+                        textView.setText("Hardware item added successfully!");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 } else {
-                    infoTextAddItem.setText("Failed to add hardware item. Please try again.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null) {
+                        textView.setText("Failed to add hardware item. Please try again.");
+                        textView.setVisibility(View.VISIBLE);
+                    }
                 }
             });
         } else if (componentType.equals("Software")) {
             SoftwareComponent newItem = new SoftwareComponent(subType, description, quantity, comment);
-            componentRef.child(subType.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
+            componentRef.child(description.replace(".", ",")).setValue(newItem).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    infoTextAddItem.setText("Software item added successfully!");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
-                    clearInputFields();
+                    if(textView != null) {
+                        textView.setText("Software item added successfully!");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 } else {
-                    infoTextAddItem.setText("Failed to add software item. Please try again.");
-                    infoTextAddItem.setVisibility(View.VISIBLE);
+                    if(textView != null) {
+                        textView.setText("Failed to add software item. Please try again.");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+
                 }
             });
         } else {
-            infoTextAddItem.setText("Invalid component type selected.");
-            infoTextAddItem.setVisibility(View.VISIBLE);
+            if(textView != null) {
+                textView.setText("Invalid component type selected.");
+                textView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
     // Clear input fields after adding an item
     private void clearInputFields() {
-        textInputSubTypeNewItem.setText("");
         textInputDescriptionNewItem.setText("");
         textInputQuantityNewItem.setText("");
         textInputCommentNewItem.setText("");
         typeSpinner.setSelection(0);
+        subtypeSpinner.setSelection(0);
     }
 
     //view methods
@@ -254,7 +324,7 @@ public class StorekeeperActivity extends AppCompatActivity {
     // Method to search item and display information
     private void searchItemForInformation(String description) {
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        DatabaseReference softwareRef = databaseRef.child("Software");
+
 
         // Search in 'Hardware' components
         hardwareRef.orderByChild("description").equalTo(description.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -271,6 +341,7 @@ public class StorekeeperActivity extends AppCompatActivity {
                         String modificationDate = snapshot.child("dateTimeModification").getValue(String.class);
 
                         displayItemInformation(type, subType, description, quantity, comment, creationDate, modificationDate);
+
                     }
                 } else {
                     // If not found in 'Hardware', search in 'Software'
@@ -284,6 +355,7 @@ public class StorekeeperActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // Method to search item in 'Software'
     private void searchInSoftwareForInformation(String description) {
@@ -306,8 +378,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                     }
                 } else {
                     // Item not found
-                    errorTextSubtypeItemInput.setText("Item with this description not found.");
-                    errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                    errorTextDescriptionItemInput.setText("Item with this description not found.");
+                    errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -340,6 +412,12 @@ public class StorekeeperActivity extends AppCompatActivity {
         textComment.setText(comment);
         textCreationDate.setText(creationDate);
         textModificationDate.setText(modificationDate);
+
+        returnButtonItemInfo = findViewById(R.id.returnButtonItemInfo);
+        returnButtonItemInfo.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
 
     }
 
@@ -395,8 +473,8 @@ public class StorekeeperActivity extends AppCompatActivity {
                     }
                 } else {
                     // Si l'élément n'est trouvé ni dans "Hardware" ni dans "Software", afficher un message d'erreur
-                    errorTextSubtypeItemInput.setText("Item with this description not found.");
-                    errorTextSubtypeItemInput.setVisibility(View.VISIBLE);
+                    errorTextDescriptionItemInput.setText("Item with this description not found.");
+                    errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -420,6 +498,12 @@ public class StorekeeperActivity extends AppCompatActivity {
         errorTextModifyDeleteItem = findViewById(R.id.errorTextModifyDeleteItem);
         modifyItemButton = findViewById(R.id.modifyItemButton);
         deleteItemButton = findViewById(R.id.deleteItemButton);
+        returnButtonModifyRemoveItem = findViewById(R.id.returnButtonModifyRemoveItem);
+        returnButtonModifyRemoveItem.setOnClickListener(v -> {
+            setContentView(R.layout.activity_storekeeper);
+            initializeMainLayout();
+        });
+
 
         // Initialize buttons for increment/decrement
         incrementButton = findViewById(R.id.incrementButton);
@@ -449,7 +533,11 @@ public class StorekeeperActivity extends AppCompatActivity {
         decrementButton.setOnClickListener(v -> decrementQuantity());
 
         // Modify button logic
-        modifyItemButton.setOnClickListener(v -> applyChanges());
+        modifyItemButton.setOnClickListener(v -> {
+            String updatedComment = textCommentModificationItem.getText().toString().trim();
+            applyChanges(databaseRef, foundDescription, quantity,updatedComment,true,errorTextModifyDeleteItem);
+        });
+
 
         // Delete button logic
         deleteItemButton.setOnClickListener(v -> deleteItem());
@@ -475,72 +563,77 @@ public class StorekeeperActivity extends AppCompatActivity {
     }
 
     // Modify item method
-    public void applyChanges() {
-        String updatedComment = textCommentModificationItem.getText().toString().trim();
-
-        // Validate inputs
-        if (quantity <= 0) {
-            errorTextModifyDeleteItem.setText("Please enter a valid quantity.");
-            errorTextModifyDeleteItem.setVisibility(View.VISIBLE);
-            return;
-        }
-
+    public static void applyChanges(DatabaseReference databaseRef, String description, int quantity, String comment, boolean isStorekeeper, TextView infoText) {
+        
         // Update the item in 'Hardware' first, based on description
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        hardwareRef.orderByChild("description").equalTo(foundDescription).addListenerForSingleValueEvent(new ValueEventListener() {
+        hardwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        // Only update comment and quantity
-                        userSnapshot.getRef().child("comment").setValue(updatedComment);
+                        if (comment != null){
+                            userSnapshot.getRef().child("comment").setValue(comment);
+                        }
                         userSnapshot.getRef().child("quantity").setValue(quantity);
-                        userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                        Toast.makeText(StorekeeperActivity.this, "Hardware item updated successfully", Toast.LENGTH_SHORT).show();
+                        if(isStorekeeper) {
+                            userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+                        }
                     }
                 } else {
                     // If not found in 'Hardware', check 'Software'
-                    updateSoftwareComponent(quantity, updatedComment);
+                    updateSoftwareComponent(databaseRef, description,quantity, comment,isStorekeeper, infoText);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error while updating: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onCancelled: error");
             }
         });
     }
 
     // Update 'Software' components if not found in 'Hardware'
-    private void updateSoftwareComponent(int quantity, String updatedComment) {
+    public static void updateSoftwareComponent(DatabaseReference databaseRef,String description, int quantity, String comment, boolean isStorekeeper, TextView infoText) {
         DatabaseReference softwareRef = databaseRef.child("Software");
-        softwareRef.orderByChild("description").equalTo(foundDescription).addListenerForSingleValueEvent(new ValueEventListener() {
+        softwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         // Only update comment and quantity
-                        userSnapshot.getRef().child("comment").setValue(updatedComment);
+                        if (comment != null){
+                            userSnapshot.getRef().child("comment").setValue(comment);
+                        }
                         userSnapshot.getRef().child("quantity").setValue(quantity);
-                        userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
-                        Toast.makeText(StorekeeperActivity.this, "Software item updated successfully", Toast.LENGTH_SHORT).show();
+                        if(isStorekeeper) {
+                            userSnapshot.getRef().child("dateTimeModification").setValue(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+                        }
                     }
                 } else {
-                    errorTextModifyDeleteItem.setText("Item not found.");
-                    errorTextModifyDeleteItem.setVisibility(View.VISIBLE);
+                    if(isStorekeeper) {
+                        if(infoText != null){
+                            infoText.setText("Item not found.");
+                            infoText.setVisibility(View.VISIBLE);
+                        }
+
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StorekeeperActivity.this, "Error while updating: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                if(isStorekeeper) {
+                    Log.d(TAG, "onCancelled: error");
+                }
             }
         });
     }
 
-    // Delete item method
     public void deleteItem() {
-        // First, check in 'Hardware'
+
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
         hardwareRef.orderByChild("subType").equalTo(foundSubType).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -550,7 +643,7 @@ public class StorekeeperActivity extends AppCompatActivity {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
                             Toast.makeText(StorekeeperActivity.this, "Hardware item deleted successfully", Toast.LENGTH_SHORT).show();
-                            setContentView(R.layout.activity_storekeeper); // Return to initial layout
+                            setContentView(R.layout.activity_storekeeper);
                         }).addOnFailureListener(e -> {
                             Toast.makeText(StorekeeperActivity.this, "Error while deleting: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
@@ -648,13 +741,13 @@ public class StorekeeperActivity extends AppCompatActivity {
                             TextView detailTextView = new TextView(StorekeeperActivity.this);
                             detailTextView.setText(detail);
                             detailTextView.setGravity(Gravity.CENTER);
-                            detailTextView.setPadding(8, 8, 8, 8);
+                            detailTextView.setPadding(2, 2, 2, 2);
                             detailTextView.setBackgroundColor(0xFFE3F2FD); // Light blue background for rows
                             detailTextView.setTextColor(0xFF000000);
+                            detailTextView.setSingleLine(false);
+                            detailTextView.setMaxWidth(150);
                             componentRow.addView(detailTextView);
                         }
-
-                        // Add the row to the TableLayout
                         componentsTableLayout.addView(componentRow);
                     }
                 }
@@ -665,5 +758,24 @@ public class StorekeeperActivity extends AppCompatActivity {
                 Toast.makeText(StorekeeperActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    //change subtype spinner depending on type
+    private void updateSubTypeSpinner(int typePosition) {
+        int subTypeArrayId;
+        if (typePosition == 1) {
+            subTypeArrayId = R.array.hardware_subtypes_array;
+        }
+        else if(typePosition == 2) {
+            subTypeArrayId = R.array.software_subtypes_array;
+        }
+        else{
+            subTypeArrayId = R.array.subtypes_array;
+        }
+
+        ArrayAdapter<CharSequence> subTypeAdapter = ArrayAdapter.createFromResource(this,
+                subTypeArrayId, android.R.layout.simple_spinner_item);
+        subTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        subtypeSpinner.setAdapter(subTypeAdapter);
     }
 }

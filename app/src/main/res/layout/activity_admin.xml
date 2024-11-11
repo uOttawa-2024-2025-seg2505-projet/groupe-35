@@ -58,8 +58,8 @@
 
     <ImageView
         android:id="@+id/configuraImage"
-        android:layout_width="259dp"
-        android:layout_height="170dp"
+        android:layout_width="173dp"
+        android:layout_height="134dp"
         android:layout_marginTop="28dp"
         android:src="@drawable/configura"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,6 +86,7 @@
             android:orientation="vertical"
             android:padding="25dp">
 
+            <!-- Existing Add Requester Button -->
             <Button
                 android:id="@+id/sendToAddRequesterLayoutButton"
                 android:layout_width="match_parent"
@@ -97,6 +98,7 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
+            <!-- Existing Email Edit Text -->
             <EditText
                 android:id="@+id/emailEditText"
                 android:layout_width="314dp"
@@ -120,6 +122,7 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
 
+            <!-- Existing Delete/Modify Button -->
             <Button
                 android:id="@+id/senToEditDeleteRequesterButton"
                 android:layout_width="match_parent"
@@ -131,6 +134,18 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
+            <!-- New Spinner for Selecting File Names -->
+            <Spinner
+                android:id="@+id/fileNameSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#4F4F4F"
+                android:padding="5dp"
+                android:spinnerMode="dropdown"
+                android:entries="@array/file_name_array"/>
+
+            <!-- Existing Reset Database Button -->
             <Button
                 android:id="@+id/resetDatabase"
                 android:layout_width="match_parent"
@@ -142,6 +157,7 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
+            <!-- Remaining Buttons -->
             <Button
                 android:id="@+id/resetStock"
                 android:layout_width="match_parent"
@@ -165,6 +181,7 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <Button

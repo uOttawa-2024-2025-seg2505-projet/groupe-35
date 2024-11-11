@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
-        android:id="@+id/placeOrderButton"
+        android:id="@+id/sendToPlaceOrderLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Place Order"
@@ -87,12 +87,12 @@
         android:id="@+id/viewMyOrderButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="View My Orders"
+        android:text="View / Delete My Orders"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
         android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/placeOrderButton"
+        app:layout_constraintTop_toBottomOf="@id/sendToPlaceOrderLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
