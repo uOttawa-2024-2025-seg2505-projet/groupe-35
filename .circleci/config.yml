@@ -3,7 +3,7 @@ version: 2.1
 executors:
   android:
     docker:
-      - image: circleci/android:api-30  # Image qui inclut openssh-client par défaut
+      - image: circleci/android:api-30  # Une image prête pour les builds Android
     environment:
       JVM_OPTS: -Xmx3200m
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
