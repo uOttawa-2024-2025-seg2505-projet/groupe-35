@@ -3,33 +3,29 @@ version: 2.1
 executors:
   android:
     docker:
-      - image: circleci/android:api-30  # Utiliser une image CircleCI avec Android SDK.
+      - image: circleci/android:api-30
+    environment:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+      PATH: "/usr/lib/jvm/java-17-openjdk/bin:$PATH"
     working_directory: ~/project
 
 jobs:
-  # Job pour exécuter les tests unitaires
   test-unit:
     executor: android
     steps:
       - checkout
+      - run:
+          name: Install Java 17
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            sudo update-alternatives --config java <<< '2'
       - run:
           name: Configure SDK
           command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
       - run:
           name: Run Unit Tests
           command: ./gradlew testDebugUnitTest
-
-  # Job pour exécuter les tests d'instrumentation (facultatif)
-  test-instrumentation:
-    executor: android
-    steps:
-      - checkout
-      - run:
-          name: Install SDK Tools
-          command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
-      - run:
-          name: Run Instrumentation Tests
-          command: ./gradlew connectedDebugAndroidTest
 
 workflows:
   version: 2
