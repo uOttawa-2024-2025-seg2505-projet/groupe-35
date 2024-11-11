@@ -14,64 +14,74 @@ jobs:
   setup-environment:
     executor: android
     steps:
-      # Étape 1 : Ajouter GitHub à known_hosts
+      # Étape 1 : Vérifier l'environnement pour diagnostiquer
       - run:
-          name: Add GitHub to known_hosts
+          name: Debug environment
           command: |
-            mkdir -p ~/.ssh
+            echo "Listing /bin and /usr/bin contents:"
+            ls -al /bin
+            ls -al /usr/bin
+            echo "Current PATH:"
+            echo $PATH
+
+      # Étape 2 : Contourner mkdir en utilisant touch pour known_hosts
+      - run:
+          name: Add GitHub to known_hosts without mkdir
+          command: |
+            touch ~/.ssh/known_hosts  # Crée directement le fichier
             echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
             echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> ~/.ssh/known_hosts
 
-      # Étape 2 : Tester la connexion SSH
+      # Étape 3 : Tester la connexion SSH
       - run:
           name: Test SSH Connection
           command: ssh -T git@github.com
 
-      # Étape 3 : Cloner le dépôt
+      # Étape 4 : Cloner le dépôt
       - checkout
 
   build-and-test:
     executor: android
     steps:
-      # Étape 4 : Cloner le dépôt
+      # Étape 5 : Cloner le dépôt
       - checkout
 
-      # Étape 5 : Restauration du cache Gradle
+      # Étape 6 : Restauration du cache Gradle
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
 
-      # Étape 6 : Configurer les permissions Gradle
+      # Étape 7 : Configurer les permissions Gradle
       - run:
           name: Set Gradle Permissions
           command: chmod +x ./gradlew
 
-      # Étape 7 : Installer les dépendances Gradle
+      # Étape 8 : Installer les dépendances Gradle
       - run:
           name: Install Dependencies
           command: ./gradlew dependencies
 
-      # Étape 8 : Sauvegarder le cache Gradle
+      # Étape 9 : Sauvegarder le cache Gradle
       - save_cache:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
 
-      # Étape 9 : Exécuter les tests unitaires
+      # Étape 10 : Exécuter les tests unitaires
       - run:
           name: Run Unit Tests
           command: ./gradlew testDebugUnitTest
 
-      # Étape 10 : Exécuter l'analyse statique (Lint)
+      # Étape 11 : Exécuter l'analyse statique (Lint)
       - run:
           name: Run Lint
           command: ./gradlew lint
 
-      # Étape 11 : Stocker les artefacts (rapports de build)
+      # Étape 12 : Stocker les artefacts (rapports de build)
       - store_artifacts:
           path: app/build/reports
           destination: reports
 
-      # Étape 12 : Stocker les résultats des tests
+      # Étape 13 : Stocker les résultats des tests
       - store_test_results:
           path: app/build/test-results
 
