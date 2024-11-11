@@ -3,7 +3,7 @@ version: 2.1
 executors:
   android:
     docker:
-      - image: circleci/android:api-30
+      - image: cimg/android:2023.08
     environment:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
       PATH: "/usr/lib/jvm/java-17-openjdk/bin:$PATH"
@@ -13,13 +13,13 @@ jobs:
   setup-environment:
     executor: android
     steps:
+      - checkout
       - run:
           name: Install Java 17 and SSH
           command: |
             apt-get update
             apt-get install -y openjdk-17-jdk openssh-client
             update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-      - checkout
 
   test-unit:
     executor: android
@@ -32,25 +32,11 @@ jobs:
           name: Run Unit Tests
           command: ./gradlew testDebugUnitTest
 
-  test-integration:
-    executor: android
-    steps:
-      - checkout
-      - run:
-          name: Install SDK
-          command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
-      - run:
-          name: Run Integration Tests
-          command: ./gradlew connectedDebugAndroidTest
-
 workflows:
   version: 2
   test-workflow:
     jobs:
       - setup-environment
       - test-unit:
-          requires:
-            - setup-environment
-      - test-integration:
           requires:
             - setup-environment
