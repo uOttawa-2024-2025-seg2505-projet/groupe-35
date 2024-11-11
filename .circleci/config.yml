@@ -3,8 +3,9 @@ version: 2.1
 executors:
   android:
     docker:
-      - image: cimg/android:2023.08  # Image Android basée sur Alpine
+      - image: circleci/android:api-30  # Image qui inclut openssh-client par défaut
     environment:
+      JVM_OPTS: -Xmx3200m
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
       PATH: "/usr/lib/jvm/java-17-openjdk/bin:$PATH"
     working_directory: ~/project
@@ -14,11 +15,6 @@ jobs:
     executor: android
     steps:
       - run:
-          name: Install SSH Client
-          command: |
-            apk update
-            apk add openssh-client
-      - run:
           name: Add GitHub to known_hosts
           command: |
             mkdir -p ~/.ssh
@@ -26,7 +22,7 @@ jobs:
       - run:
           name: Test SSH Connection
           command: ssh -T git@github.com
-      - checkout  # Cloner le dépôt via SSH
+      - checkout
 
   build-and-test:
     executor: android
