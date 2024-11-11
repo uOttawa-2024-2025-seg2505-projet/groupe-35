@@ -19,7 +19,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y openjdk-17-jdk
-            sudo update-alternatives --config java <<< '2'
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
       - run:
           name: Configure SDK
           command: sdkmanager "platforms;android-30" "build-tools;30.0.3"
