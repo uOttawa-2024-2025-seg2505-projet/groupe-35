@@ -16,9 +16,9 @@ jobs:
       - run:
           name: Install Java 17 and SSH
           command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk openssh-client
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            apt-get update
+            apt-get install -y openjdk-17-jdk openssh-client
+            update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
       - checkout
 
   test-unit:
