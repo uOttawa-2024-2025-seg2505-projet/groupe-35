@@ -234,32 +234,19 @@ public class RequesterActivity extends AppCompatActivity {
                     numberOfMemorySticksInt, hardDriveArray, monitorDescription, numberOfMonitorsInt,
                     keyboardMouseDescription, webBrowserDescription, officeSuiteDescription, developmentToolsArray);
 
-            newOrder.checkIfItemsExist(new ItemExistenceCallback() {
-                @Override
-                public void onResult(boolean exists, Integer quantity) {
-                    isOrderBeingProcessed = false;
+            newOrder.pushOrderToDatabase();
+            hardDriveArray.clear();
+            developmentToolsArray.clear();
+            errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
+            errorTextNewOrderLayout.setText("Computer built successfully");
+            errorTextNewOrderLayout.setVisibility(View.VISIBLE);
+            new android.os.Handler().postDelayed(() -> {
+                clearCreateOrderLayout();
+                errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
+                errorTextNewOrderLayout.setVisibility(View.GONE);
+            }, 2000);
+            isOrderBeingProcessed = false;
 
-                    if (exists) {
-                        newOrder.refreshDatabaseInfo();
-                        newOrder.pushOrderToDatabase();
-                        hardDriveArray.clear();
-                        developmentToolsArray.clear();
-                        errorTextNewOrderLayout.setTextColor(Color.parseColor("#0000FF"));
-                        errorTextNewOrderLayout.setText("Computer built successfully");
-                        errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-
-                        new android.os.Handler().postDelayed(() -> {
-                            clearCreateOrderLayout();
-                            errorTextNewOrderLayout.setTextColor(Color.parseColor("#FF0000"));
-                            errorTextNewOrderLayout.setVisibility(View.GONE);
-                        }, 2000);
-                    } else {
-
-                        errorTextNewOrderLayout.setText("Not enough stock to build your computer");
-                        errorTextNewOrderLayout.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
         }
     }
 
