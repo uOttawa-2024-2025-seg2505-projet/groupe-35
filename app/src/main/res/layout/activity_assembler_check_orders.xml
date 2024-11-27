@@ -5,37 +5,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:padding="0dp"
+    android:layout_margin="0dp"
+    android:id="@+id/mainLayout"
     tools:context=".AssemblerActivity">
 
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="420dp"
+        android:layout_width="match_parent"
         android:layout_height="387dp"
         android:layout_margin="0dp"
         android:padding="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/orderDetailsLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.333"
+        app:layout_constraintTop_toTopOf="@id/mainLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.016">
+        app:layout_constraintBottom_toTopOf="@+id/orderDetailsLayout"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TableLayout
             android:id="@+id/assemblerOrdersTableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
             android:background="#E3F2FD"
             android:padding="0dp"
+            android:shrinkColumns="0, 1, 2, 3"
             android:stretchColumns="0, 1, 2, 3"></TableLayout>
 
     </ScrollView>
 
     <TextView
         android:id="@+id/selectOrderTextLayout"
-        android:layout_width="419dp"
-        android:layout_height="261dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
         android:text="Select Order"
@@ -45,13 +47,11 @@
         app:layout_constraintBottom_toTopOf="@+id/returnButtonViewOrders"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView2"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 
     <LinearLayout
         android:id="@+id/orderDetailsLayout"
-        android:layout_width="406dp"
+        android:layout_width="match_parent"
         android:layout_height="290dp"
         android:background="@android:color/white"
         android:orientation="vertical"
@@ -59,7 +59,6 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/returnButtonViewOrders"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
 

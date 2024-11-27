@@ -117,16 +117,19 @@ public class   AssemblerActivity extends AppCompatActivity {
         });
     }
 
-    private void checkOrderWithSpecialStatus(String statusToCheck, boolean includeHeaderRow){
+    private void checkOrderWithSpecialStatus(String statusToCheck, boolean includeHeaderRow) {
         TableLayout OrdersTableLayout = findViewById(R.id.assemblerOrdersTableLayout);
-        if(includeHeaderRow){
+
+        if (includeHeaderRow) {
             TableRow headerRow = new TableRow(AssemblerActivity.this);
             headerRow.setLayoutParams(new TableLayout.LayoutParams(
                     TableLayout.LayoutParams.MATCH_PARENT,
                     TableLayout.LayoutParams.WRAP_CONTENT));
             headerRow.setPadding(16, 16, 16, 16);
 
-            String[] headers = {"Requester" , "OrderID", "Date Of Creation", "Status"};
+            String[] headers = {"Requester", "OrderID", "Date Of Creation", "Status"};
+            float[] columnWeights = {1f, 1f, 1.5f, 1f}; // Proportions des colonnes
+
             for (int i = 0; i < headers.length; i++) {
                 TextView textView = new TextView(AssemblerActivity.this);
                 textView.setText(headers[i]);
@@ -134,22 +137,16 @@ public class   AssemblerActivity extends AppCompatActivity {
                 textView.setPadding(5, 5, 2, 2);
                 textView.setBackgroundColor(0xFFD1C4E9);
                 textView.setTextColor(0xFF000000);
-
                 textView.setMinHeight((int) getResources().getDimension(R.dimen.header_min_height));
 
-                TableRow.LayoutParams params;
-                if (i == headers.length - 1) {
-                    params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.5f);
-                } else {
-                    params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
-                }
+                // Utiliser le poids pour définir la proportion de la colonne
+                TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, columnWeights[i]);
                 textView.setLayoutParams(params);
 
                 headerRow.addView(textView);
             }
             OrdersTableLayout.addView(headerRow);
         }
-
 
         getRequesterEmailThatOrdered(new OnEmailsReceivedListener() {
             @Override
@@ -176,18 +173,20 @@ public class   AssemblerActivity extends AppCompatActivity {
                                         detailTextView.setText(orderDetails[i]);
                                         detailTextView.setGravity(Gravity.CENTER);
                                         detailTextView.setPadding(2, 5, 2, 5);
-                                        detailTextView.setMaxWidth(150);
                                         detailTextView.setBackgroundColor(0xFFE3F2FD);
                                         detailTextView.setTextColor(0xFF000000);
 
-                                        TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+                                        TableRow.LayoutParams params = new TableRow.LayoutParams(
+                                                0,
+                                                TableRow.LayoutParams.WRAP_CONTENT
+                                        );
                                         detailTextView.setLayoutParams(params);
+
                                         componentRow.addView(detailTextView);
                                     }
                                     componentRow.setOnClickListener(v -> displayOrderDetails(orderID, status, requesterId));
                                     OrdersTableLayout.addView(componentRow);
                                 }
-
                             }
                         }
 
@@ -196,11 +195,11 @@ public class   AssemblerActivity extends AppCompatActivity {
                             Toast.makeText(AssemblerActivity.this, "Erreur : " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-
                 }
             }
         });
     }
+
 
 
     private void getRequesterEmailThatOrdered(OnEmailsReceivedListener listener) {
