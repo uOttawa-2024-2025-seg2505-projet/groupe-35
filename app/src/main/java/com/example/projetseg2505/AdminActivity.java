@@ -407,19 +407,9 @@ public class AdminActivity extends AppCompatActivity {
 
                             ordersDatabaseRef.child(foundEmail.replace('.', ',')).removeValue()
                                     .addOnSuccessListener(aVoid -> {
-
-                                        userSnapshot.getRef().removeValue()
-                                                .addOnSuccessListener(aVoid1 -> {
-                                                    Toast.makeText(AdminActivity.this, "Requester and associated orders deleted successfully", Toast.LENGTH_SHORT).show();
-                                                    setContentView(R.layout.activity_admin);
-                                                })
-                                                .addOnFailureListener(e -> {
-                                                    Toast.makeText(AdminActivity.this, "Error while deleting requester: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                });
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(AdminActivity.this, "Error while deleting orders: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        userSnapshot.getRef().removeValue();
                                     });
+
                         } else {
                             Toast.makeText(AdminActivity.this, "Requester's information does not match", Toast.LENGTH_SHORT).show();
                         }
