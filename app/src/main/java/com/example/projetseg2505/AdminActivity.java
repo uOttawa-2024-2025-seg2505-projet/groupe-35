@@ -410,18 +410,14 @@ public class AdminActivity extends AppCompatActivity {
                                         userSnapshot.getRef().removeValue();
                                     });
 
-                        } else {
-                            Toast.makeText(AdminActivity.this, "Requester's information does not match", Toast.LENGTH_SHORT).show();
-                        }
+                        } 
                     }
-                } else {
-                    Toast.makeText(AdminActivity.this, "No requester found with this email", Toast.LENGTH_SHORT).show();
-                }
+                } 
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(AdminActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onCancelled: ");
             }
         });
     }
@@ -444,7 +440,7 @@ public class AdminActivity extends AppCompatActivity {
                     }
 
                     if (deletionTasks.isEmpty()) {
-                        Toast.makeText(AdminActivity.this, "Aucun requester à supprimer.", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onDataChange: ");                        
                         if (onComplete != null) {
                             onComplete.run();
                         }
@@ -453,14 +449,12 @@ public class AdminActivity extends AppCompatActivity {
 
                     // Wait for all deletions to complete
                     Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
-                        Toast.makeText(AdminActivity.this, "Tous les requesters ont été supprimés avec succès.", Toast.LENGTH_SHORT).show();
                         if (onComplete != null) {
                             onComplete.run();
                         }
                     });
 
                 } else {
-                    Toast.makeText(AdminActivity.this, "Aucun requester trouvé à supprimer.", Toast.LENGTH_SHORT).show();
                     if (onComplete != null) {
                         onComplete.run();
                     }
@@ -497,7 +491,6 @@ public class AdminActivity extends AppCompatActivity {
                     }
 
                     if (deletionTasks.isEmpty()) {
-                        Toast.makeText(AdminActivity.this, "No Software components to delete.", Toast.LENGTH_SHORT).show();
                         if (onComplete != null) {
                             onComplete.run();
                         }
@@ -506,14 +499,12 @@ public class AdminActivity extends AppCompatActivity {
 
                     // Wait for all deletions to complete
                     Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
-                        Toast.makeText(AdminActivity.this, "All Software components were deleted.", Toast.LENGTH_SHORT).show();
                         if (onComplete != null) {
                             onComplete.run();
                         }
                     });
 
                 } else {
-                    Toast.makeText(AdminActivity.this, "No Software components found to clear.", Toast.LENGTH_SHORT).show();
                     if (onComplete != null) {
                         onComplete.run();
                     }
@@ -553,7 +544,6 @@ public class AdminActivity extends AppCompatActivity {
                     }
 
                     if (deletionTasks.isEmpty()) {
-                        Toast.makeText(AdminActivity.this, "No hardware components to delete.", Toast.LENGTH_SHORT).show();
                         if (onComplete != null) {
                             onComplete.run();
                         }
@@ -562,14 +552,12 @@ public class AdminActivity extends AppCompatActivity {
 
                     // Wait for all deletions to complete
                     Tasks.whenAllComplete(deletionTasks).addOnCompleteListener(task -> {
-                        Toast.makeText(AdminActivity.this, "All hardware components were deleted.", Toast.LENGTH_SHORT).show();
                         if (onComplete != null) {
                             onComplete.run();
                         }
                     });
 
                 } else {
-                    Toast.makeText(AdminActivity.this, "No hardware components found to delete.", Toast.LENGTH_SHORT).show();
                     if (onComplete != null) {
                         onComplete.run();
                     }
@@ -608,9 +596,8 @@ public class AdminActivity extends AppCompatActivity {
                             Log.e("AdminActivity", "Failed to delete order: " + e.getMessage());
                         });
                     }
-                    Toast.makeText(AdminActivity.this, "All the orders have been deleted.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(AdminActivity.this, "Clearing unsuccesful.", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onDataChange: ");                
                 }
             }
 
@@ -685,7 +672,7 @@ public class AdminActivity extends AppCompatActivity {
                 }
             }
         }catch (JSONException e){
-            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "loadRequestersFromJson: ");
         }
     }
 
@@ -721,7 +708,7 @@ public class AdminActivity extends AppCompatActivity {
             processComponentsWithHandler(context, componentQueue);
 
         }catch (JSONException e){
-            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "loadHarwareComponentsFromJson: ");
         }
     }
 
@@ -740,7 +727,7 @@ public class AdminActivity extends AppCompatActivity {
 
 
         }catch (JSONException e){
-            Toast.makeText(context, "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "loadSoftwareComponentsFromJson: ");
         }
     }
 
