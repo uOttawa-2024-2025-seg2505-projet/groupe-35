@@ -1,0 +1,79 @@
+@startuml
+    title Authentification, Gestion des Utilisateurs, Gestion du Stock, Passage d'une Commande et Traitement d'une commande
+
+    start
+        :Initialiser l'application;
+        :Se connecter à la base de données;
+
+        while (Appui sur la touche de retour ?) is (Non) 
+            :Afficher la fenêtre d'accueil;
+
+            if (Appui sur le bouton "OK" ?) then (Oui)
+                :Valider l'identifiant et le mot de passe;
+
+                if (Authentification validée) then (Oui)
+                    if (L'utilisateur est un Administrator) then (Oui)
+                        :Afficher la fenêtre d'un Administrator;
+                        
+                        fork
+                            :Créer ou Supprimer un Utilisateur;
+                        fork again
+                            :Effacer la Base de Données;
+                        fork again
+                            :Réinitialiser la Base de Données à partir d'un fichier;
+                        fork again
+                            :Réinitialiser le Stock à partir d'un fichier;
+                        end fork
+
+                    elseif (L'utilisateur est un StoreKeeper) then (Oui)
+                        :Afficher la fenêtre de gestion du stock;
+
+                        fork
+                            :Ajouter des articles au stock;
+                        fork again
+                            :Mettre à jour les quantités de stock;
+                        fork again
+                            :Supprimer des articles du stock;
+                        fork again
+                            :Générer un rapport d'inventaire;
+                        end fork
+
+                    elseif (L'utilisateur est un Assembler) then (Oui)
+                        :Afficher la fenêtre d'un Assembler;
+                        fork
+                            :Afficher les commandes avec le statut en attente;
+                        fork again
+                            :Afficher les commandes avec le statut accepté;
+                        fork again
+                            :Afficher toutes les commandes;
+                        end fork
+                        
+
+                    elseif (L'utilisateur a le rôle Requester) then (Oui)
+                        :Afficher la fenêtre de passage de commande;
+                        fork
+                        :Sélectionner des articles à commander;
+                        fork again
+                        :Définir les quantités pour chaque article sélectionné;
+
+                        if (Stock disponible pour chaque article ?) then (Oui)
+                            :Valider la commande;
+
+                            :Envoyer la commande pour approbation;
+                        else (Non)
+                            :Afficher une erreur : stock insuffisant pour certains articles;
+                        endif
+                        end fork
+
+                    else
+                        :Afficher une erreur de conception : rôle inconnu;
+                    endif
+                else (Non)
+                    :Afficher une erreur d'authentification;
+                endif
+            endif
+        endwhile (Oui)
+
+        :Libérer les ressources (base de données...);
+    stop
+@enduml

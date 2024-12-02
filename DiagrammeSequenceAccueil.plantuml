@@ -1,0 +1,33 @@
+@startuml
+    actor Inconnu
+
+    control MainActivity
+    control AdministratorActivity
+    control StoreKeeperActivity
+    control AssemblerActivity
+    control RequesterActivity
+
+    Inconnu --> MainActivity : Demande d'authentification\n(avec identifiant et mot de passe)
+
+    MainActivity <--> Database : Rechercher un utilisateur\navec un identifiant et un mot de passe
+
+    alt L'utilisateur existe
+        MainActivity <--> Database : Obtenir des informations sur l'utilisateur\n(dont son rôle) 
+        
+        alt Le rôle de l'utilisateur est Administror
+            MainActivity --> AdministratorActivity
+        else Le rôle de l'utilisateur est StoreKeeper
+            MainActivity --> StoreKeeperActivity
+        else Le rôle de l'utilisateur est Assembler
+            MainActivity --> AssemblerActivity
+        else Le rôle de l'utilisateur est Requester
+            MainActivity --> RequesterActivity
+        else Rôle inconnu 
+            MainActivity --> Inconnu : Afficher une erreur de conception
+        end
+    else Sinon
+        MainActivity --> Inconnu : Afficher une erreur d'authentification
+    end
+
+    database Database
+@enduml

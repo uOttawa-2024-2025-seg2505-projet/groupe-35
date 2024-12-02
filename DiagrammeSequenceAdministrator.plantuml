@@ -1,0 +1,17 @@
+@startuml
+    actor Administrator
+
+    control AdministratorActivity
+    
+    database Database
+
+    Administrator --> AdministratorActivity : Créer un utilisateur
+
+    AdministratorActivity <--> Database : Obtenir la liste des utilisateurs
+
+    alt L'utilisateur existe déjà
+        AdministratorActivity --> Administrator: Afficher une erreur
+    else Sinon
+        AdministratorActivity --> Database : Ajouter une ligne à la table Users
+    end
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+    actor Assembler
+
+    control AssemblerActivity
+    
+    database Database
+
+    Assembler --> AssemblerActivity : Demande d'assemblage
+
+    AssemblerActivity <--> Database : Vérifier la disponibilité des articles nécessaires
+
+    alt Tous les articles sont disponibles
+        AssemblerActivity --> Database : Déduire les quantités nécessaires du stock
+        AssemblerActivity --> Assembler : Confirmer l'assemblage
+    else Certains articles sont insuffisants
+        AssemblerActivity --> Assembler : Afficher une erreur de stock insuffisant
+    end
+@enduml

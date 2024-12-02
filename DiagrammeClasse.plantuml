@@ -1,0 +1,108 @@
+@startuml
+class User {
+    - email_address: String
+    - id: int
+    - password: String
+    - firstName: String
+    - lastName: String
+    - dateCreation: LocalDateTime
+    - timeCreation: LocalDateTime
+    - modification_date: LocalDateTime
+    - modification_time: LocalDateTime
+
+    + login(email: String, password: String): boolean
+    + logout(): void
+    + redirectToUserPage(userType: String): void
+    + getEmailAddress(): String
+    + getId(): int
+    + getPassword(): String
+    + getCreationDate(): LocalDateTime
+    + getTimeCreation(): LocalDateTime
+    + getFirstName(): String
+    + getLastName(): String
+}
+
+class StoreKeeper extends User {
+    + addStock(component: Component): void
+    + deleteStock(description: String): void
+    + viewItem(description: String): Component
+    + modifyItem(description: String, quantity: int, comment: String): void
+    + loadComponentsData(): void
+    + incrementQuantity(description: String): void
+    + decrementQuantity(description: String): void
+    + checkIfItemExists(description: String, componentRef: DatabaseReference, quantity: Integer, callback: ItemExistenceCallback): void
+    + applyChanges(databaseRef: DatabaseReference, description: String, newQuantity: int, comment: String, isDecrement: boolean, callback: ItemExistenceCallback): void
+}
+
+class Administrator extends User {
+    + createClient(email: String, password: String, firstName: String, lastName: String): void
+    + deleteClient(email: String): void
+    + clearDatabase(): void
+    + resetDatabase(fileName: String): void
+    + resetStock(fileName: String): void
+}
+
+class Assembler extends User {
+    + acceptOrder(order: Orders): void
+    + refuseOrder(order: Orders): void
+    + getOrderStatus(order: Orders): void
+    + closeOrder(order: Orders): void
+}
+
+class Requester extends User {
+    + createOrder(order: Orders): void
+    + getOrderStatus(order: Orders): void
+    + cancelOrder(orderId: String): void
+}
+
+class Orders {
+    - requesterID: String
+    - dateTimeOrder: String
+    - dateTimeModification: String
+    - status: String
+    - components: List<Component>
+    - componentDatabaseRef: DatabaseReference
+    - ordersDatabaseRef: DatabaseReference
+
+    + pushOrderToDatabase(): void
+    + checkIfItemsExist(finalCallback: ItemExistenceCallback): boolean
+    + processQuantities(): boolean
+    + checkAvailableQuantities(): boolean
+    + refreshDatabaseInfo(): void
+}
+
+class Component {
+    - type: String
+    - subType: String
+    - description: String
+    - quantity: int
+    - comment: String
+    - dateTimeCreation: String
+    - dateTimeModification: String
+
+    + Component(type: String, subType: String, description: String, quantity: int)
+    + setQuantity(quantity: int): void
+    + decrementQuantity(): void
+    + updateDateTimeModification(): void
+}
+
+class HardwareComponent extends Component {
+    + HardwareComponent(subType: String, description: String, quantity: int)
+    + HardwareComponent(subType: String, description: String, quantity: int, comment: String)
+}
+
+class SoftwareComponent extends Component {
+    + SoftwareComponent(subType: String, description: String, quantity: int)
+    + SoftwareComponent(subType: String, description: String, quantity: int, comment: String)
+}
+
+interface ItemExistenceCallback {
+    + onResult(exists: boolean, quantity: Integer): void
+}
+
+Orders <-- Assembler
+Orders <-- Requester
+Orders "1" *-- "1..*" Component
+StoreKeeper "1" *-- "1..*" Component : Gère
+
+@enduml

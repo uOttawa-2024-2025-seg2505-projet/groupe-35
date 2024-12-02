@@ -1,0 +1,18 @@
+@startuml
+    actor Requester
+
+    control RequesterActivity
+    
+    database Database
+
+    Requester --> RequesterActivity : Passer une commande
+
+    RequesterActivity <--> Database : Vérifier la disponibilité des articles commandés
+
+    alt Stock disponible pour chaque article
+        RequesterActivity --> Database : Enregistrer la commande
+        RequesterActivity --> Requester : Confirmer la commande
+    else Certains articles sont insuffisants
+        RequesterActivity --> Requester : Afficher une erreur de stock insuffisant
+    end
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+    actor StoreKeeper
+
+    control StoreKeeperActivity
+    
+    database Database
+
+    StoreKeeper --> StoreKeeperActivity : Ajouter des articles au stock
+
+    StoreKeeperActivity <--> Database : Rechercher l'article dans le stock
+
+    alt L'article existe déjà
+        StoreKeeperActivity --> Database : Mettre à jour la quantité de l'article
+    else Sinon
+        StoreKeeperActivity --> Database : Ajouter un nouvel article au stock
+    end
+
+    StoreKeeper --> StoreKeeperActivity : Générer un rapport d'inventaire
+
+    StoreKeeperActivity <--> Database : Obtenir toutes les données de stock
+
+    StoreKeeperActivity --> StoreKeeper : Afficher le rapport d'inventaire
+@enduml

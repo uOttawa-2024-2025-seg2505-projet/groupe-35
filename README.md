@@ -439,7 +439,7 @@ package "CustomDesktopService" #DDDDDD {
 
 <à compléter>
  @startuml
-    title Authentification, Gestion des Utilisateurs, Gestion du Stock, Passage d'une Commande et Traitement d'une commancd
+    title Authentification, Gestion des Utilisateurs, Gestion du Stock, Passage d'une Commande et Traitement d'une commande
 
     start
         :Initialiser l'application;
