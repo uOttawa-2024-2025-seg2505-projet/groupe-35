@@ -68,10 +68,10 @@
         app:layout_constraintTop_toBottomOf="@id/topBanner" />
 
     <Button
-        android:id="@+id/viewOrdersButton"
+        android:id="@+id/sendToListOfOrderWithWaitingForAcceptanceStatusButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="View Orders"
+        android:text="View Orders With Waiting Status"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
@@ -84,15 +84,15 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
-        android:id="@+id/acceptOrdersButton"
+        android:id="@+id/sendToListOfOrderWithAcceptedStatusButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Accept Orders"
+        android:text="View Orders With Accepted Status"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
         android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/viewOrdersButton"
+        app:layout_constraintTop_toBottomOf="@id/sendToListOfOrderWithWaitingForAcceptanceStatusButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
@@ -100,15 +100,15 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
-        android:id="@+id/removeOrdersButton"
+        android:id="@+id/sendToListOfAllOrdersButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Remove Orders"
+        android:text="View All Orders"
         android:backgroundTint="#4F4F4F"
         android:textColor="@android:color/white"
         android:padding="16dp"
         android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/acceptOrdersButton"
+        app:layout_constraintTop_toBottomOf="@id/sendToListOfOrderWithAcceptedStatusButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"

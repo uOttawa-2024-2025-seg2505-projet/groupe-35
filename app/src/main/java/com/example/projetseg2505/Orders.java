@@ -114,7 +114,7 @@ public class Orders {
         initFirebaseReferences();
         existingTable = new ArrayList<>();
         quantityTable = new ArrayList<>();
-        Map<String, Integer> quantityMap = new HashMap<>(); // Utiliser un Map avec la description de l'item comme clé
+        Map<String, Integer> quantityMap = new HashMap<>();
 
         AtomicInteger totalItems = new AtomicInteger(6 + listOfHardDrive.size() + listOfDevelopmentTools.size());
         if (officeSuite != null) {
@@ -130,7 +130,6 @@ public class Orders {
                     completedChecks.incrementAndGet();
 
                     if (completedChecks.get() == totalItems.get()) {
-                        // Remplir quantityTable en suivant l'ordre spécifique requis
                         quantityTable.add(quantityMap.get("computerCase"));
                         quantityTable.add(quantityMap.get("motherboard"));
                         quantityTable.add(quantityMap.get("memoryStick"));
@@ -160,7 +159,7 @@ public class Orders {
             }
         };
 
-        // Utiliser les descriptions comme clés dans quantityMap pour chaque composant
+
         StorekeeperActivity.checkIfItemExists(computerCase, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("computerCase", quantity)));
         StorekeeperActivity.checkIfItemExists(motherboard, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("motherboard", quantity)));
         StorekeeperActivity.checkIfItemExists(memoryStick, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("memoryStick", quantity)));
@@ -168,22 +167,19 @@ public class Orders {
         StorekeeperActivity.checkIfItemExists(keyboardMouse, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("keyboardMouse", quantity)));
         StorekeeperActivity.checkIfItemExists(webBrowser, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("webBrowser", quantity)));
 
-        // Vérification pour chaque disque dur
         for (String hardDrive : listOfHardDrive) {
             StorekeeperActivity.checkIfItemExists(hardDrive, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put(hardDrive, quantity)));
         }
 
-        // Vérification pour chaque outil de développement
         for (String developmentTool : listOfDevelopmentTools) {
             StorekeeperActivity.checkIfItemExists(developmentTool, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put(developmentTool, quantity)));
         }
 
-        // Vérification pour officeSuite si elle est présente
         if (officeSuite != null) {
             StorekeeperActivity.checkIfItemExists(officeSuite, componentDatabaseRef, null, (exists, quantity) -> itemCallback.onResult(exists, quantityMap.put("officeSuite", quantity)));
         }
 
-        return false; // La méthode est asynchrone, donc elle retourne toujours false ici
+        return false;
     }
 
 
@@ -272,7 +268,7 @@ public class Orders {
             newListOfHardDriveQuantityDatabase[i] = listOfHardDriveQuantityDatabase[i]-1;
             StorekeeperActivity.applyChanges(componentDatabaseRef,listOfHardDrive.get(i),newListOfHardDriveQuantityDatabase[i],null,false,null);
         }
-        if(listOfDevelopmentTools.get(0) != null){
+        if (!listOfDevelopmentTools.isEmpty() && listOfDevelopmentTools.get(0) != null) {
             int[] newListOfDevelopmentToolsQuantityDatabase = new int[4];
             for (int i = 0; i < listOfDevelopmentTools.size();i++ ){
                 newListOfDevelopmentToolsQuantityDatabase[i] = listOfDevelopmentToolsQuantityDatabase[i]-1;

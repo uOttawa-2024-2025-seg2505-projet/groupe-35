@@ -425,8 +425,6 @@ public class StorekeeperActivity extends AppCompatActivity {
     //  modification or deletion methods
     private void searchItemByDescription(String description) {
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        DatabaseReference softwareRef = databaseRef.child("Software");
-
 
         hardwareRef.orderByChild("description").equalTo(description.replace(".", ",")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -439,7 +437,7 @@ public class StorekeeperActivity extends AppCompatActivity {
                         foundQuantity = String.valueOf(userSnapshot.child("quantity").getValue(Long.class));
 
 
-                        switchToModifyDeleteLayout();
+                        switchToModifyDeleteLayout(description);
                     }
                 } else {
 
@@ -454,7 +452,6 @@ public class StorekeeperActivity extends AppCompatActivity {
         });
     }
 
-    // Méthode pour rechercher dans "Software" si l'élément n'est pas trouvé dans "Hardware"
     private void searchInSoftware(String description) {
         DatabaseReference softwareRef = databaseRef.child("Software");
 
@@ -468,11 +465,9 @@ public class StorekeeperActivity extends AppCompatActivity {
                         foundSubType = userSnapshot.child("subType").getValue(String.class);
                         foundQuantity = String.valueOf(userSnapshot.child("quantity").getValue(Long.class));
 
-                        // Basculer vers la mise en page de modification/suppression
-                        switchToModifyDeleteLayout();
+                        switchToModifyDeleteLayout(description);
                     }
                 } else {
-                    // Si l'élément n'est trouvé ni dans "Hardware" ni dans "Software", afficher un message d'erreur
                     errorTextDescriptionItemInput.setText("Item with this description not found.");
                     errorTextDescriptionItemInput.setVisibility(View.VISIBLE);
                 }
@@ -487,7 +482,7 @@ public class StorekeeperActivity extends AppCompatActivity {
 
     @SuppressLint("MissingInflatedId")
 
-    private void switchToModifyDeleteLayout() {
+    private void switchToModifyDeleteLayout(String description) {
         setContentView(R.layout.activity_storekeeper_modify_remove_item);
 
         // Initialize inputs for modification layout
@@ -540,7 +535,7 @@ public class StorekeeperActivity extends AppCompatActivity {
 
 
         // Delete button logic
-        deleteItemButton.setOnClickListener(v -> deleteItem());
+        deleteItemButton.setOnClickListener(v -> deleteItem(description));
     }
 
 
@@ -632,25 +627,19 @@ public class StorekeeperActivity extends AppCompatActivity {
         });
     }
 
-    public void deleteItem() {
+    public void deleteItem(String description) {
 
         DatabaseReference hardwareRef = databaseRef.child("Hardware");
-        hardwareRef.orderByChild("subType").equalTo(foundSubType).addListenerForSingleValueEvent(new ValueEventListener() {
+        hardwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    // Item found in 'Hardware', delete it
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                            Toast.makeText(StorekeeperActivity.this, "Hardware item deleted successfully", Toast.LENGTH_SHORT).show();
-                            setContentView(R.layout.activity_storekeeper);
-                        }).addOnFailureListener(e -> {
-                            Toast.makeText(StorekeeperActivity.this, "Error while deleting: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
+                        userSnapshot.getRef().removeValue();
                     }
                 } else {
-                    // If not found in 'Hardware', check in 'Software'
-                    deleteSoftwareComponent();
+
+                    deleteSoftwareComponent(description);
                 }
             }
 
@@ -661,20 +650,14 @@ public class StorekeeperActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteSoftwareComponent() {
+    private void deleteSoftwareComponent(String description) {
         DatabaseReference softwareRef = databaseRef.child("Software");
-        softwareRef.orderByChild("subType").equalTo(foundSubType).addListenerForSingleValueEvent(new ValueEventListener() {
+        softwareRef.orderByChild("description").equalTo(description).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    // Item found in 'Software', delete it
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        userSnapshot.getRef().removeValue().addOnSuccessListener(aVoid -> {
-                            Toast.makeText(StorekeeperActivity.this, "Software item deleted successfully", Toast.LENGTH_SHORT).show();
-                            setContentView(R.layout.activity_storekeeper); // Return to initial layout
-                        }).addOnFailureListener(e -> {
-                            Toast.makeText(StorekeeperActivity.this, "Error while deleting: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
+                        userSnapshot.getRef().removeValue();
                     }
                 } else {
                     errorTextModifyDeleteItem.setText("Item not found.");
@@ -691,7 +674,7 @@ public class StorekeeperActivity extends AppCompatActivity {
 
     // Tabular List Methods
     private void loadComponentsData() {
-        // Reference to the TableLayout in the new "Welcome" layout
+        // Reference to the TableLayout in the XML
         TableLayout componentsTableLayout = findViewById(R.id.componentsTableLayout);
 
         // Create header row
@@ -702,17 +685,23 @@ public class StorekeeperActivity extends AppCompatActivity {
         headerRow.setPadding(16, 16, 16, 16);
 
         String[] headers = {"Category", "Component Name", "Description", "Quantity"};
-        for (String header : headers) {
+        float[] columnWeights = {1f, 2f, 3f, 1f}; // Define weights for each column
+
+        for (int i = 0; i < headers.length; i++) {
             TextView textView = new TextView(StorekeeperActivity.this);
-            textView.setText(header);
+            textView.setText(headers[i]);
             textView.setGravity(Gravity.CENTER);
             textView.setPadding(8, 8, 8, 8);
             textView.setBackgroundColor(0xFFD1C4E9); // Light purple background for header
             textView.setTextColor(0xFF000000);
+
+            // Set weight-based layout parameters for columns
+            TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, columnWeights[i]);
+            textView.setLayoutParams(params);
+
             headerRow.addView(textView);
         }
         componentsTableLayout.addView(headerRow);
-
 
         // Fetch hardware and software components from Firebase
         databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -737,15 +726,18 @@ public class StorekeeperActivity extends AppCompatActivity {
 
                         // Add category, component name, description, and quantity to the row
                         String[] componentDetails = {category, componentName, description, String.valueOf(quantity)};
-                        for (String detail : componentDetails) {
+                        for (int i = 0; i < componentDetails.length; i++) {
                             TextView detailTextView = new TextView(StorekeeperActivity.this);
-                            detailTextView.setText(detail);
+                            detailTextView.setText(componentDetails[i]);
                             detailTextView.setGravity(Gravity.CENTER);
                             detailTextView.setPadding(2, 2, 2, 2);
                             detailTextView.setBackgroundColor(0xFFE3F2FD); // Light blue background for rows
                             detailTextView.setTextColor(0xFF000000);
-                            detailTextView.setSingleLine(false);
-                            detailTextView.setMaxWidth(150);
+
+                            // Set weight-based layout parameters for columns
+                            TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, columnWeights[i]);
+                            detailTextView.setLayoutParams(params);
+
                             componentRow.addView(detailTextView);
                         }
                         componentsTableLayout.addView(componentRow);
@@ -759,6 +751,7 @@ public class StorekeeperActivity extends AppCompatActivity {
             }
         });
     }
+
 
     //change subtype spinner depending on type
     private void updateSubTypeSpinner(int typePosition) {

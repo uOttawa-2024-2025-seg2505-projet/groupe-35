@@ -19,8 +19,9 @@
             android:id="@+id/componentsTableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="0dp"
             android:stretchColumns="0, 1, 2, 3"
+            android:shrinkColumns="0, 1, 2, 3"
             android:background="#E3F2FD">
         </TableLayout>
 
