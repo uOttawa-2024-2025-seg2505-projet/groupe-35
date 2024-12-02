@@ -40,6 +40,7 @@ public class   AssemblerActivity extends AppCompatActivity {
     private Button acceptOrder, rejectOrder, closeOrder;
     private EditText commentEditText;
     private TextView errorTextCommentInput;
+    private boolean isTableAllOrders;
 
 
     @SuppressLint("MissingInflatedId")
@@ -90,6 +91,7 @@ public class   AssemblerActivity extends AppCompatActivity {
     }
 
     private void initializeCheckOrdersWithWaitingStatusLayout(){
+        isTableAllOrders = false;
         checkOrderWithSpecialStatus("Waiting for acceptance", true);
         returnButtonViewOrders = findViewById(R.id.returnButtonViewOrders);
         returnButtonViewOrders.setOnClickListener(v -> {
@@ -98,6 +100,7 @@ public class   AssemblerActivity extends AppCompatActivity {
         });
     }
     private void initializeCheckOrdersWithAcceptedStatusLayout(){
+        isTableAllOrders = false;
         checkOrderWithSpecialStatus("Accepted, currently being assembled", true);
         returnButtonViewOrders = findViewById(R.id.returnButtonViewOrders);
         returnButtonViewOrders.setOnClickListener(v -> {
@@ -106,6 +109,7 @@ public class   AssemblerActivity extends AppCompatActivity {
         });
     }
     private void initializeCheckAllOrdersLayout(){
+        isTableAllOrders = true;
         checkOrderWithSpecialStatus("Delivered", true);
         checkOrderWithSpecialStatus("Accepted, currently being assembled", false);
         checkOrderWithSpecialStatus("Rejected", false);
@@ -274,7 +278,7 @@ public class   AssemblerActivity extends AppCompatActivity {
         });
     }
     private void displayOrderDetails(String orderID, String orderStatus, String requesterId) {
-        if(orderStatus.equals("Waiting for acceptance")){
+        if(orderStatus.equals("Waiting for acceptance" )){
             getOrderFromDatabase(requesterId, orderID, new OnOrderRetrievedListener() {
                 @Override
                 public void onOrderRetrieved(Orders order) {
@@ -283,29 +287,48 @@ public class   AssemblerActivity extends AppCompatActivity {
                         public void onResult(boolean exists, Integer quantity) {
                             if(exists) {
                                 setupOrderDetailsLayout(orderID, orderStatus, requesterId, exists);
-                                acceptOrder.setOnClickListener(view -> {
-                                    order.refreshDatabaseInfo();
-                                    updateOrderStatus(requesterId, orderID, "Accepted, currently being assembled", () -> {
-                                        refreshOrdersTable();
-                                        resetOrderDetailsLayout();
+                                if(!isTableAllOrders){
+                                    acceptOrder.setOnClickListener(view -> {
+                                        order.refreshDatabaseInfo();
+                                        updateOrderStatus(requesterId, orderID, "Accepted, currently being assembled", () -> {
+                                            refreshOrdersTable();
+                                            resetOrderDetailsLayout();
+                                        });
                                     });
-                                });
 
-                                rejectOrder.setOnClickListener(view -> {
-                                    handleRejectOrder(orderID, requesterId, commentEditText, errorTextCommentInput);
-                                });
-                                closeOrder.setOnClickListener(view -> {
-                                    showError("Can't close this! Needs to be with an accepted status.", errorTextCommentInput);
-                                });
+                                    rejectOrder.setOnClickListener(view -> {
+                                        handleRejectOrder(orderID, requesterId, commentEditText, errorTextCommentInput);
+                                    });
+                                    closeOrder.setOnClickListener(view -> {
+                                        showError("Can't close this! Needs to be with an accepted status.", errorTextCommentInput);
+                                    });
+                                }else{
+                                    setupOrderDetailsLayout(orderID, orderStatus,requesterId, true);
+                                    acceptOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                                    rejectOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                                    closeOrder.setOnClickListener(view -> {
+                                        showError("Can't Use This Option!", errorTextCommentInput);
+                                    });
+                                }
+
 
                             }
                             else{
-                                setupOrderDetailsLayout(orderID, orderStatus, requesterId, exists);
-                                acceptOrder.setOnClickListener(view -> showError("Not enough stock. Can't accept this order!", errorTextCommentInput));
-                                rejectOrder.setOnClickListener(view -> handleRejectOrder(orderID, requesterId, commentEditText, errorTextCommentInput));
-                                closeOrder.setOnClickListener(view -> {
-                                    showError("Can't close this! Needs to be with an accepted status.", errorTextCommentInput);
-                                });
+                                if(!isTableAllOrders) {
+                                    setupOrderDetailsLayout(orderID, orderStatus, requesterId, false);
+                                    acceptOrder.setOnClickListener(view -> showError("Not enough stock. Can't accept this order!", errorTextCommentInput));
+                                    rejectOrder.setOnClickListener(view -> handleRejectOrder(orderID, requesterId, commentEditText, errorTextCommentInput));
+                                    closeOrder.setOnClickListener(view -> {
+                                        showError("Can't close this! Needs to be with an accepted status.", errorTextCommentInput);
+                                    });
+                                }else{
+                                    setupOrderDetailsLayout(orderID, orderStatus,requesterId,false);
+                                    acceptOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                                    rejectOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                                    closeOrder.setOnClickListener(view -> {
+                                        showError("Can't Use This Option!", errorTextCommentInput);
+                                    });
+                                }
                             }
                         }
                     });
@@ -317,13 +340,22 @@ public class   AssemblerActivity extends AppCompatActivity {
             getOrderFromDatabase(requesterId, orderID, new OnOrderRetrievedListener() {
                 @Override
                 public void onOrderRetrieved(Orders order) {
-                    setupOrderDetailsLayout(orderID, orderStatus,requesterId,true);
-                    Button closeOrder = findViewById(R.id.closeButton);
-                    closeOrder.setOnClickListener(view -> {
-                        handleCloseOrder(orderID, requesterId);
-                    });
-                    acceptOrder.setOnClickListener(view -> showError("This Order is already accepted!", errorTextCommentInput));
-                    rejectOrder.setOnClickListener(view -> showError("This Order is already accepted, it can't be rejected!", errorTextCommentInput));
+                    if (!isTableAllOrders) {
+                        setupOrderDetailsLayout(orderID, orderStatus, requesterId, true);
+                        Button closeOrder = findViewById(R.id.closeButton);
+                        closeOrder.setOnClickListener(view -> {
+                            handleCloseOrder(orderID, requesterId);
+                        });
+                        acceptOrder.setOnClickListener(view -> showError("This Order is already accepted!", errorTextCommentInput));
+                        rejectOrder.setOnClickListener(view -> showError("This Order is already accepted, it can't be rejected!", errorTextCommentInput));
+                    }else{
+                        setupOrderDetailsLayout(orderID, orderStatus,requesterId,true);
+                        acceptOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                        rejectOrder.setOnClickListener(view -> showError("Can't Use This Option!", errorTextCommentInput));
+                        closeOrder.setOnClickListener(view -> {
+                            showError("Can't Use This Option!", errorTextCommentInput);
+                        });
+                    }
                 }
             });
         }
@@ -387,12 +419,15 @@ public class   AssemblerActivity extends AppCompatActivity {
     }
 
     private void updateOrderStatus(String requesterId, String orderID, String newStatus, Runnable onSuccess) {
+
         ordersDatabaseRef.child(requesterId).child(orderID).child("Status").setValue(newStatus)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         onSuccess.run();
                     }
                 });
+
+
     }
 
     private void showError(String message, TextView errorTextView) {
