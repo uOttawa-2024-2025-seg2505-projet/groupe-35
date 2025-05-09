@@ -1,3 +1,23 @@
+# 🖥️ **Custom PC Order Service – Android App**
+
+_An Android application for managing and processing custom PC build orders within an organization, with multiple user roles and full stock management._
+
+---
+
+## 📝 **Description**
+
+This project aims to design an Android app that allows users within an organization to manage **custom PC orders**. The app provides **hardware and software configuration options** tailored to the specific needs of users.
+
+The app includes a **role-based system** to manage different user responsibilities:
+
+- 👤 **Administrator**: Manages user accounts, especially those with the **Requester** role.
+- 🏬 **StoreKeeper**: Manages stock components (add, edit, delete components).
+- 🛠️ **Assembler**: Handles the assembly of orders, ensuring the availability of required components.
+- 📝 **Requester**: Can place custom PC orders by choosing a personalized configuration of components.
+
+---
+
+
 # uOttawa - 2024-2025 - SEG2505A - Projet - Groupe 35
 
 **Nom du projet** : Service à la demande de PC sur mesure
@@ -12,42 +32,9 @@
 | Othmane       | OUAJJOU       | oth-code           |
 | Othman        | NAGIFI        | NagifiOthman       |
 
-## Introduction
-
-Dans le cadre du cours SEG2505 à l’Université d'Ottawa, notre équipe s’attaque au projet Service à la demande de PC sur mesure. Ce projet vise à concevoir une application Android permettant aux utilisateurs d'une organisation de gérer des commandes de PC sur mesure. Cette application est destinée à offrir des configurations de matériel et de logiciels adaptées aux besoins spécifiques des utilisateurs.
-
-Notre application gérera plusieurs rôles d’utilisateurs :
-
-- Administrator : responsable de la gestion des comptes utilisateurs, en particulier ceux qui auront le rôle de Demandeur.
-- StoreKeeper : en charge de la gestion des composants en stock, qu’il pourra ajouter, modifier ou supprimer.
-- Assembler : responsable de l'assemblage des commandes, en s’assurant que les composants nécessaires sont disponibles.
-- Requester : utilisateur ayant la possibilité de passer des commandes de PC personnalisés selon une configuration de composants choisis.
-
-Le projet sera développé en utilisant Android Studio, avec une base de données locale (SQLite ou Firebase) pour le stockage, et inclura les étapes suivantes :
-
-Configuration du dépôt GitHub et mise en place de la gestion des utilisateurs.
-Développement des fonctionnalités propres à chaque rôle.
-Création d'un rapport final détaillant nos choix de conception, les défis rencontrés et les contributions de chaque membre de l’équipe.
-
-## Clarifications sur les exigences
-
-### Exigences explicites reformulées
-
-<à compléter (optionnel)>
- 
-### Exigences implicites proposées
-
-<à compléter (optionnel)>
-
-### Hypothèses
-
-<à compléter (optionnel)>
-
 ## Modélisation
 
 ### Diagramme de classes
-
-<à compléter>
 
 ```plantuml
 @startuml
@@ -360,7 +347,6 @@ package "CustomDesktopService" #DDDDDD {
 
 #### Passage d'une commande
 
-<à compléter>
 
 @startuml
     title Authentification, Gestion des Utilisateurs, Gestion du Stock et Passage d'une Commande
@@ -437,7 +423,6 @@ package "CustomDesktopService" #DDDDDD {
 
 #### Traitement d'une commande
 
-<à compléter>
  @startuml
     title Authentification, Gestion des Utilisateurs, Gestion du Stock, Passage d'une Commande et Traitement d'une commande
 
@@ -580,8 +565,6 @@ package "CustomDesktopService" #DDDDDD {
 
 #### Pour le rôle StoreKeeper
 
-<à compléter>
-
 @startuml
     actor StoreKeeper
 
@@ -609,8 +592,6 @@ package "CustomDesktopService" #DDDDDD {
 
 #### Pour le rôle Assembler
 
-<à compléter>
-
 @startuml
     actor Assembler
 
@@ -631,8 +612,6 @@ package "CustomDesktopService" #DDDDDD {
 @enduml
 
 #### Pour le rôle Requester
-
-<à compléter>
 
 @startuml
     actor Requester
@@ -656,8 +635,6 @@ package "CustomDesktopService" #DDDDDD {
 
 ## Eléments de conception
 
-<à compléter>
-
 - Modèles UML : Utilisation de diagrammes UML pour représenter le système de manière visuelle et structurée.
 - Architecture de l’application : Structure globale de l'application, incluant la manière dont les différents composants (interface utilisateur, gestion de la base de données, logique métier) interagissent.
 - Interfaces utilisateur (UI) : Les écrans de l’application Android, en détaillant l'interface et l'expérience utilisateur pour chaque rôle (Administrator, StoreKeeper, Assembler, Requester).
@@ -665,13 +642,8 @@ package "CustomDesktopService" #DDDDDD {
 - APIs et Interface de communication : La définition des interfaces, méthodes et fonctions pour l’interaction entre les composants de l'application (par exemple, comment l'interface utilisateur interagit avec la base de données).
 - Règles et contraintes de gestion : Par exemple, les règles de validation pour s'assurer qu’un utilisateur peut seulement accéder aux fonctionnalités correspondant à son rôle.
 
-## Eléments d'implémentation
-
-<à compléter (optionnel)>
-
 ## Eléments de tests unitaires
 
-<à compléter (outils utiliser, comment les lancer, etc.)>
 
 Voici une explication simple de chaque test dans cette classe OrdersTest :
 
@@ -701,20 +673,6 @@ testTwoDifferentHardDrives : Vérifie que la méthode accepte deux disques durs 
 
 testInsufficientDevelopmentToolsQuantity : Modifie quantityTable pour rendre une des quantités des outils de développement insuffisante et vérifie que checkAvailableQuantities retourne false.
 
-## Comment reconstruire la solution
-
-<à compléter (optionnel)>
-
-## Comment installer et utiliser la solution
-
-<à compléter (optionnel)>
-
-## Eléments de démonstration
-
-### Scénario ("storyboard") suggéré
-
-<à compléter (optionnel)>
-
 ### Valeurs de test
 
 #### Utilisateurs
@@ -727,16 +685,8 @@ testInsufficientDevelopmentToolsQuantity : Modifie quantityTable pour rendre une
 
 #### Fichier de données exemple
 
-<à compléter : où se trouve-t-il ? Quel est son format ? ...>
-
 Les fichiers de données se trouvent dans le sous-dossier 'assets'
 
 ## Limites et problèmes connus
 
-<à compléter (fonctions non implémentées ou non terminées, limites connues, bugs connus...)>
-
 Nous n'avons pas rencontré de problème particulier pour le livrable 3.
-
-## Information destinées aux correcteurs
-
-<à compléter (optionnel)>
